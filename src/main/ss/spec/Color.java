@@ -1,4 +1,4 @@
-package spec.group7;
+package ss.spec;
 
 public enum Color {
     RED, BLUE, GREEN, YELLOW, PURPLE, WHITE;
