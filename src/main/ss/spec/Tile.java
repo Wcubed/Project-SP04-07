@@ -28,10 +28,13 @@ public class Tile {
     private Color clockwise1;
     private Color clockwise2;
 
-    public Tile(Color flatSide, Color clockwise1, Color clockwise2) {
+    private int points;
+
+    public Tile(Color flatSide, Color clockwise1, Color clockwise2, int points) {
         this.flatSide = flatSide;
         this.clockwise1 = clockwise1;
         this.clockwise2 = clockwise2;
+        this.points = points;
     }
 
     /**
@@ -66,4 +69,9 @@ public class Tile {
     public Color getClockwise2() {
         return clockwise2;
     }
+
+    public int getPoints() {
+        return points;
+    }
+
 }

@@ -15,8 +15,8 @@ class TileTest {
 
     @BeforeEach
     void setUp() {
-        tile1 = new Tile(Color.BLUE, Color.RED, Color.PURPLE);
-        tile2 = new Tile(Color.PURPLE, Color.GREEN, Color.GREEN);
+        tile1 = new Tile(Color.BLUE, Color.RED, Color.PURPLE, 2);
+        tile2 = new Tile(Color.PURPLE, Color.GREEN, Color.GREEN, 6);
     }
 
     @Test
@@ -25,9 +25,13 @@ class TileTest {
         assertEquals(Color.RED, tile1.getClockwise1());
         assertEquals(Color.PURPLE, tile1.getClockwise2());
 
+        assertEquals(2, tile1.getPoints());
+
         assertEquals(Color.PURPLE, tile2.getFlatSide());
         assertEquals(Color.GREEN, tile2.getClockwise1());
         assertEquals(Color.GREEN, tile2.getClockwise2());
+
+        assertEquals(6, tile2.getPoints());
     }
 
     @Test
@@ -37,6 +41,7 @@ class TileTest {
         assertEquals(Color.PURPLE, tile1.getFlatSide());
         assertEquals(Color.BLUE, tile1.getClockwise1());
         assertEquals(Color.RED, tile1.getClockwise2());
+        assertEquals(2, tile1.getPoints());
     }
 
     @Test
@@ -46,12 +51,14 @@ class TileTest {
         assertEquals(Color.RED, tile1.getFlatSide());
         assertEquals(Color.PURPLE, tile1.getClockwise1());
         assertEquals(Color.BLUE, tile1.getClockwise2());
+        assertEquals(2, tile1.getPoints());
 
         tile2.rotate120();
 
         assertEquals(Color.GREEN, tile2.getFlatSide());
         assertEquals(Color.PURPLE, tile2.getClockwise1());
         assertEquals(Color.GREEN, tile2.getClockwise2());
+        assertEquals(6, tile2.getPoints());
     }
 
     @Test
