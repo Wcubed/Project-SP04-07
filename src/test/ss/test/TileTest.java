@@ -41,6 +41,12 @@ class TileTest {
 
     @Test
     void rotate240() {
+        tile1.rotate240();
+
+        assertEquals(Color.RED, tile1.getFlatSide());
+        assertEquals(Color.PURPLE, tile1.getClockwise1());
+        assertEquals(Color.BLUE, tile1.getClockwise2());
+
         tile2.rotate120();
 
         assertEquals(Color.GREEN, tile2.getFlatSide());
