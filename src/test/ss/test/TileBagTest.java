@@ -36,4 +36,19 @@ class TileBagTest {
         // There are 36 starting tiles in a game of Spectrangle.
         assertEquals(36, bag.getSize());
     }
+
+    @Test
+    void takeRandomTile() {
+        Tile tile = new Tile(Color.PURPLE, Color.GREEN, Color.RED, 7);
+
+        bag.addTile(tile);
+        assertEquals(tile, bag.takeRandomTile());
+        assertEquals(0, bag.getSize());
+
+        bag.addTile(tile);
+        bag.addTile(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 2));
+
+        bag.takeRandomTile();
+        assertEquals(1, bag.getSize());
+    }
 }
