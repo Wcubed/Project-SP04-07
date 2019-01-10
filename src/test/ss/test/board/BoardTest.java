@@ -1,11 +1,11 @@
-package ss.test;
+package ss.test.board;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.Board;
 import ss.spec.Color;
 import ss.spec.InvalidMoveException;
 import ss.spec.Tile;
+import ss.spec.board.Board;
 
 import static org.junit.jupiter.api.Assertions.*;
 

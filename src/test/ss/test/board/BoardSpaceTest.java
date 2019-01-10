@@ -1,9 +1,9 @@
-package ss.test;
+package ss.test.board;
 
 import org.junit.jupiter.api.Test;
-import ss.spec.BoardSpace;
 import ss.spec.Color;
 import ss.spec.Tile;
+import ss.spec.board.BoardSpace;
 
 import static org.junit.jupiter.api.Assertions.*;
 

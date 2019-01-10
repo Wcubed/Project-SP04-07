@@ -1,4 +1,6 @@
-package ss.spec;
+package ss.spec.board;
+
+import ss.spec.Tile;
 
 public class BoardSpace {
 

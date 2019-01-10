@@ -1,4 +1,7 @@
-package ss.spec;
+package ss.spec.board;
+
+import ss.spec.InvalidMoveException;
+import ss.spec.Tile;
 
 public class Board {
 
