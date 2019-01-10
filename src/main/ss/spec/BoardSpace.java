@@ -2,10 +2,12 @@ package ss.spec;
 
 public class BoardSpace {
 
+    private int id;
     private int scoreMultiplier;
     private Tile tile;
 
-    public BoardSpace(int scoreMulitpier) {
+    public BoardSpace(int id, int scoreMulitpier) {
+        this.id = id;
         this.scoreMultiplier = scoreMulitpier;
     }
 
@@ -13,8 +15,16 @@ public class BoardSpace {
         return scoreMultiplier;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public Tile getTile() {
         return tile;
+    }
+
+    public boolean isBonusSpace() {
+        return scoreMultiplier > 1;
     }
 
     public void placeTile(Tile newTile) {
