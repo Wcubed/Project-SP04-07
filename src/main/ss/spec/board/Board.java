@@ -31,7 +31,7 @@ public class Board {
             spaces[i] = new BoardSpace(i, multiplier);
         }
 
-        isEmpty = false;
+        isEmpty = true;
     }
 
     public BoardSpace getSpace(int id) {
@@ -70,7 +70,17 @@ public class Board {
         boolean moveValid = false;
 
         if (isIdValid(id) && tile != null) {
-            moveValid = true;
+            if (getIsEmpty()) {
+                // First move cannot be placed on bonus tiles.
+                moveValid = !getSpace(id).isBonusSpace();
+            } else {
+
+                // Check if the space is empty.
+                if (!hasTile(id)) {
+                    moveValid = true;
+                }
+
+            }
         }
 
         return moveValid;
@@ -88,6 +98,10 @@ public class Board {
             throw new InvalidMoveException();
         }
 
-        return 4;
+        spaces[id].placeTile(tile);
+
+        isEmpty = false;
+
+        return tile.getPoints();
     }
 }

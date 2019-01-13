@@ -84,6 +84,12 @@ class BoardTest {
         // TODO: make moves, and check that the tiles have been placed.
     }
 
+
+    /**
+     * Most of the checks for valid moves are done in the `makeMove` test.
+     * This is because that test has to make moves to test other moves, and in the process tests the underlying
+     * isMoveValid function.
+     */
     @Test
     void isMoveValid() {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
@@ -103,21 +109,64 @@ class BoardTest {
         assertTrue(board.isMoveValid(3, tile));
         assertTrue(board.isMoveValid(8, tile));
         assertTrue(board.isMoveValid(24, tile));
-
-        // TODO: test making moves next to already placed tiles.
-        // TODO: maybe split this test into multiple ones.
     }
 
     @Test
     void makeMove() {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
 
+        // Placing outside the board is invalid.
         assertThrows(InvalidMoveException.class, () -> board.makeMove(-3, tile));
+
+        // Placing the first tile on a bonus space is invalid.
         assertThrows(InvalidMoveException.class, () -> board.makeMove(26, tile));
         assertThrows(InvalidMoveException.class, () -> board.makeMove(6, null));
 
-        // TODO: Make some valid moves.
-        // TODO: Make some more types of invalid moves.
+        try {
+            // Placing the first tile on a non-bonus space is valid.
+            assertEquals(4, board.makeMove(12, tile));
+            // The tile should now be there.
+            assertEquals(tile, board.getTile(12));
+
+            // Placing a tile where there is already a tile is invalid.
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(12, tile));
+
+            // Placing tiles not adjacent to other tiles is invalid.
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(21, tile));
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(2, tile));
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(32, tile));
+
+            // Placing a tile with non-matching colors is invalid.
+            Tile tileWrongColor = new Tile(Color.RED, Color.RED, Color.YELLOW, 5);
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(6, tileWrongColor));
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(11, tileWrongColor));
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(13, tileWrongColor));
+
+            // Placing a tile with matching colors is valid.
+            Tile tileCorrectFlatColor = new Tile(Color.BLUE, Color.YELLOW, Color.RED, 3);
+            assertEquals(3, board.makeMove(6, tileCorrectFlatColor));
+            assertEquals(tileCorrectFlatColor, board.getTile(6));
+            // Correct tile on a bonus space.
+            Tile tileCorrectCwColor = new Tile(Color.YELLOW, Color.PURPLE, Color.RED, 2);
+            assertEquals(8, board.makeMove(13, tileCorrectCwColor));
+            assertEquals(tileCorrectCwColor, board.getTile(8));
+
+            // A few more correct moves.
+            assertEquals(1, board.makeMove(7, new Tile(Color.YELLOW, Color.GREEN, Color.RED, 1)));
+            assertEquals(5, board.makeMove(14, new Tile(Color.YELLOW, Color.GREEN, Color.RED, 5)));
+
+            // Tile matching on 2 sides should have double points.
+            assertEquals(10, board.makeMove(8, new Tile(Color.YELLOW, Color.GREEN, Color.BLUE, 5)));
+
+            // Joker is valid next to other colors. We are placing it next to a green side here (space 14).
+            assertEquals(1, board.makeMove(15, new Tile(Color.WHITE, Color.WHITE, Color.WHITE, 1)));
+
+            // TODO: Check for a tile matching on 3 sides.
+
+        } catch (InvalidMoveException e) {
+            e.printStackTrace();
+        }
+
         // TODO: Maybe split this into multiple tests?
     }
 
