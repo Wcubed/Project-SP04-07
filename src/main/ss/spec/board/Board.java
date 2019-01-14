@@ -80,6 +80,8 @@ public class Board {
                     moveValid = true;
                 }
 
+                // TODO: check for colors.
+
             }
         }
 
@@ -101,6 +103,8 @@ public class Board {
         spaces[id].placeTile(tile);
 
         isEmpty = false;
+
+        // TODO: properly multiply the points.
 
         return tile.getPoints();
     }
