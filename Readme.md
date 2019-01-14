@@ -1,1 +1,4 @@
-![server](Server.png)
+![server](images/Server.png)
+
+
+![server](images/Client.png)
