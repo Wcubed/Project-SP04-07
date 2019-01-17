@@ -13,4 +13,10 @@ public class ServerConnection extends AbstractConnection {
     public void handleMessage(String message) {
         System.out.println("Server says:" + message);
     }
+
+    public void sendConnectMessage(String name) throws DeadConnectionException {
+        sendMessage("connect " + name);
+
+        // TODO: Include list of extensions.
+    }
 }

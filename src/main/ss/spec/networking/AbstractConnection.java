@@ -31,8 +31,14 @@ public abstract class AbstractConnection implements Runnable {
         while (!isConnectionDead()) {
             try {
                 String message = in.readLine();
-                handleMessage(message);
-            } catch (IOException e) {
+
+                if (message == null) {
+                    // Dead connection.
+                    killConnection();
+                } else {
+                    handleMessage(message);
+                }
+            } catch (IOException | DeadConnectionException e) {
                 // TODO: Do we need this stack trace, or can we simply assume that when the read
                 //  fails, the connection is dead?
                 // e.printStackTrace();
@@ -49,7 +55,8 @@ public abstract class AbstractConnection implements Runnable {
 
     /**
      * Returns whether the connection is dead or not.
-     * Getting `false` from this method might still mean that the connection is dead. We just haven't noticed yet.
+     * Getting `false` from this method might still mean that the connection is dead.
+     * We just haven't noticed yet.
      *
      * @return True when the connection is guaranteed to be dead.
      */
@@ -104,5 +111,10 @@ public abstract class AbstractConnection implements Runnable {
     /**
      * This function get's called by `run` when a new message arrives over the connection.
      */
-    abstract public void handleMessage(String message);
+    abstract public void handleMessage(String message) throws DeadConnectionException;
+
+
+    protected void sendInvalidCommandError() throws DeadConnectionException {
+        sendMessage("invalid command");
+    }
 }

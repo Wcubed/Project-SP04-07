@@ -27,6 +27,13 @@ public class Client {
             Thread connectionThread = new Thread(server);
             connectionThread.start();
 
+            try {
+                // TODO: Ask the TUI for a name, if we have a TUI.
+                server.sendConnectMessage("Bob");
+            } catch (DeadConnectionException e) {
+                e.printStackTrace();
+            }
+
             while (running) {
                 try {
                     server.sendMessage("Hello world!");
