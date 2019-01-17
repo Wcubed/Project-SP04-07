@@ -1,5 +1,8 @@
 package ss.spec.networking;
 
+import ss.spec.Color;
+import ss.spec.Tile;
+
 public abstract class AbstractPeer implements Runnable {
 
     private Connection connection;
@@ -61,5 +64,40 @@ public abstract class AbstractPeer implements Runnable {
 
     public void sendInvalidCommandError() {
         sendMessage("invalid command");
+    }
+
+    protected String convertTileToProtocol(Tile tile) {
+        return "" +
+                convertColorToProtocol(tile.getFlatSide()) +
+                convertColorToProtocol(tile.getClockwise1()) +
+                convertColorToProtocol(tile.getClockwise2()) +
+                tile.getPoints();
+    }
+
+    private Character convertColorToProtocol(Color color) {
+        Character result = null;
+
+        switch (color) {
+            case RED:
+                result = 'R';
+                break;
+            case BLUE:
+                result = 'B';
+                break;
+            case GREEN:
+                result = 'G';
+                break;
+            case YELLOW:
+                result = 'Y';
+                break;
+            case PURPLE:
+                result = 'P';
+                break;
+            case WHITE:
+                result = 'W';
+                break;
+        }
+
+        return result;
     }
 }

@@ -1,5 +1,8 @@
 package ss.spec.networking;
 
+import ss.spec.Tile;
+
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientPeer extends AbstractPeer {
@@ -83,5 +86,51 @@ public class ClientPeer extends AbstractPeer {
     private void sendWelcomeMessage() {
         // TODO: Send the supported extensions (if any).
         sendMessage("welcome");
+    }
+
+    public void sendWaitingMessage(List<String> names) {
+        sendMessage("waiting" + convertNameListToProtocol(names));
+    }
+
+    public void sendStartMessage(List<String> names) {
+        sendMessage("start with" + convertNameListToProtocol(names));
+    }
+
+    public void sendOrderMessage(List<String> names) {
+        sendMessage("order" + convertNameListToProtocol(names));
+    }
+
+    public void sendSkipMessage(String playerName) {
+        sendMessage("skip " + playerName);
+    }
+
+    public void sendReplaceMessage(String playerName, Tile previous, Tile replacement) {
+        sendMessage("replace " + playerName + " " +
+                convertTileToProtocol(previous) +
+                " with " +
+                convertTileToProtocol(replacement));
+    }
+
+    public void sendPlayerLeftMessage(String playerName) {
+        sendMessage("player " + playerName + " left");
+    }
+
+
+    /**
+     * Converts a list of names into a message usable in the communication protocol.
+     * Includes the space to signal the start of the list of names.
+     *
+     * @param names The list of names to convert.
+     * @return The string to use in the protocol.
+     */
+    private String convertNameListToProtocol(List<String> names) {
+        StringBuilder message = new StringBuilder();
+
+        for (String n : names) {
+            message.append(" ");
+            message.append(n);
+        }
+
+        return message.toString();
     }
 }
