@@ -6,7 +6,7 @@ import ss.spec.networking.ClientPeer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ClientPeerTest {
+class ClientPeerTest {
 
     ClientPeer peer;
     MockConnection connection;

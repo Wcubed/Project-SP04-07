@@ -5,7 +5,7 @@ import ss.spec.networking.ClientPeer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractPeerTest {
+class AbstractPeerTest {
 
     @Test
     void createWithDeadConnection() {

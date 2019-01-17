@@ -10,16 +10,31 @@ public class Lobby implements Runnable {
     // This object is just there to synchronize on.
     // TODO: There might be a better way than using an object.
     private final Object newClientSyncObject = new Object();
-    private boolean hasNewClient;
+    // TODO: Do we need volatile here?
+    private volatile boolean hasNewClient;
     private ClientPeer newClient;
+
+    /**
+     * To signal the lobby thread to stop running.
+     */
+    private volatile boolean stopLobbyThread;
 
     private ArrayList<ClientPeer> waitingClients;
 
     public Lobby() {
         hasNewClient = false;
         newClient = null;
+        stopLobbyThread = false;
 
         waitingClients = new ArrayList<>();
+    }
+
+    /**
+     * Call to stop the lobby thread.
+     * The thread will stop on the next iteration.
+     */
+    public void stopLobbyThread() {
+        stopLobbyThread = true;
     }
 
     public int getNumberOfWaitingClients() {
@@ -51,7 +66,7 @@ public class Lobby implements Runnable {
     /**
      * Called by the lobby thread to handle the newly incoming clients.
      */
-    public void checkForNewClient() {
+    private void checkForNewClient() {
         synchronized (newClientSyncObject) {
             if (hasNewClient) {
                 // Add the new client to the waiting clients.
@@ -66,37 +81,41 @@ public class Lobby implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            // TODO: Actually implement lobby code.
-            // For now, simply send a message once in a while.
+        while (!stopLobbyThread) {
+            doSingleLobbyIteration();
+        }
+    }
 
-            checkForNewClient();
+    public void doSingleLobbyIteration() {
+        // TODO: Actually implement lobby code.
+        // For now, simply send a message once in a while.
 
-            ListIterator<ClientPeer> clientIter = waitingClients.listIterator();
+        checkForNewClient();
 
-            // Check up on all the clients.
-            while (clientIter.hasNext()) {
-                ClientPeer client = clientIter.next();
+        ListIterator<ClientPeer> clientIter = waitingClients.listIterator();
 
-                if (client.isPeerConnected()) {
-                    client.sendMessage("Hello World!");
-                } else {
+        // Check up on all the clients.
+        while (clientIter.hasNext()) {
+            ClientPeer client = clientIter.next();
 
-                    // Connection lost, client will be removed from list.
-                    // TODO: Nice logging.
-                    System.out.println("Connection to client lost.");
+            if (client.isPeerConnected()) {
+                client.sendMessage("Hello World!");
+            } else {
 
-                    // Remove client from list.
-                    clientIter.remove();
-                }
+                // Connection lost, client will be removed from list.
+                // TODO: Nice logging.
+                System.out.println("Connection to client lost.");
+
+                // Remove client from list.
+                clientIter.remove();
             }
+        }
 
-            // TODO: Tweak sleeping for final application, maybe even remove it.
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        // TODO: Tweak sleeping for final application, maybe even remove it.
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
