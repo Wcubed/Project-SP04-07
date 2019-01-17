@@ -8,9 +8,9 @@ public class BoardSpace {
     private int scoreMultiplier;
     private Tile tile;
 
-    public BoardSpace(int id, int scoreMulitpier) {
+    public BoardSpace(int id, int scoreMultiplier) {
         this.id = id;
-        this.scoreMultiplier = scoreMulitpier;
+        this.scoreMultiplier = scoreMultiplier;
     }
 
     public int getScoreMultiplier() {
