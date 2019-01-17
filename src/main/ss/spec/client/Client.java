@@ -1,7 +1,8 @@
 package ss.spec.client;
 
 import ss.spec.networking.DeadConnectionException;
-import ss.spec.networking.ServerConnection;
+import ss.spec.networking.ServerPeer;
+import ss.spec.networking.SocketConnection;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,7 +11,7 @@ import java.net.Socket;
 public class Client {
 
     private static final int PORT = 4000;
-    private ServerConnection server;
+    private ServerPeer server;
 
     public Client() {
 
@@ -22,7 +23,8 @@ public class Client {
 
         try {
             Socket socket = new Socket(InetAddress.getLocalHost(), PORT);
-            server = new ServerConnection(socket);
+            SocketConnection connection = new SocketConnection(socket);
+            server = new ServerPeer(connection);
 
             Thread connectionThread = new Thread(server);
             connectionThread.start();

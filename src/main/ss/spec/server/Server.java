@@ -1,6 +1,7 @@
 package ss.spec.server;
 
-import ss.spec.networking.ClientConnection;
+import ss.spec.networking.ClientPeer;
+import ss.spec.networking.SocketConnection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -39,7 +40,9 @@ public class Server {
             try {
                 // Wait for clients to connect.
                 clientSocket = serverSocket.accept();
-                ClientConnection newClient = new ClientConnection(clientSocket);
+
+                SocketConnection connection = new SocketConnection(clientSocket);
+                ClientPeer newClient = new ClientPeer(connection);
 
                 System.out.println("New client connected!");
 

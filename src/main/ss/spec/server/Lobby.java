@@ -1,6 +1,6 @@
 package ss.spec.server;
 
-import ss.spec.networking.ClientConnection;
+import ss.spec.networking.ClientPeer;
 import ss.spec.networking.DeadConnectionException;
 
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ public class Lobby implements Runnable {
     // TODO: There might be a better way than using an object.
     private final Object newClientSyncObject = new Object();
     private boolean hasNewClient;
-    private ClientConnection newClient;
+    private ClientPeer newClient;
 
-    private ArrayList<ClientConnection> waitingClients;
+    private ArrayList<ClientPeer> waitingClients;
 
     public Lobby() {
         hasNewClient = false;
@@ -32,7 +32,7 @@ public class Lobby implements Runnable {
      *
      * @param client The new client to add to the lobby.
      */
-    public void addNewClient(ClientConnection client) {
+    public void addNewClient(ClientPeer client) {
         synchronized (newClientSyncObject) {
             // Wait until the previous new client has been handled.
             while (hasNewClient) {
@@ -73,11 +73,11 @@ public class Lobby implements Runnable {
 
             checkForNewClient();
 
-            ListIterator<ClientConnection> clientIter = waitingClients.listIterator();
+            ListIterator<ClientPeer> clientIter = waitingClients.listIterator();
 
             // Check up on all the clients.
             while (clientIter.hasNext()) {
-                ClientConnection client = clientIter.next();
+                ClientPeer client = clientIter.next();
 
                 try {
                     client.sendMessage("Hello World!");

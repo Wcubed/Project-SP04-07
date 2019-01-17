@@ -1,22 +1,19 @@
 package ss.spec.networking;
 
-import java.net.Socket;
 import java.util.Scanner;
 
-public class ClientConnection extends AbstractConnection {
+public class ClientPeer extends AbstractPeer {
 
     private String name;
 
-    public ClientConnection(Socket socket) {
-        super(socket);
+    public ClientPeer(Connection connection) {
+        super(connection);
 
         name = null;
     }
 
     @Override
-    // TODO:
-    //  Do we want to throw the DeadConnectionException all the way up here? Or handle it lower.
-    public void handleMessage(String message) throws DeadConnectionException {
+    public void parseMessage(String message) throws DeadConnectionException {
         Scanner scanner = new Scanner(message);
 
         if (scanner.hasNext()) {
@@ -25,7 +22,7 @@ public class ClientConnection extends AbstractConnection {
             if (getName() == null) {
                 // They have not sent the `connect <name> [extensions] message yet.`
                 try {
-                    parseNameMessage(command, scanner);
+                    parseConnectMessage(command, scanner);
 
                     // All set, send welcome message.
                     sendWelcomeMessage();
@@ -44,7 +41,7 @@ public class ClientConnection extends AbstractConnection {
      * @param command The command of this message, if it is not `connect` this will throw an
      *                invalidCommandException.
      */
-    private void parseNameMessage(String command, Scanner message) throws InvalidCommandException {
+    private void parseConnectMessage(String command, Scanner message) throws InvalidCommandException {
         if (command.equals("connect")) {
             if (message.hasNext()) {
                 String newName = message.next();

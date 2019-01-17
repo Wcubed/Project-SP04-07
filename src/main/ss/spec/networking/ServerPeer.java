@@ -1,15 +1,13 @@
 package ss.spec.networking;
 
-import java.net.Socket;
+public class ServerPeer extends AbstractPeer {
 
-public class ServerConnection extends AbstractConnection {
-
-    public ServerConnection(Socket socket) {
-        super(socket);
+    public ServerPeer(Connection connection) {
+        super(connection);
     }
 
     @Override
-    public void handleMessage(String message) {
+    public void parseMessage(String message) {
         System.out.println("Server says:" + message);
     }
 
