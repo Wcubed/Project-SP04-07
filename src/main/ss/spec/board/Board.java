@@ -110,8 +110,17 @@ public class Board {
         return tile.getPoints();
     }
 
-    // method to convert an index representation of a board field to a
-    // coordinate representation of the form (r,c)
+
+
+    /**
+     *  method to convert an index representation of a board field to a
+     *  coordinate representation of the form (r,c)
+     *
+     * @param index  Index value to be translated to coordinates
+     * @param r row component of the coordinate (r,c)
+     * @param c column component of the coordinate (r,c)
+     * @return The points scored with this move.
+     */
 
     public ArrayList indexToCoordinates(int index) throws IndexException{
 
@@ -120,6 +129,7 @@ public class Board {
         int c;
 
         if(index <= 36 && index >= 0){
+
             r = ((int)Math.floor((int) Math.sqrt((double) index)));
             c = (index - (((int)Math.pow(r, 2)) + r));
 
@@ -127,6 +137,7 @@ public class Board {
             result.add(c);
 
             return result;
+
         } else{
 
             throw new IndexException(index);
