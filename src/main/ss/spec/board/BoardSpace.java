@@ -36,4 +36,5 @@ public class BoardSpace {
     public boolean hasTile() {
         return tile != null;
     }
+
 }

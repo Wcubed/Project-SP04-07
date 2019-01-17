@@ -2,6 +2,7 @@ package ss.spec.board;
 
 import ss.spec.InvalidMoveException;
 import ss.spec.Tile;
+import java.util.ArrayList;
 
 public class Board {
 
@@ -108,4 +109,31 @@ public class Board {
 
         return tile.getPoints();
     }
+
+    // method to convert an index representation of a board field to a
+    // coordinate representation of the form (r,c)
+
+    public ArrayList indexToCoordinates(int index) throws IndexException{
+
+        ArrayList<Integer> result = new ArrayList<Integer>();
+        int r;
+        int c;
+
+        if(index <= 36 && index >= 0){
+            r = ((int)Math.floor((int) Math.sqrt((double) index)));
+            c = (index - (((int)Math.pow(r, 2)) + r));
+
+            result.add(r);
+            result.add(c);
+
+            return result;
+        } else{
+
+            throw new IndexException(index);
+        }
+
+    }
+
 }
+
+

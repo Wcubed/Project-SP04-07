@@ -14,4 +14,6 @@ public enum Color {
     public boolean isValidNextTo(Color other) {
         return this.equals(other) || this.equals(WHITE) || other.equals(WHITE);
     }
+
+
 }

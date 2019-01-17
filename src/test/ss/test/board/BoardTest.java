@@ -1,11 +1,16 @@
 package ss.test.board;
 
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ss.spec.Color;
 import ss.spec.InvalidMoveException;
+import ss.spec.board.IndexException;
 import ss.spec.Tile;
 import ss.spec.board.Board;
+
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -182,4 +187,30 @@ class BoardTest {
 
         assertFalse(board.getIsEmpty());
     }
+
+    @Test
+    void indexToCoordinates() {
+
+        List a1 = new ArrayList<Integer>();
+        a1.add(3);
+        a1.add(1);
+
+        List a2 = new ArrayList<Integer>();
+        a2.add(4);
+        a2.add(-2);
+
+
+        // Testing the bound exception of input
+        assertThrows(IndexException.class, () -> board.indexToCoordinates(37));
+        assertThrows(IndexException.class, () -> board.indexToCoordinates(-3));
+
+        try{
+            assertEquals(a1, board.indexToCoordinates(13));
+            assertEquals(a2, board.indexToCoordinates(18));
+
+        } catch (IndexException e){
+            e.printStackTrace();
+        }
+    }
+
 }
