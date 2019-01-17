@@ -13,8 +13,7 @@ public class TileBag {
         random = new Random();
     }
 
-    public void addTile(Tile tile) {
-        tiles.add(tile);
+    public void addTile(Tile tile) {tiles.add(tile);
     }
 
     public int getSize() {
