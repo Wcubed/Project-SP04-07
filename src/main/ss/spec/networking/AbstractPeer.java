@@ -24,7 +24,7 @@ public abstract class AbstractPeer implements Runnable {
         while (isPeerConnected()) {
             try {
                 String message = connection.readMessage();
-                parseMessage(message);
+                handleReceivedMessage(message);
             } catch (DeadConnectionException e) {
                 // Connection dead.
                 // Thread can stop now.
@@ -41,27 +41,25 @@ public abstract class AbstractPeer implements Runnable {
     /**
      * This function get's called by `run` when a new message arrives over the connection.
      */
-    abstract protected void parseMessage(String message) throws DeadConnectionException;
+    abstract protected void handleReceivedMessage(String message);
 
     /**
-     * Sends a message to the peer. Throws a DeadConnectionException when the peer is not connected.
+     * Sends a message to the peer. Does not fail when not connected,
+     * but `isPeerconnected()` will return false afterwards.
      *
      * @param message The message to send.
      */
-    public void sendMessage(String message) throws DeadConnectionException {
+    public void sendMessage(String message) {
         if (peerConnected) {
             try {
                 connection.sendMessage(message);
             } catch (DeadConnectionException e) {
                 peerConnected = false;
-                throw new DeadConnectionException();
             }
-        } else {
-            throw new DeadConnectionException();
         }
     }
 
-    public void sendInvalidCommandError() throws DeadConnectionException {
+    public void sendInvalidCommandError() {
         sendMessage("invalid command");
     }
 }

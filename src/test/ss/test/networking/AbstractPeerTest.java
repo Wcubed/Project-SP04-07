@@ -2,7 +2,6 @@ package ss.test.networking;
 
 import org.junit.jupiter.api.Test;
 import ss.spec.networking.ClientPeer;
-import ss.spec.networking.DeadConnectionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,7 +15,6 @@ public class AbstractPeerTest {
         ClientPeer peer = new ClientPeer(connection);
 
         assertFalse(peer.isPeerConnected());
-        assertThrows(DeadConnectionException.class, () -> peer.sendMessage("Bla"));
     }
 
     @Test
@@ -25,11 +23,10 @@ public class AbstractPeerTest {
         ClientPeer peer = new ClientPeer(connection);
 
         assertTrue(peer.isPeerConnected());
-        try {
-            peer.sendMessage("Test");
-        } catch (DeadConnectionException e) {
-            fail("Client threw `DeadConnectionException` when it shouldn't have.");
-        }
+
+        peer.sendMessage("Test");
+
+        assertTrue(peer.isPeerConnected());
 
         // Kill the connection.
         connection.killConnection();
@@ -37,7 +34,7 @@ public class AbstractPeerTest {
         // The peer should not have noticed yet.
         assertTrue(peer.isPeerConnected());
 
-        assertThrows(DeadConnectionException.class, () -> peer.sendMessage("Bla"));
+        peer.sendMessage("Bla");
 
         // Now it has noticed.
         assertFalse(peer.isPeerConnected());
@@ -48,12 +45,7 @@ public class AbstractPeerTest {
         MockConnection connection = new MockConnection();
         ClientPeer peer = new ClientPeer(connection);
 
-        try {
-            peer.sendMessage("hello world!");
-        } catch (DeadConnectionException e) {
-            fail("Client threw `DeadConnectionException` when it shouldn't have.");
-        }
-
+        peer.sendMessage("hello world!");
         assertEquals("hello world!", connection.readSentMessage());
     }
 
@@ -62,11 +54,7 @@ public class AbstractPeerTest {
         MockConnection connection = new MockConnection();
         ClientPeer peer = new ClientPeer(connection);
 
-        try {
-            peer.sendInvalidCommandError();
-        } catch (DeadConnectionException e) {
-            fail("Client threw `DeadConnectionException` when it shouldn't have.");
-        }
+        peer.sendInvalidCommandError();
 
         assertEquals("invalid command", connection.readSentMessage());
     }

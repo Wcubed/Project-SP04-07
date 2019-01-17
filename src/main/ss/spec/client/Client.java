@@ -1,6 +1,5 @@
 package ss.spec.client;
 
-import ss.spec.networking.DeadConnectionException;
 import ss.spec.networking.ServerPeer;
 import ss.spec.networking.SocketConnection;
 
@@ -18,8 +17,6 @@ public class Client {
     }
 
     public void start() {
-        // TODO: Implement client logic. This is just to test the server.
-        boolean running = true;
 
         try {
             Socket socket = new Socket(InetAddress.getLocalHost(), PORT);
@@ -29,26 +26,17 @@ public class Client {
             Thread connectionThread = new Thread(server);
             connectionThread.start();
 
-            try {
-                // TODO: Ask the TUI for a name, if we have a TUI.
-                server.sendConnectMessage("Bob");
-            } catch (DeadConnectionException e) {
-                e.printStackTrace();
-            }
+            // TODO: Ask the TUI for a name, if we have a TUI.
+            server.sendConnectMessage("Bob");
 
-            while (running) {
-                try {
-                    server.sendMessage("Hello world!");
-                } catch (DeadConnectionException e) {
-                    // Connection is gone, close program.
-                    running = false;
-                    // TODO: Nice logging.
-                    System.out.println("Connection dead, closing program.");
-                }
+            while (server.isPeerConnected()) {
+                server.sendMessage("Hello world!");
 
                 // TODO: Remove sleeping for final application.
                 Thread.sleep(1000);
             }
+
+            System.out.println("Server disconnected, exiting.");
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

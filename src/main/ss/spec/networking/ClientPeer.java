@@ -13,7 +13,7 @@ public class ClientPeer extends AbstractPeer {
     }
 
     @Override
-    public void parseMessage(String message) throws DeadConnectionException {
+    public void handleReceivedMessage(String message) {
         Scanner scanner = new Scanner(message);
 
         if (scanner.hasNext()) {
@@ -29,6 +29,10 @@ public class ClientPeer extends AbstractPeer {
                 } catch (InvalidCommandException e) {
                     sendInvalidCommandError();
                 }
+            } else {
+                // TODO: Implement the other commands.
+                // For now, the rest is invalid.
+                sendInvalidCommandError();
             }
         }
     }
@@ -41,7 +45,8 @@ public class ClientPeer extends AbstractPeer {
      * @param command The command of this message, if it is not `connect` this will throw an
      *                invalidCommandException.
      */
-    private void parseConnectMessage(String command, Scanner message) throws InvalidCommandException {
+    private void parseConnectMessage(String command, Scanner message)
+            throws InvalidCommandException {
         if (command.equals("connect")) {
             if (message.hasNext()) {
                 String newName = message.next();
@@ -75,7 +80,7 @@ public class ClientPeer extends AbstractPeer {
         return name;
     }
 
-    private void sendWelcomeMessage() throws DeadConnectionException {
+    private void sendWelcomeMessage() {
         // TODO: Send the supported extensions (if any).
         sendMessage("welcome");
     }

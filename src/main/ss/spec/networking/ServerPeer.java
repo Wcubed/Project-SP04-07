@@ -7,11 +7,11 @@ public class ServerPeer extends AbstractPeer {
     }
 
     @Override
-    public void parseMessage(String message) {
+    public void handleReceivedMessage(String message) {
         System.out.println("Server says:" + message);
     }
 
-    public void sendConnectMessage(String name) throws DeadConnectionException {
+    public void sendConnectMessage(String name) {
         sendMessage("connect " + name);
 
         // TODO: Include list of extensions.

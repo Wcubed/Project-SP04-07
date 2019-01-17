@@ -1,7 +1,6 @@
 package ss.spec.server;
 
 import ss.spec.networking.ClientPeer;
-import ss.spec.networking.DeadConnectionException;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -79,9 +78,9 @@ public class Lobby implements Runnable {
             while (clientIter.hasNext()) {
                 ClientPeer client = clientIter.next();
 
-                try {
+                if (client.isPeerConnected()) {
                     client.sendMessage("Hello World!");
-                } catch (DeadConnectionException e) {
+                } else {
 
                     // Connection lost, client will be removed from list.
                     // TODO: Nice logging.
