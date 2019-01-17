@@ -1,11 +1,10 @@
 package ss.spec.networking;
 
-import java.io.IOException;
 import java.net.Socket;
 
 public class ServerConnection extends AbstractConnection {
 
-    public ServerConnection(Socket socket) throws IOException {
+    public ServerConnection(Socket socket) {
         super(socket);
     }
 

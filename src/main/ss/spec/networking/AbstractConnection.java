@@ -13,13 +13,20 @@ public abstract class AbstractConnection implements Runnable {
 
     private boolean connectionDead;
 
-    public AbstractConnection(Socket socket) throws IOException {
+    public AbstractConnection(Socket socket) {
         this.socket = socket;
 
         if (socket.isConnected()) {
             connectionDead = false;
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            try {
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+                connectionDead = true;
+            }
+        } else {
+            connectionDead = true;
         }
     }
 
@@ -92,6 +99,9 @@ public abstract class AbstractConnection implements Runnable {
      * @param message The message to send.
      */
     public void sendMessage(String message) throws DeadConnectionException {
+        if (isConnectionDead()) {
+            throw new DeadConnectionException();
+        }
         try {
             out.write(message);
             out.newLine();

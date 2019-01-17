@@ -1,6 +1,5 @@
 package ss.spec.networking;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -8,7 +7,7 @@ public class ClientConnection extends AbstractConnection {
 
     private String name;
 
-    public ClientConnection(Socket socket) throws IOException {
+    public ClientConnection(Socket socket) {
         super(socket);
 
         name = null;

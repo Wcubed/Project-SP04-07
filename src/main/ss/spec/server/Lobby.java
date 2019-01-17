@@ -20,7 +20,11 @@ public class Lobby implements Runnable {
         hasNewClient = false;
         newClient = null;
 
-        waitingClients = new ArrayList<ClientConnection>();
+        waitingClients = new ArrayList<>();
+    }
+
+    public int getNumberOfWaitingClients() {
+        return waitingClients.size();
     }
 
     /**
