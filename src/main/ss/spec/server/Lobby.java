@@ -90,6 +90,13 @@ public class Lobby implements Runnable {
     public void run() {
         while (!stopLobbyThread) {
             doSingleLobbyIteration();
+
+            // TODO: Tweak sleeping for final application, maybe even remove it.
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -116,13 +123,6 @@ public class Lobby implements Runnable {
                 // Remove client from list.
                 clientIter.remove();
             }
-        }
-
-        // TODO: Tweak sleeping for final application, maybe even remove it.
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 }

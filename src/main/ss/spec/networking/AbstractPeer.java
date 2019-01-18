@@ -9,7 +9,7 @@ public abstract class AbstractPeer implements Runnable {
 
     private boolean peerConnected;
 
-    public AbstractPeer(Connection connection) {
+    protected AbstractPeer(Connection connection) {
         this.connection = connection;
 
         peerConnected = !connection.isDead();
@@ -62,7 +62,11 @@ public abstract class AbstractPeer implements Runnable {
         }
     }
 
-    public void sendInvalidCommandError() {
+    public void sendInvalidCommandError(InvalidCommandException e) {
+        System.out.println("Invalid command: \'" + e.getMessage() + "\'.");
+
+        // TODO: send the message along with the error?
+        //   This has to be added to the protocol in that case.
         sendMessage("invalid command");
     }
 

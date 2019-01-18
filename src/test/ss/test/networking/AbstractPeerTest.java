@@ -2,6 +2,7 @@ package ss.test.networking;
 
 import org.junit.jupiter.api.Test;
 import ss.spec.networking.ClientPeer;
+import ss.spec.networking.InvalidCommandException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,7 +55,7 @@ class AbstractPeerTest {
         MockConnection connection = new MockConnection();
         ClientPeer peer = new ClientPeer(connection);
 
-        peer.sendInvalidCommandError();
+        peer.sendInvalidCommandError(new InvalidCommandException("Test"));
 
         assertEquals("invalid command", connection.readSentMessage());
     }

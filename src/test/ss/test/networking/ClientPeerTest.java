@@ -26,7 +26,8 @@ class ClientPeerTest {
     @Test
     void initialState() {
         assertNull(peer.getName());
-        assertEquals(ClientState.PEER_CONNECT_MESSAGE, peer.getState());
+        assertEquals(ClientState.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
+        assertEquals(0, peer.getRequestedPlayerAmount());
     }
 
     @Test
@@ -36,7 +37,7 @@ class ClientPeerTest {
         peer.handleReceivedMessage("connect " + name);
 
         assertEquals(name, peer.getName());
-        assertEquals(ClientState.LOBBY_NAME_VERIFICATION, peer.getState());
+        assertEquals(ClientState.LOBBY_VERIFY_NAME, peer.getState());
 
         // Sending the same command again should be invalid, and have no effect.
         String differentName = "anotherName";
@@ -49,7 +50,7 @@ class ClientPeerTest {
         peer.rejectName();
 
         assertNull(peer.getName());
-        assertEquals(ClientState.PEER_CONNECT_MESSAGE, peer.getState());
+        assertEquals(ClientState.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
         assertEquals("invalid name", connection.readSentMessage());
 
         // Send a new name, and this time accept it.
@@ -57,12 +58,12 @@ class ClientPeerTest {
         peer.acceptName();
 
         assertEquals(name, peer.getName());
-        assertEquals(ClientState.PEER_GAME_REQUEST, peer.getState());
+        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
         assertEquals("welcome", connection.readSentMessage());
     }
 
     @Test
-    void handleInvalidMessage() {
+    void handleInvalidCommands() {
         peer.handleReceivedMessage("SJDKFSLDFLKsjdksfls");
         assertEquals("invalid command", connection.readSentMessage());
 
@@ -72,10 +73,67 @@ class ClientPeerTest {
         // Connect without name should be invalid.
         peer.handleReceivedMessage("connect");
         assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("null");
+        assertEquals("invalid command", connection.readSentMessage());
+    }
+
+    @Test
+    void handleValidRequestMessage() {
+        // Send the message in an invalid state.
+        peer.handleReceivedMessage("request 3");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        // Get the peer into the right state.
+        peer.handleReceivedMessage("connect Bob");
+        peer.acceptName();
+        connection.readSentMessage();
+
+        // The message should now be okay.
+        peer.handleReceivedMessage("request 3");
+        assertEquals(3, peer.getRequestedPlayerAmount());
+        assertEquals(ClientState.LOBBY_SEND_NAME_LIST, peer.getState());
+        assertNull(connection.readSentMessage());
+    }
+
+    @Test
+    void handleInvalidRequestMessage() {
+        // Send invalid message in an invalid state.
+        peer.handleReceivedMessage("request 16");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        // Get the peer into the right state.
+        peer.handleReceivedMessage("connect Bob");
+        peer.acceptName();
+        connection.readSentMessage();
+        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
+
+        // Send invalid messages in the right state.
+        peer.handleReceivedMessage("request 16");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("request 1");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("request 5");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("request HELLO!");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("request");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("request -1");
+        assertEquals("invalid command", connection.readSentMessage());
+
     }
 
 
-    // ---------------------------------------------------------------------------------------------
+    // ---- Messages -------------------------------------------------------------------------------
 
 
     @Test
