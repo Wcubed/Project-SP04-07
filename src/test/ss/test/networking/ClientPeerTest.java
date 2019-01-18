@@ -5,20 +5,28 @@ import org.junit.jupiter.api.Test;
 import ss.spec.Color;
 import ss.spec.Tile;
 import ss.spec.networking.ClientPeer;
+import ss.spec.networking.ClientState;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ClientPeerTest {
 
-    ClientPeer peer;
-    MockConnection connection;
+    private ClientPeer peer;
+    private MockConnection connection;
 
     @BeforeEach
     void setUp() {
         connection = new MockConnection();
         peer = new ClientPeer(connection);
+    }
+
+    @Test
+    void initialState() {
+        assertNull(peer.getName());
+        assertEquals(ClientState.PEER_CONNECT_MESSAGE, peer.getState());
     }
 
     @Test
@@ -28,8 +36,7 @@ class ClientPeerTest {
         peer.handleReceivedMessage("connect " + name);
 
         assertEquals(name, peer.getName());
-        assertEquals("welcome", connection.readSentMessage());
-
+        assertEquals(ClientState.LOBBY_NAME_VERIFICATION, peer.getState());
 
         // Sending the same command again should be invalid, and have no effect.
         String differentName = "anotherName";
@@ -37,13 +44,39 @@ class ClientPeerTest {
 
         assertEquals(name, peer.getName());
         assertEquals("invalid command", connection.readSentMessage());
+
+        // Reject the name.
+        peer.rejectName();
+
+        assertNull(peer.getName());
+        assertEquals(ClientState.PEER_CONNECT_MESSAGE, peer.getState());
+        assertEquals("invalid name", connection.readSentMessage());
+
+        // Send a new name, and this time accept it.
+        peer.handleReceivedMessage("connect " + name);
+        peer.acceptName();
+
+        assertEquals(name, peer.getName());
+        assertEquals(ClientState.PEER_GAME_REQUEST, peer.getState());
+        assertEquals("welcome", connection.readSentMessage());
     }
 
     @Test
     void handleInvalidMessage() {
         peer.handleReceivedMessage("SJDKFSLDFLKsjdksfls");
         assertEquals("invalid command", connection.readSentMessage());
+
+        peer.handleReceivedMessage("2398393");
+        assertEquals("invalid command", connection.readSentMessage());
+
+        // Connect without name should be invalid.
+        peer.handleReceivedMessage("connect");
+        assertEquals("invalid command", connection.readSentMessage());
     }
+
+
+    // ---------------------------------------------------------------------------------------------
+
 
     @Test
     void sendWaitingMessage() {
@@ -80,11 +113,20 @@ class ClientPeerTest {
 
         ArrayList<String> names = new ArrayList<>();
         names.add("Alice");
-        names.add("Diane");
+        names.add("45DKks");
         names.add("Bob");
 
         peer.sendOrderMessage(names);
-        assertEquals("order Alice Diane Bob", connection.readSentMessage());
+        assertEquals("order Alice 45DKks Bob", connection.readSentMessage());
+    }
+
+    @Test
+    void sendTurnMessage() {
+        peer.sendTurnMessage("diaNe");
+        assertEquals("turn diaNe", connection.readSentMessage());
+
+        peer.sendTurnMessage("38981*(#");
+        assertEquals("turn 38981*(#", connection.readSentMessage());
     }
 
     @Test
@@ -112,5 +154,11 @@ class ClientPeerTest {
 
         peer.sendPlayerLeftMessage("aLiCe");
         assertEquals("player aLiCe left", connection.readSentMessage());
+    }
+
+    @Test
+    void sendInvalidNameMessage() {
+        peer.sendInvalidNameError();
+        assertEquals("invalid name", connection.readSentMessage());
     }
 }

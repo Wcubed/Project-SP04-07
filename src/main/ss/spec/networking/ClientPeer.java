@@ -8,11 +8,13 @@ import java.util.Scanner;
 public class ClientPeer extends AbstractPeer {
 
     private String name;
+    private ClientState state;
 
     public ClientPeer(Connection connection) {
         super(connection);
 
         name = null;
+        state = ClientState.PEER_CONNECT_MESSAGE;
     }
 
     @Override
@@ -22,13 +24,10 @@ public class ClientPeer extends AbstractPeer {
         if (scanner.hasNext()) {
             String command = scanner.next();
 
-            if (getName() == null) {
+            if (state == ClientState.PEER_CONNECT_MESSAGE) {
                 // They have not sent the `connect <name> [extensions] message yet.`
                 try {
                     parseConnectMessage(command, scanner);
-
-                    // All set, send welcome message.
-                    sendWelcomeMessage();
                 } catch (InvalidCommandException e) {
                     sendInvalidCommandError();
                 }
@@ -53,7 +52,8 @@ public class ClientPeer extends AbstractPeer {
         if (command.equals("connect")) {
             if (message.hasNext()) {
                 String newName = message.next();
-                // TODO: Check for duplicate names. Keep a list of names in the lobby class.
+                // Wait for the lobby to verify the given name.
+                state = ClientState.LOBBY_NAME_VERIFICATION;
 
                 // We cannot check for spaces in the name, because a space means we start
                 // with the list of extensions.
@@ -83,6 +83,38 @@ public class ClientPeer extends AbstractPeer {
         return name;
     }
 
+    public ClientState getState() {
+        return state;
+    }
+
+    /**
+     * Called by the Lobby to signal to the client that the chosen name is valid.
+     */
+    public void acceptName() {
+        if (state == ClientState.LOBBY_NAME_VERIFICATION) {
+            state = ClientState.PEER_GAME_REQUEST;
+
+            // Let the client know everything is ok.
+            sendWelcomeMessage();
+        }
+        // TODO: Do we want to signal an inconsistent state?
+    }
+
+    /**
+     * Called by the Lobby to signal to the client that the chosen name is invalid.
+     */
+    public void rejectName() {
+        if (state == ClientState.LOBBY_NAME_VERIFICATION) {
+            state = ClientState.PEER_CONNECT_MESSAGE;
+            // Clear the name.
+            name = null;
+
+            // Let the client know that this name is not acceptable.
+            sendInvalidNameError();
+        }
+        // TODO: Do we want to signal an inconsistent state?
+    }
+
     private void sendWelcomeMessage() {
         // TODO: Send the supported extensions (if any).
         sendMessage("welcome");
@@ -100,6 +132,10 @@ public class ClientPeer extends AbstractPeer {
         sendMessage("order" + convertNameListToProtocol(names));
     }
 
+    public void sendTurnMessage(String playerName) {
+        sendMessage("turn " + playerName);
+    }
+
     public void sendSkipMessage(String playerName) {
         sendMessage("skip " + playerName);
     }
@@ -113,6 +149,10 @@ public class ClientPeer extends AbstractPeer {
 
     public void sendPlayerLeftMessage(String playerName) {
         sendMessage("player " + playerName + " left");
+    }
+
+    public void sendInvalidNameError() {
+        sendMessage("invalid name");
     }
 
 

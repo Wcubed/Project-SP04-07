@@ -3,6 +3,7 @@ package ss.spec.server;
 import ss.spec.networking.ClientPeer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.ListIterator;
 
 public class Lobby implements Runnable {
@@ -20,6 +21,12 @@ public class Lobby implements Runnable {
     private volatile boolean stopLobbyThread;
 
     private ArrayList<ClientPeer> waitingClients;
+
+    /**
+     * List of names that are already in use on this server.
+     * Duplicate names are not allowed.
+     */
+    private HashSet<String> usedNames;
 
     public Lobby() {
         hasNewClient = false;
