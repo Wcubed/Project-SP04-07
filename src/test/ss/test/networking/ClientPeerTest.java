@@ -95,7 +95,7 @@ class ClientPeerTest {
         // The message should now be okay.
         peer.handleReceivedMessage("request 3");
         assertEquals(3, peer.getRequestedPlayerAmount());
-        assertEquals(ClientState.LOBBY_SEND_NAME_LIST, peer.getState());
+        assertEquals(ClientState.LOBBY_START_WAITING_FOR_PLAYERS, peer.getState());
         assertNull(connection.readSentMessage());
     }
 

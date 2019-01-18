@@ -28,12 +28,14 @@ public class Lobby implements Runnable {
      */
     private HashSet<String> usedNames;
 
+
     public Lobby() {
         hasNewClient = false;
         newClient = null;
         stopLobbyThread = false;
 
         waitingClients = new ArrayList<>();
+        usedNames = new HashSet<>();
     }
 
     /**
@@ -113,16 +115,45 @@ public class Lobby implements Runnable {
             ClientPeer client = clientIter.next();
 
             if (client.isPeerConnected()) {
-                client.sendMessage("Hello World!");
+                switch (client.getState()) {
+                    case LOBBY_VERIFY_NAME:
+                        verifyClientName(client);
+                        break;
+                    case LOBBY_START_WAITING_FOR_PLAYERS:
+
+                        break;
+                    case LOBBY_AWAITING_GAME_START:
+
+                        break;
+                }
             } else {
 
                 // Connection lost, client will be removed from list.
                 // TODO: Nice logging.
                 System.out.println("Connection to client lost.");
 
+                // Remove the clients name from the list of used names.
+                String name = client.getName();
+
+                if (name != null) {
+                    usedNames.remove(name);
+                }
+
                 // Remove client from list.
                 clientIter.remove();
             }
+        }
+    }
+
+    private void verifyClientName(ClientPeer client) {
+        String name = client.getName();
+
+        if (name == null || usedNames.contains(name) || name.contains(" ")) {
+            // No name, bad name or already used name.
+            client.rejectName();
+        } else {
+            client.acceptName();
+            usedNames.add(name);
         }
     }
 }

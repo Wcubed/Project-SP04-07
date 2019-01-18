@@ -118,7 +118,7 @@ public class ClientPeer extends AbstractPeer {
             // 2 to 4 players.
             if (amount >= 2 && amount <= 4) {
                 requestedPlayerAmount = amount;
-                state = ClientState.LOBBY_SEND_NAME_LIST;
+                state = ClientState.LOBBY_START_WAITING_FOR_PLAYERS;
             } else {
                 throw new InvalidCommandException("Can only request 2 to 4 players.");
             }
