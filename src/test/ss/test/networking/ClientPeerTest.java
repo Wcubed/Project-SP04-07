@@ -130,6 +130,8 @@ class ClientPeerTest {
         peer.handleReceivedMessage("request -1");
         assertEquals("invalid command", connection.readSentMessage());
 
+        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
+
     }
 
 

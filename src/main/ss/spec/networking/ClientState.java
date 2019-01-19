@@ -17,8 +17,9 @@ public enum ClientState {
     PEER_AWAITING_CONNECT_MESSAGE,
     LOBBY_VERIFY_NAME,
     PEER_AWAITING_GAME_REQUEST,
+    // Client has requested a game, but has not been sent a `waiting` message yet.
     LOBBY_START_WAITING_FOR_PLAYERS,
-    LOBBY_AWAITING_GAME_START,
+    LOBBY_WAITING_FOR_PLAYERS,
 
     GAME_AWAITING_TURN_ORDER,
     GAME_AWAITING_TURN,

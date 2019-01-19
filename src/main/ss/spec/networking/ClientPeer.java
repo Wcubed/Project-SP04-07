@@ -157,6 +157,15 @@ public class ClientPeer extends AbstractPeer {
         // TODO: Do we want to signal an inconsistent state?
     }
 
+    /**
+     * Called by the Lobby to signal we are waiting for more players.
+     */
+    public void signalWaitingForPlayers(List<String> names) {
+        sendWaitingMessage(names);
+        state = ClientState.LOBBY_WAITING_FOR_PLAYERS;
+        // TODO: Do we want to signal an inconsistent state?
+    }
+
 
     // ---- Messages -------------------------------------------------------------------------------
 
