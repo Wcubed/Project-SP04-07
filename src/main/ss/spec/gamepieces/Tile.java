@@ -1,7 +1,7 @@
-package ss.spec;
+package ss.spec.gamepieces;
 
 /**
- * Represents a Tile on the game board.
+ * Represents a Tile on the game gamepieces.
  * Tiles have three colored sides, named "flatSide", "clockwise1" and "clockwise2".
  * They area arranged as follows:
  *

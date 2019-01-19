@@ -1,6 +1,6 @@
 package ss.spec.networking;
 
-import ss.spec.Tile;
+import ss.spec.gamepieces.Tile;
 
 import java.util.InputMismatchException;
 import java.util.List;

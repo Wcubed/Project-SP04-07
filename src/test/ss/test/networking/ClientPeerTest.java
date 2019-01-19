@@ -2,8 +2,8 @@ package ss.test.networking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.Color;
-import ss.spec.Tile;
+import ss.spec.gamepieces.Color;
+import ss.spec.gamepieces.Tile;
 import ss.spec.networking.ClientPeer;
 import ss.spec.networking.ClientState;
 

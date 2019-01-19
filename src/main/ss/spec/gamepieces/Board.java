@@ -1,7 +1,5 @@
-package ss.spec.board;
+package ss.spec.gamepieces;
 
-import ss.spec.InvalidMoveException;
-import ss.spec.Tile;
 import java.util.ArrayList;
 
 public class Board {
@@ -90,7 +88,7 @@ public class Board {
     }
 
     /**
-     * Makes a move on the board, returns the points that this move scored.
+     * Makes a move on the gamepieces, returns the points that this move scored.
      *
      * @param id   The space to place the tile on.
      * @param tile The tile to place.
@@ -111,34 +109,31 @@ public class Board {
     }
 
 
-
     /**
-     *  method to convert an index representation of a board field to a
-     *  coordinate representation of the form (r,c)
+     * method to convert an index representation of a gamepieces field to a
+     * coordinate representation of the form (r,c).
      *
-     * @param index  Index value to be translated to coordinates
-     * @param r row component of the coordinate (r,c)
-     * @param c column component of the coordinate (r,c)
+     * @param index Index value to be translated to coordinates
      * @return The points scored with this move.
      */
 
-    public ArrayList indexToCoordinates(int index) throws IndexException{
+    public ArrayList indexToCoordinates(int index) throws IndexException {
 
         ArrayList<Integer> result = new ArrayList<Integer>();
         int r;
         int c;
 
-        if(index <= 36 && index >= 0){
+        if (index <= 36 && index >= 0) {
 
-            r = ((int)Math.floor((int) Math.sqrt((double) index)));
-            c = (index - (((int)Math.pow(r, 2)) + r));
+            r = ((int) Math.floor((int) Math.sqrt((double) index)));
+            c = (index - (((int) Math.pow(r, 2)) + r));
 
             result.add(r);
             result.add(c);
 
             return result;
 
-        } else{
+        } else {
 
             throw new IndexException(index);
         }

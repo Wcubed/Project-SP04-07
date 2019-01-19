@@ -1,7 +1,7 @@
 package ss.spec.networking;
 
-import ss.spec.Color;
-import ss.spec.Tile;
+import ss.spec.gamepieces.Color;
+import ss.spec.gamepieces.Tile;
 
 public abstract class AbstractPeer implements Runnable {
 
@@ -9,7 +9,7 @@ public abstract class AbstractPeer implements Runnable {
 
     private boolean peerConnected;
 
-    protected AbstractPeer(Connection connection) {
+    AbstractPeer(Connection connection) {
         this.connection = connection;
 
         peerConnected = !connection.isDead();
@@ -70,7 +70,7 @@ public abstract class AbstractPeer implements Runnable {
         sendMessage("invalid command");
     }
 
-    protected String convertTileToProtocol(Tile tile) {
+    String convertTileToProtocol(Tile tile) {
         return "" +
                 convertColorToProtocol(tile.getFlatSide()) +
                 convertColorToProtocol(tile.getClockwise1()) +

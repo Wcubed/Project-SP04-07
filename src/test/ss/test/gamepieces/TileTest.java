@@ -1,9 +1,9 @@
-package ss.test;
+package ss.test.gamepieces;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.Color;
-import ss.spec.Tile;
+import ss.spec.gamepieces.Color;
+import ss.spec.gamepieces.Tile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
