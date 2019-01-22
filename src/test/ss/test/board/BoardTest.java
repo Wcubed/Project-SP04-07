@@ -99,6 +99,11 @@ class BoardTest {
     void isMoveValid() {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
 
+        assertTrue(board.isMoveValid(4, tile));             // testing if test on line 144 should really show false, I think not because no other tiles are
+                                                                // have been places, and it is not on a bonus field
+
+
+
         // Placing outside of the board is not a valid move.
         assertFalse(board.isMoveValid(-4, tile));
         assertFalse(board.isMoveValid(Board.BOARD_SIZE, tile));
@@ -117,8 +122,11 @@ class BoardTest {
     }
 
     @Test
+
     void makeMove() {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
+
+
 
         // Placing outside the board is invalid.
         assertThrows(InvalidMoveException.class, () -> board.makeMove(-3, tile));
@@ -137,7 +145,7 @@ class BoardTest {
             assertThrows(InvalidMoveException.class, () -> board.makeMove(12, tile));
 
             // Placing tiles not adjacent to other tiles is invalid.
-            assertThrows(InvalidMoveException.class, () -> board.makeMove(21, tile));
+            assertThrows(InvalidMoveException.class, () -> board.makeMove(4, tile));
             assertThrows(InvalidMoveException.class, () -> board.makeMove(2, tile));
             assertThrows(InvalidMoveException.class, () -> board.makeMove(32, tile));
 
@@ -212,5 +220,6 @@ class BoardTest {
             e.printStackTrace();
         }
     }
+
 
 }
