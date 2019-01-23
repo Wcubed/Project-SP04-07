@@ -3,8 +3,7 @@ package ss.spec.networking;
 import java.io.*;
 import java.net.Socket;
 
-
-public abstract class AbstractConnection implements Runnable {
+public class SocketConnection implements Connection {
 
     private Socket socket;
 
@@ -13,44 +12,21 @@ public abstract class AbstractConnection implements Runnable {
 
     private boolean connectionDead;
 
-    public AbstractConnection(Socket socket) throws IOException {
+    public SocketConnection(Socket socket) {
         this.socket = socket;
 
         if (socket.isConnected()) {
             connectionDead = false;
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        }
-    }
-
-    /**
-     * Watches for messages from the other end of the connection.
-     */
-    @Override
-    public void run() {
-        while (!isConnectionDead()) {
             try {
-                String message = in.readLine();
-
-                if (message == null) {
-                    // Dead connection.
-                    killConnection();
-                } else {
-                    handleMessage(message);
-                }
-            } catch (IOException | DeadConnectionException e) {
-                // TODO: Do we need this stack trace, or can we simply assume that when the read
-                //  fails, the connection is dead?
-                // e.printStackTrace();
-
-                // Going to assume the connection is dead.
-                // TODO: Is this assumption correct?
-                killConnection();
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            } catch (IOException e) {
+                e.printStackTrace();
+                connectionDead = true;
             }
+        } else {
+            connectionDead = true;
         }
-
-        // TODO: Nice logging.
-        System.out.println("Connection read thread stopping...");
     }
 
     /**
@@ -60,7 +36,8 @@ public abstract class AbstractConnection implements Runnable {
      *
      * @return True when the connection is guaranteed to be dead.
      */
-    public boolean isConnectionDead() {
+    @Override
+    public boolean isDead() {
         return connectionDead;
     }
 
@@ -68,11 +45,12 @@ public abstract class AbstractConnection implements Runnable {
      * Call when you want to end the communications.
      * Can be called multiple times without issue.
      */
-    private void killConnection() {
-        if (!isConnectionDead()) {
+    @Override
+    public void killConnection() {
+        if (!isDead()) {
             connectionDead = true;
 
-            // TODO: Propper logging.
+            // TODO: Proper logging.
             System.out.println("Killing connection.");
 
             if (!socket.isClosed()) {
@@ -91,7 +69,11 @@ public abstract class AbstractConnection implements Runnable {
      *
      * @param message The message to send.
      */
+    @Override
     public void sendMessage(String message) throws DeadConnectionException {
+        if (isDead()) {
+            throw new DeadConnectionException();
+        }
         try {
             out.write(message);
             out.newLine();
@@ -108,13 +90,33 @@ public abstract class AbstractConnection implements Runnable {
         }
     }
 
-    /**
-     * This function get's called by `run` when a new message arrives over the connection.
-     */
-    abstract public void handleMessage(String message) throws DeadConnectionException;
+    @Override
+    public String readMessage() throws DeadConnectionException {
+        if (isDead()) {
+            throw new DeadConnectionException();
+        }
 
+        String message;
 
-    protected void sendInvalidCommandError() throws DeadConnectionException {
-        sendMessage("invalid command");
+        try {
+            message = in.readLine();
+
+            if (message == null) {
+                // Dead connection.
+                killConnection();
+                throw new DeadConnectionException();
+            }
+        } catch (IOException e) {
+            // TODO: Do we need this stack trace, or can we simply assume that when the read
+            //  fails, the connection is dead?
+            // e.printStackTrace();
+
+            // Going to assume the connection is dead.
+            // TODO: Is this assumption correct?
+            killConnection();
+            throw new DeadConnectionException();
+        }
+
+        return message;
     }
 }

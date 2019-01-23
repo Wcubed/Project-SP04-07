@@ -1,7 +1,7 @@
-package ss.test;
+package ss.test.gamepieces;
 
 import org.junit.jupiter.api.Test;
-import ss.spec.Color;
+import ss.spec.gamepieces.Color;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -1,4 +1,4 @@
-package ss.spec;
+package ss.spec.gamepieces;
 
 public enum Color {
     RED, BLUE, GREEN, YELLOW, PURPLE, WHITE;

@@ -1,19 +1,20 @@
-package ss.test;
+package ss.test.gamepieces;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.Color;
-import ss.spec.Tile;
-import ss.spec.TileBag;
+import ss.spec.gamepieces.Color;
+import ss.spec.gamepieces.EmptyTileBagException;
+import ss.spec.gamepieces.RandomTileBag;
+import ss.spec.gamepieces.Tile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TileBagTest {
-    private TileBag bag;
+class RandomTileBagTest {
+    private RandomTileBag bag;
 
     @BeforeEach
     void setUp() {
-        bag = new TileBag();
+        bag = new RandomTileBag();
     }
 
     @Test
@@ -38,17 +39,17 @@ class TileBagTest {
     }
 
     @Test
-    void takeRandomTile() {
+    void takeRandomTile() throws EmptyTileBagException {
         Tile tile = new Tile(Color.PURPLE, Color.GREEN, Color.RED, 7);
 
         bag.addTile(tile);
-        assertEquals(tile, bag.takeRandomTile());
+        assertEquals(tile, bag.takeTile());
         assertEquals(0, bag.getSize());
 
         bag.addTile(tile);
         bag.addTile(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 2));
 
-        bag.takeRandomTile();
+        bag.takeTile();
         assertEquals(1, bag.getSize());
     }
 }
