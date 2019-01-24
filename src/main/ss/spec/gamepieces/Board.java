@@ -1,5 +1,7 @@
-package ss.spec.gamepieces;
+package ss.spec.board;
 
+import ss.spec.InvalidMoveException;
+import ss.spec.Tile;
 import java.util.ArrayList;
 
 public class Board {
@@ -66,17 +68,22 @@ public class Board {
     }
 
     public boolean isMoveValid(int id, Tile tile) {
-        boolean moveValid = false;
+        boolean moveValid = false; // Initialized to false prevent "variable might have not been initialized error by intellij"
 
         if (isIdValid(id) && tile != null) {
             if (getIsEmpty()) {
                 // First move cannot be placed on bonus tiles.
                 moveValid = !getSpace(id).isBonusSpace();
             } else {
-
                 // Check if the space is empty.
                 if (!hasTile(id)) {
-                    moveValid = true;
+                    if (colorsValid(id, tile)) {
+                        moveValid = true;
+                    } else{
+                        // ...
+                    }
+                } else{
+                    // ...
                 }
 
                 // TODO: check for colors.
@@ -88,7 +95,7 @@ public class Board {
     }
 
     /**
-     * Makes a move on the gamepieces, returns the points that this move scored.
+     * Makes a move on the board, returns the points that this move scored.
      *
      * @param id   The space to place the tile on.
      * @param tile The tile to place.
@@ -109,35 +116,154 @@ public class Board {
     }
 
 
+
     /**
-     * method to convert an index representation of a gamepieces field to a
-     * coordinate representation of the form (r,c).
+     *  method to convert an index representation of a board field to a
+     *  coordinate representation of the form (r,c)
      *
-     * @param index Index value to be translated to coordinates
+     * @param index  Index value to be translated to coordinates
      * @return The points scored with this move.
      */
 
-    public ArrayList indexToCoordinates(int index) throws IndexException {
+    public ArrayList indexToCoordinates(int index) throws IndexException{
 
         ArrayList<Integer> result = new ArrayList<Integer>();
         int r;
         int c;
 
-        if (index <= 36 && index >= 0) {
+        if(index <= 36 && index >= 0){
 
-            r = ((int) Math.floor((int) Math.sqrt((double) index)));
-            c = (index - (((int) Math.pow(r, 2)) + r));
+            r = ((int)Math.floor((int) Math.sqrt((double) index)));
+            c = (index - (((int)Math.pow(r, 2)) + r));
 
             result.add(r);
             result.add(c);
 
             return result;
 
-        } else {
+        } else{
 
             throw new IndexException(index);
         }
 
+    }
+
+    public int coordinatesToIndex(int r, int c){
+        int index = (r + ((int)Math.pow(r, 2)) + c);
+        return index;
+    }
+
+
+    public boolean colorsValid(int id, Tile tile){
+
+        /**
+         *
+         *  right neighbor ->  non existant if c + 1 > r
+         *
+         *  left neighbor -> non existant if c - 1 < -r
+         *
+         *  Top neighbour exists -> (when r + c is uneven)
+         *
+         *  Bottom neighbour ->(if r + c is even)
+         *
+         *  THERE IS EITHER A BOTTOM OR A TOP NEIGHBOR
+         *
+         *  SEE PDF for other used relations
+         *
+         *  TODO: COMPLETE THIS METHOD , MAKE IT TIDY
+         *
+         */
+
+        ArrayList coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
+
+        Tile rightAdjacent;
+        Tile leftAdjacent;
+        Tile bottomAdjacent;
+        Tile topAdjacent;
+
+        boolean rightMatch;
+        boolean leftMatch;
+        boolean topMatch;
+        boolean bottomMatch;
+
+        try{
+            coordinates = indexToCoordinates(id);
+        } catch(IndexException e){
+            e.printStackTrace();
+        }
+
+        int r = (int) coordinates.get(0);
+        int c = (int) coordinates.get(1);
+
+
+        boolean hasBottom = false;
+
+        // Checking bottom
+
+        if((r+c) % 2 == 0){
+            hasBottom = true;
+        }
+
+
+        // Checking right neighbor
+
+        if((c+1) <= r){
+            if(hasTile(coordinatesToIndex(r, c + 1))){
+                rightAdjacent = getTile(coordinatesToIndex(r, c + 1));
+                rightMatch = tile.getClockwise2().isValidNextTo(rightAdjacent.getClockwise2());
+            } else{
+                rightMatch = true;
+            }
+        } else{
+
+            rightMatch = true;
+        }
+
+        // Checking left neighbor
+
+        if((c-1) >= (-r)){
+            if(hasTile(coordinatesToIndex(r, c -1 ))) {
+                leftAdjacent = getTile(coordinatesToIndex(r, c - 1 ));
+                leftMatch = tile.getClockwise1().isValidNextTo(leftAdjacent.getClockwise1());
+            } else{
+                leftMatch = true;
+
+            }
+        } else{
+
+            leftMatch = true;
+
+        }
+        if(hasBottom) {
+            // Check for bottom neighbor
+            if(hasTile(coordinatesToIndex(r + 1, c))){
+                bottomAdjacent = getTile(coordinatesToIndex(r + 1, c ));
+                bottomMatch = tile.getFlatSide().isValidNextTo(bottomAdjacent.getFlatSide());
+                topMatch = true;
+            } else{
+                bottomMatch = true;
+                topMatch = true;
+
+            }
+
+        }else{
+            // Check for top neighbor
+            if(hasTile(coordinatesToIndex(r - 1, c))){
+                topAdjacent = getTile(coordinatesToIndex(r - 1, c));
+                topMatch = tile.getFlatSide().isValidNextTo(topAdjacent.getFlatSide());
+                bottomMatch = true;
+            } else{
+                bottomMatch = true;
+                topMatch = true;
+            }
+
+        }
+
+        if(!leftMatch || !rightMatch || !bottomMatch || !topMatch ){
+            return false;
+        } else{
+            return true;
+        }
     }
 
 }
