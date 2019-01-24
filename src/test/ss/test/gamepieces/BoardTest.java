@@ -1,16 +1,11 @@
-package ss.test.board;
+package ss.test.gamepieces;
 
-import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.Color;
-import ss.spec.InvalidMoveException;
-import ss.spec.board.IndexException;
-import ss.spec.Tile;
-import ss.spec.board.Board;
-
+import ss.spec.gamepieces.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,8 +95,7 @@ class BoardTest {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
 
         assertTrue(board.isMoveValid(4, tile));             // testing if test on line 144 should really show false, I think not because no other tiles are
-                                                                // have been places, and it is not on a bonus field
-
+        // have been places, and it is not on a bonus field
 
 
         // Placing outside of the board is not a valid move.
@@ -122,10 +116,8 @@ class BoardTest {
     }
 
     @Test
-
     void makeMove() {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
-
 
 
         // Placing outside the board is invalid.
@@ -212,11 +204,11 @@ class BoardTest {
         assertThrows(IndexException.class, () -> board.indexToCoordinates(37));
         assertThrows(IndexException.class, () -> board.indexToCoordinates(-3));
 
-        try{
+        try {
             assertEquals(a1, board.indexToCoordinates(13));
             assertEquals(a2, board.indexToCoordinates(18));
 
-        } catch (IndexException e){
+        } catch (IndexException e) {
             e.printStackTrace();
         }
     }

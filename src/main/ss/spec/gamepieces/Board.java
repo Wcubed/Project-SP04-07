@@ -1,7 +1,5 @@
-package ss.spec.board;
+package ss.spec.gamepieces;
 
-import ss.spec.InvalidMoveException;
-import ss.spec.Tile;
 import java.util.ArrayList;
 
 public class Board {
@@ -79,10 +77,10 @@ public class Board {
                 if (!hasTile(id)) {
                     if (colorsValid(id, tile)) {
                         moveValid = true;
-                    } else{
+                    } else {
                         // ...
                     }
-                } else{
+                } else {
                     // ...
                 }
 
@@ -116,45 +114,44 @@ public class Board {
     }
 
 
-
     /**
-     *  method to convert an index representation of a board field to a
-     *  coordinate representation of the form (r,c)
+     * method to convert an index representation of a board field to a
+     * coordinate representation of the form (r,c)
      *
-     * @param index  Index value to be translated to coordinates
+     * @param index Index value to be translated to coordinates
      * @return The points scored with this move.
      */
 
-    public ArrayList indexToCoordinates(int index) throws IndexException{
+    public ArrayList indexToCoordinates(int index) throws IndexException {
 
         ArrayList<Integer> result = new ArrayList<Integer>();
         int r;
         int c;
 
-        if(index <= 36 && index >= 0){
+        if (index <= 36 && index >= 0) {
 
-            r = ((int)Math.floor((int) Math.sqrt((double) index)));
-            c = (index - (((int)Math.pow(r, 2)) + r));
+            r = ((int) Math.floor((int) Math.sqrt((double) index)));
+            c = (index - (((int) Math.pow(r, 2)) + r));
 
             result.add(r);
             result.add(c);
 
             return result;
 
-        } else{
+        } else {
 
             throw new IndexException(index);
         }
 
     }
 
-    public int coordinatesToIndex(int r, int c){
-        int index = (r + ((int)Math.pow(r, 2)) + c);
+    public int coordinatesToIndex(int r, int c) {
+        int index = (r + ((int) Math.pow(r, 2)) + c);
         return index;
     }
 
 
-    public boolean colorsValid(int id, Tile tile){
+    public boolean colorsValid(int id, Tile tile) {
 
         /**
          *
@@ -186,9 +183,9 @@ public class Board {
         boolean topMatch;
         boolean bottomMatch;
 
-        try{
+        try {
             coordinates = indexToCoordinates(id);
-        } catch(IndexException e){
+        } catch (IndexException e) {
             e.printStackTrace();
         }
 
@@ -200,68 +197,68 @@ public class Board {
 
         // Checking bottom
 
-        if((r+c) % 2 == 0){
+        if ((r + c) % 2 == 0) {
             hasBottom = true;
         }
 
 
         // Checking right neighbor
 
-        if((c+1) <= r){
-            if(hasTile(coordinatesToIndex(r, c + 1))){
+        if ((c + 1) <= r) {
+            if (hasTile(coordinatesToIndex(r, c + 1))) {
                 rightAdjacent = getTile(coordinatesToIndex(r, c + 1));
                 rightMatch = tile.getClockwise2().isValidNextTo(rightAdjacent.getClockwise2());
-            } else{
+            } else {
                 rightMatch = true;
             }
-        } else{
+        } else {
 
             rightMatch = true;
         }
 
         // Checking left neighbor
 
-        if((c-1) >= (-r)){
-            if(hasTile(coordinatesToIndex(r, c -1 ))) {
-                leftAdjacent = getTile(coordinatesToIndex(r, c - 1 ));
+        if ((c - 1) >= (-r)) {
+            if (hasTile(coordinatesToIndex(r, c - 1))) {
+                leftAdjacent = getTile(coordinatesToIndex(r, c - 1));
                 leftMatch = tile.getClockwise1().isValidNextTo(leftAdjacent.getClockwise1());
-            } else{
+            } else {
                 leftMatch = true;
 
             }
-        } else{
+        } else {
 
             leftMatch = true;
 
         }
-        if(hasBottom) {
+        if (hasBottom) {
             // Check for bottom neighbor
-            if(hasTile(coordinatesToIndex(r + 1, c))){
-                bottomAdjacent = getTile(coordinatesToIndex(r + 1, c ));
+            if (hasTile(coordinatesToIndex(r + 1, c))) {
+                bottomAdjacent = getTile(coordinatesToIndex(r + 1, c));
                 bottomMatch = tile.getFlatSide().isValidNextTo(bottomAdjacent.getFlatSide());
                 topMatch = true;
-            } else{
+            } else {
                 bottomMatch = true;
                 topMatch = true;
 
             }
 
-        }else{
+        } else {
             // Check for top neighbor
-            if(hasTile(coordinatesToIndex(r - 1, c))){
+            if (hasTile(coordinatesToIndex(r - 1, c))) {
                 topAdjacent = getTile(coordinatesToIndex(r - 1, c));
                 topMatch = tile.getFlatSide().isValidNextTo(topAdjacent.getFlatSide());
                 bottomMatch = true;
-            } else{
+            } else {
                 bottomMatch = true;
                 topMatch = true;
             }
 
         }
 
-        if(!leftMatch || !rightMatch || !bottomMatch || !topMatch ){
+        if (!leftMatch || !rightMatch || !bottomMatch || !topMatch) {
             return false;
-        } else{
+        } else {
             return true;
         }
     }

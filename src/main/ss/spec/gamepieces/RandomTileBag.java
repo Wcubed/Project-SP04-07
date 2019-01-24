@@ -1,21 +1,24 @@
-package ss.spec;
+package ss.spec.gamepieces;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class TileBag {
+public class RandomTileBag implements TileBag {
 
     private ArrayList<Tile> tiles;
     private Random random;
 
-    public TileBag() {
+    public RandomTileBag() {
         tiles = new ArrayList<>();
         random = new Random();
     }
 
-    public void addTile(Tile tile) {tiles.add(tile);
+    @Override
+    public void addTile(Tile tile) {
+        tiles.add(tile);
     }
 
+    @Override
     public int getSize() {
         return tiles.size();
     }
@@ -25,10 +28,12 @@ public class TileBag {
      *
      * @return The tile that was removed from the bag.
      */
-    public Tile takeRandomTile() {
+    @Override
+    public Tile takeTile() {
         return tiles.remove(random.nextInt(getSize()));
     }
 
+    @Override
     public void addAllStartingTiles() {
         // Three same sides.
         int points = 6;
