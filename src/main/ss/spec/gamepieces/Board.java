@@ -122,7 +122,7 @@ public class Board {
      * @return The points scored with this move.
      */
 
-    public ArrayList indexToCoordinates(int index) throws IndexException {
+    public ArrayList<Integer> indexToCoordinates(int index) throws IndexException {
 
         ArrayList<Integer> result = new ArrayList<Integer>();
         int r;
@@ -171,7 +171,7 @@ public class Board {
          *
          */
 
-        ArrayList coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
+        ArrayList<Integer> coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
 
         Tile rightAdjacent;
         Tile leftAdjacent;

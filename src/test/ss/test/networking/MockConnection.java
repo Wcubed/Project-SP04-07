@@ -36,6 +36,13 @@ public class MockConnection implements Connection {
         return sentMessages.poll();
     }
 
+    /**
+     * Clear all the messages sent to this connection, without bothering to read them.
+     */
+    public void purgeSentMessages() {
+        sentMessages.clear();
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     @Override

@@ -5,18 +5,18 @@ import ss.spec.gamepieces.TileBag;
 import ss.spec.networking.ClientPeer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Game implements Runnable {
 
     private boolean gameOver;
 
-    /**
-     * The list of players in turn order.
-     */
     private ArrayList<ClientPeer> players;
     private Board board;
     private TileBag bag;
+
+    private ArrayList<String> turnOrder;
 
     /**
      * Instantiates the Game class with the given players, board and TileBag.
@@ -25,25 +25,31 @@ public class Game implements Runnable {
      * @param board   The board to play on.
      * @param bag     The tile bag to use. Will call `addAllStartingTiles` on this.
      */
-    public Game(ArrayList<ClientPeer> players, Board board, TileBag bag) {
+    public Game(List<ClientPeer> players, Board board, TileBag bag) {
+        this.players = new ArrayList<>(players);
         this.board = board;
         this.bag = bag;
+
         this.bag.addAllStartingTiles();
 
         gameOver = false;
 
-        // TODO: Decide starting order of players.
-        this.players = players;
+        this.turnOrder = new ArrayList<>();
+        // TODO: Decide turn order of players.
     }
 
     public boolean isGameOver() {
         return gameOver;
     }
 
+    public void gameIsNowOver() {
+        gameOver = true;
+    }
+
     /**
-     * @return The list of players in turn order.
+     * @return The list of players.
      */
-    public ArrayList<ClientPeer> getOrderedPlayerList() {
+    public List<ClientPeer> getPlayers() {
         return players;
     }
 
@@ -65,6 +71,30 @@ public class Game implements Runnable {
 
 
     public void doSingleGameIteration() {
-        // TODO: implement this.
+        for (ClientPeer player : players) {
+            if (!player.isPeerConnected()) {
+                stopGamePlayerDisconnected(player.getName());
+                break;
+            }
+
+            // TODO: Do actual game stuff.
+        }
+    }
+
+
+    /**
+     * Stops the game because a player disconnected.
+     * Informs the players of this development.
+     *
+     * @param playerName The name of the player who disconnected.
+     */
+    private void stopGamePlayerDisconnected(String playerName) {
+        for (ClientPeer player : players) {
+            // We are also sending this message to the one who disconnected.
+            // This is not a problem however, as that is handled gracefully.
+            player.sendPlayerLeftMessage(playerName);
+        }
+
+        gameIsNowOver();
     }
 }

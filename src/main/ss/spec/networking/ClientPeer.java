@@ -166,6 +166,13 @@ public class ClientPeer extends AbstractPeer {
         // TODO: Do we want to signal an inconsistent state?
     }
 
+    /**
+     * Called when the client returns from a game to the lobby.
+     * The peer can now sent a new request for a game.
+     */
+    public void returningToLobby() {
+        state = ClientState.PEER_AWAITING_GAME_REQUEST;
+    }
 
     // ---- Messages -------------------------------------------------------------------------------
 

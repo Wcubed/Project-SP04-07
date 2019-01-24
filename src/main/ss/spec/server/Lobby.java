@@ -1,9 +1,13 @@
 package ss.spec.server;
 
+import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.RandomTileBag;
+import ss.spec.gamepieces.TileBag;
 import ss.spec.networking.ClientPeer;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.ListIterator;
 
 public class Lobby implements Runnable {
@@ -33,6 +37,11 @@ public class Lobby implements Runnable {
     private ArrayList<ClientPeer> waitingThreePlayerGame;
     private ArrayList<ClientPeer> waitingFourPlayerGame;
 
+    /**
+     * Running games.
+     */
+    private ArrayList<Game> games;
+
 
     /**
      * List of names that are already in use on this server.
@@ -52,6 +61,8 @@ public class Lobby implements Runnable {
         waitingThreePlayerGame = new ArrayList<>();
         waitingFourPlayerGame = new ArrayList<>();
 
+        games = new ArrayList<>();
+
         usedNames = new HashSet<>();
     }
 
@@ -69,6 +80,10 @@ public class Lobby implements Runnable {
     public int getNumberOfWaitingClients() {
         return waitingClients.size() + waitingTwoPlayerGame.size() +
                 waitingThreePlayerGame.size() + waitingFourPlayerGame.size();
+    }
+
+    public List<Game> getRunningGames() {
+        return games;
     }
 
     /**
@@ -132,7 +147,7 @@ public class Lobby implements Runnable {
         updateWaitingForGameClients(waitingThreePlayerGame, 3);
         updateWaitingForGameClients(waitingFourPlayerGame, 4);
 
-        // TODO: Actually implement missing lobby code.
+        checkOnRunningGames();
     }
 
     private void updateWaitingClients() {
@@ -170,7 +185,7 @@ public class Lobby implements Runnable {
      * @param numberOfPlayers The number of players they are waiting for before starting the game.
      *                        Should be in the range [2-4].
      */
-    private void updateWaitingForGameClients(ArrayList<ClientPeer> clients, int numberOfPlayers) {
+    private void updateWaitingForGameClients(List<ClientPeer> clients, int numberOfPlayers) {
         ListIterator<ClientPeer> clientIter = clients.listIterator();
 
         // Check up on all the waiting clients.
@@ -194,12 +209,40 @@ public class Lobby implements Runnable {
             ArrayList<ClientPeer> players = new ArrayList<>();
 
             // Get the amount of players specified.
-            for (int i = 0; i <= numberOfPlayers; i++) {
+            for (int i = 0; i < numberOfPlayers; i++) {
                 players.add(clients.remove(0));
             }
 
-            // TODO: start a game with the players.
+            startNewGame(players);
+        }
+    }
 
+    private void checkOnRunningGames() {
+        ListIterator<Game> gameIter = games.listIterator();
+
+        while (gameIter.hasNext()) {
+            Game game = gameIter.next();
+
+            if (game.isGameOver()) {
+                // If the game is flagged as over,
+                // this means the game thread has already stopped.
+                // Because that thread is the only one who can flag the game as over.
+                // We can therefore clean up safely.
+                for (ClientPeer client : game.getPlayers()) {
+                    if (client.isPeerConnected()) {
+
+                        client.returningToLobby();
+                        waitingClients.add(client);
+
+                    } else {
+                        // Client has disconnected.
+                        // Free up their name.
+                        freeUpClientName(client);
+                    }
+                }
+
+                gameIter.remove();
+            }
         }
     }
 
@@ -240,6 +283,18 @@ public class Lobby implements Runnable {
         }
     }
 
+    private void startNewGame(List<ClientPeer> players) {
+        Board board = new Board();
+        TileBag bag = new RandomTileBag();
+
+        Game game = new Game(players, board, bag);
+
+        Thread gameThread = new Thread(game);
+        gameThread.start();
+
+        games.add(game);
+    }
+
     /**
      * Verifies whether a client's chosen name is valid.
      * And notifies the client of the decision.
@@ -275,8 +330,8 @@ public class Lobby implements Runnable {
      *
      * @return The list of names.
      */
-    private ArrayList<String> getNamesFromClients(ArrayList<ClientPeer> clients) {
-        ArrayList<String> names = new ArrayList<>();
+    private List<String> getNamesFromClients(List<ClientPeer> clients) {
+        List<String> names = new ArrayList<>();
 
         for (ClientPeer client : clients) {
             names.add(client.getName());

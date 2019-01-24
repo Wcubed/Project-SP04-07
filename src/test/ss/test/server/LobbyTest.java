@@ -4,11 +4,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ss.spec.networking.ClientPeer;
 import ss.spec.networking.ClientState;
+import ss.spec.server.Game;
 import ss.spec.server.Lobby;
 import ss.test.networking.MockConnection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyTest {
 
@@ -142,9 +144,9 @@ class LobbyTest {
         client3.handleReceivedMessage("connect C3-P0");
         lobby.doSingleLobbyIteration();
         // Purge the welcome messages.
-        connection1.readSentMessage();
-        connection2.readSentMessage();
-        connection3.readSentMessage();
+        connection1.purgeSentMessages();
+        connection2.purgeSentMessages();
+        connection3.purgeSentMessages();
 
         // Request a 4 player game.
         client1.handleReceivedMessage("request 4");
@@ -193,5 +195,78 @@ class LobbyTest {
 
         // Now there should be no one.
         assertEquals(0, lobby.getNumberOfWaitingClients());
+    }
+
+    @Test
+    /**
+     * This would probably be better as 2 or 3 separate tests,
+     * if this was a program that was going to be used in actual production.
+     * However, for now it is sufficient to make sure stuff works.
+     */
+    void startAndStopGameTest() {
+        MockConnection connection1 = new MockConnection();
+        ClientPeer client1 = new ClientPeer(connection1);
+        MockConnection connection2 = new MockConnection();
+        ClientPeer client2 = new ClientPeer(connection2);
+
+        client1.handleReceivedMessage("connect Bob");
+        client2.handleReceivedMessage("connect John");
+
+        lobby.addNewClient(client1);
+        lobby.doSingleLobbyIteration();
+        lobby.addNewClient(client2);
+        lobby.doSingleLobbyIteration();
+
+        // Purge the messages that we don't care about.
+        connection1.purgeSentMessages();
+        connection2.purgeSentMessages();
+
+        client1.handleReceivedMessage("request 2");
+        client2.handleReceivedMessage("request 2");
+
+        lobby.doSingleLobbyIteration();
+
+        // A game should be running now.
+        ArrayList<Game> games = new ArrayList<>(lobby.getRunningGames());
+        assertEquals(1, games.size());
+        assertFalse(games.get(0).isGameOver());
+
+        // With the 2 players we expect.
+        ArrayList<ClientPeer> players = new ArrayList<>(games.get(0).getPlayers());
+        assertEquals(2, players.size());
+        assertTrue(players.contains(client1));
+        assertTrue(players.contains(client2));
+
+        // And there should be no-one left in the lobby.
+        assertEquals(0, lobby.getNumberOfWaitingClients());
+
+        // Disconnect a client.
+        // We want to test both the "client still alive after game stops" and
+        // "client disconnected after game stops" cases of the lobby game cleanup.
+        connection1.killConnection();
+        // Make sure the client realizes it's dead.
+        client1.sendMessage("Irrelevant");
+
+
+        // Let's not wait for the game thread to stop, and kill the game on our own.
+        games.get(0).gameIsNowOver();
+
+        // Let the lobby do the game cleanup.
+        lobby.doSingleLobbyIteration();
+
+        // There should be 1 client left in the lobby.
+        assertEquals(1, lobby.getNumberOfWaitingClients());
+        // And no running games.
+        assertEquals(0, lobby.getRunningGames().size());
+
+        // Connecting as "Bob" should be ok again, as he has just disconnected.
+        MockConnection connection3 = new MockConnection();
+        ClientPeer client3 = new ClientPeer(connection3);
+        client3.handleReceivedMessage("connect Bob");
+
+        lobby.addNewClient(client3);
+        lobby.doSingleLobbyIteration();
+
+        assertEquals("welcome", connection3.readSentMessage());
     }
 }
