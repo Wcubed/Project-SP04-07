@@ -57,6 +57,6 @@ class AbstractPeerTest {
 
         peer.sendInvalidCommandError(new InvalidCommandException("Test"));
 
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
     }
 }

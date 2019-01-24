@@ -1,10 +1,12 @@
 package ss.spec.server;
 
 import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.Tile;
 import ss.spec.gamepieces.TileBag;
 import ss.spec.networking.ClientPeer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -17,25 +19,26 @@ public class Game implements Runnable {
     private TileBag bag;
 
     private ArrayList<String> turnOrder;
+    private int currentTurnPlayer;
+
+    private HashMap<String, ArrayList<Tile>> playerTiles;
 
     /**
      * Instantiates the Game class with the given players, board and TileBag.
      *
      * @param players The participating players, order doesn't matter.
      * @param board   The board to play on.
-     * @param bag     The tile bag to use. Will call `addAllStartingTiles` on this.
+     * @param bag     The tile bag to use.
      */
     public Game(List<ClientPeer> players, Board board, TileBag bag) {
         this.players = new ArrayList<>(players);
         this.board = board;
         this.bag = bag;
 
-        this.bag.addAllStartingTiles();
-
         gameOver = false;
 
         this.turnOrder = new ArrayList<>();
-        // TODO: Decide turn order of players.
+        this.playerTiles = new HashMap<>();
     }
 
     public boolean isGameOver() {
@@ -55,10 +58,12 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
-        while (!isGameOver()) {
-            doSingleGameIteration();
+        setUpGame();
 
-            // TODO: Tweak sleeping for final application, maybe even remove it.
+        while (!isGameOver()) {
+            doSingleGameThreadIteration();
+
+            // TODO: Tweak sleeping for final application, maybe even remove it?
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -69,8 +74,27 @@ public class Game implements Runnable {
         // TODO: cleanup?
     }
 
+    public void setUpGame() {
+        bag.addAllStartingTiles();
 
-    public void doSingleGameIteration() {
+        // Set up tile lists.
+        for (ClientPeer player : players) {
+            playerTiles.put(player.getName(), new ArrayList<>());
+        }
+
+        // TODO: Decide turn order.
+
+
+        // Let the clients know the game is on.
+        for (ClientPeer player : players) {
+            player.sendStartMessage(turnOrder);
+            player.sendOrderMessage(turnOrder);
+        }
+
+    }
+
+
+    public void doSingleGameThreadIteration() {
         for (ClientPeer player : players) {
             if (!player.isPeerConnected()) {
                 stopGamePlayerDisconnected(player.getName());
@@ -81,6 +105,11 @@ public class Game implements Runnable {
         }
     }
 
+    private void sendTileAnnouncements() {
+        for (ClientPeer player : players) {
+            player.sendTileAnnouncement(playerTiles);
+        }
+    }
 
     /**
      * Stops the game because a player disconnected.

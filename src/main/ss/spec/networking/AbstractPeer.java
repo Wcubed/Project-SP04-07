@@ -5,6 +5,9 @@ import ss.spec.gamepieces.Tile;
 
 public abstract class AbstractPeer implements Runnable {
 
+    public static final String INVALID_COMMAND_ERROR_MESSAGE = "invalidCommand";
+    public static final String INVALID_NAME_ERROR_MESSAGE = "invalidName";
+
     private Connection connection;
 
     private boolean peerConnected;
@@ -67,7 +70,7 @@ public abstract class AbstractPeer implements Runnable {
 
         // TODO: send the message along with the error?
         //   This has to be added to the protocol in that case.
-        sendMessage("invalid command");
+        sendMessage(INVALID_COMMAND_ERROR_MESSAGE);
     }
 
     String convertTileToProtocol(Tile tile) {

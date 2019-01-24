@@ -44,14 +44,14 @@ class ClientPeerTest {
         peer.handleReceivedMessage("connect " + differentName);
 
         assertEquals(name, peer.getName());
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         // Reject the name.
         peer.rejectName();
 
         assertNull(peer.getName());
         assertEquals(ClientState.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
-        assertEquals("invalid name", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_NAME_ERROR_MESSAGE, connection.readSentMessage());
 
         // Send a new name, and this time accept it.
         peer.handleReceivedMessage("connect " + name);
@@ -65,27 +65,27 @@ class ClientPeerTest {
     @Test
     void handleInvalidCommands() {
         peer.handleReceivedMessage("SJDKFSLDFLKsjdksfls");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("2398393");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         // Connect without name should be invalid.
         peer.handleReceivedMessage("connect");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("null");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
     }
 
     @Test
     void handleValidRequestMessage() {
         // Send the message in an invalid state.
         peer.handleReceivedMessage("request 3");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         // Get the peer into the right state.
         peer.handleReceivedMessage("connect Bob");
@@ -103,7 +103,7 @@ class ClientPeerTest {
     void handleInvalidRequestMessage() {
         // Send invalid message in an invalid state.
         peer.handleReceivedMessage("request 16");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         // Get the peer into the right state.
         peer.handleReceivedMessage("connect Bob");
@@ -113,22 +113,22 @@ class ClientPeerTest {
 
         // Send invalid messages in the right state.
         peer.handleReceivedMessage("request 16");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("request 1");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("request 5");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("request HELLO!");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("request");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         peer.handleReceivedMessage("request -1");
-        assertEquals("invalid command", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
 
@@ -219,6 +219,6 @@ class ClientPeerTest {
     @Test
     void sendInvalidNameMessage() {
         peer.sendInvalidNameError();
-        assertEquals("invalid name", connection.readSentMessage());
+        assertEquals(ClientPeer.INVALID_NAME_ERROR_MESSAGE, connection.readSentMessage());
     }
 }

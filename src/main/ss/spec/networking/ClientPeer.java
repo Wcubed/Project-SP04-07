@@ -2,19 +2,13 @@ package ss.spec.networking;
 
 import ss.spec.gamepieces.Tile;
 
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ClientPeer extends AbstractPeer {
 
     private String name;
     private int requestedPlayerAmount;
-    /**
-     * The state of this client.
-     * Don't read this directly, always use 'getState()'.
-     * This should make testing easier.
-     */
+
     private ClientState state;
 
     public ClientPeer(Connection connection) {
@@ -209,12 +203,21 @@ public class ClientPeer extends AbstractPeer {
                 convertTileToProtocol(replacement));
     }
 
+    /**
+     * TODO: This should probably be "Map<String, List<Tile>>" instead of the specific type.
+     * Doing so however, raises a "cannot be applied to..." error when calling it with
+     * the specific types.
+     */
+    public void sendTileAnnouncement(HashMap<String, ArrayList<Tile>> playerTiles) {
+        // TODO: Implement
+    }
+
     public void sendPlayerLeftMessage(String playerName) {
         sendMessage("player " + playerName + " left");
     }
 
     public void sendInvalidNameError() {
-        sendMessage("invalid name");
+        sendMessage(INVALID_NAME_ERROR_MESSAGE);
     }
 
 
