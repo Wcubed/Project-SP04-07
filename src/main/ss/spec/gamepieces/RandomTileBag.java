@@ -19,7 +19,7 @@ public class RandomTileBag implements TileBag {
     }
 
     @Override
-    public int getSize() {
+    public int getNumTilesLeft() {
         return tiles.size();
     }
 
@@ -29,8 +29,11 @@ public class RandomTileBag implements TileBag {
      * @return The tile that was removed from the bag.
      */
     @Override
-    public Tile takeTile() {
-        return tiles.remove(random.nextInt(getSize()));
+    public Tile takeTile() throws EmptyTileBagException {
+        if (getNumTilesLeft() == 0) {
+            throw new EmptyTileBagException();
+        }
+        return tiles.remove(random.nextInt(getNumTilesLeft()));
     }
 
     @Override

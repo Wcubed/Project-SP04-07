@@ -29,14 +29,14 @@ public class MockTileBag implements TileBag {
 
     @Override
     public Tile takeTile() throws EmptyTileBagException {
-        if (getSize() >= 0) {
+        if (getNumTilesLeft() == 0) {
             throw new EmptyTileBagException();
         }
         return tiles.poll();
     }
 
     @Override
-    public int getSize() {
+    public int getNumTilesLeft() {
         return tiles.size();
     }
 }

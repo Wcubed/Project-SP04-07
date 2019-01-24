@@ -160,6 +160,21 @@ public class ClientPeer extends AbstractPeer {
         // TODO: Do we want to signal an inconsistent state?
     }
 
+
+    /**
+     * Called by the game to signal we are now waiting for our turn.
+     */
+    public void awaitTurn() {
+        state = ClientState.GAME_AWAITING_TURN;
+    }
+
+    /**
+     * Called by the game to let us know we are waiting for the client to send a move message.
+     */
+    public void clientDecideMove() {
+        state = ClientState.PEER_DECIDE_MOVE;
+    }
+
     /**
      * Called when the client returns from a game to the lobby.
      * The peer can now sent a new request for a game.

@@ -8,5 +8,5 @@ public interface TileBag {
 
     Tile takeTile() throws EmptyTileBagException;
 
-    int getSize();
+    int getNumTilesLeft();
 }
