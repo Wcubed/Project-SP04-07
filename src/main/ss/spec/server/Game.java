@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Game implements Runnable {
 
-    private boolean stopGameThread;
+    private boolean gameOver;
 
     /**
      * The list of players in turn order.
@@ -30,8 +30,14 @@ public class Game implements Runnable {
         this.bag = bag;
         this.bag.addAllStartingTiles();
 
+        gameOver = false;
+
         // TODO: Decide starting order of players.
         this.players = players;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     /**
@@ -43,7 +49,7 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
-        while (!stopGameThread) {
+        while (!isGameOver()) {
             doSingleGameIteration();
 
             // TODO: Tweak sleeping for final application, maybe even remove it.
@@ -53,10 +59,12 @@ public class Game implements Runnable {
                 e.printStackTrace();
             }
         }
+
+        // TODO: cleanup?
     }
 
 
     public void doSingleGameIteration() {
-
+        // TODO: implement this.
     }
 }

@@ -190,7 +190,17 @@ public class Lobby implements Runnable {
             }
         }
 
-        // TODO: start a game when we have the right amount of clients.
+        if (clients.size() >= numberOfPlayers) {
+            ArrayList<ClientPeer> players = new ArrayList<>();
+
+            // Get the amount of players specified.
+            for (int i = 0; i <= numberOfPlayers; i++) {
+                players.add(clients.remove(0));
+            }
+
+            // TODO: start a game with the players.
+
+        }
     }
 
     /**
