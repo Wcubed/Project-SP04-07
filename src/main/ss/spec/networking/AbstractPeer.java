@@ -12,7 +12,7 @@ public abstract class AbstractPeer implements Runnable {
 
     private boolean peerConnected;
 
-    AbstractPeer(Connection connection) {
+    protected AbstractPeer(Connection connection) {
         this.connection = connection;
 
         peerConnected = !connection.isDead();
@@ -73,7 +73,7 @@ public abstract class AbstractPeer implements Runnable {
         sendMessage(INVALID_COMMAND_ERROR_MESSAGE);
     }
 
-    String convertTileToProtocol(Tile tile) {
+    protected String convertTileToProtocol(Tile tile) {
         return "" +
                 convertColorToProtocol(tile.getFlatSide()) +
                 convertColorToProtocol(tile.getClockwise1()) +

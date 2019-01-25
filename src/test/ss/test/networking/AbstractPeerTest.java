@@ -1,8 +1,8 @@
 package ss.test.networking;
 
 import org.junit.jupiter.api.Test;
-import ss.spec.networking.ClientPeer;
 import ss.spec.networking.InvalidCommandException;
+import ss.spec.server.ClientPeer;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,4 +1,7 @@
-package ss.spec.networking;
+package ss.spec.client;
+
+import ss.spec.networking.AbstractPeer;
+import ss.spec.networking.Connection;
 
 public class ServerPeer extends AbstractPeer {
 

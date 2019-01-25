@@ -1,4 +1,4 @@
-package ss.spec.networking;
+package ss.spec.server;
 
 /**
  * Enum to denote the current state the client is in.
@@ -20,7 +20,7 @@ public enum ClientState {
     // Client has requested a game, but has not been sent a `waiting` message yet.
     LOBBY_START_WAITING_FOR_PLAYERS,
     LOBBY_WAITING_FOR_PLAYERS,
-    
+
     GAME_AWAITING_TURN,
     PEER_DECIDE_MOVE,
     GAME_VERIFY_MOVE,

@@ -3,7 +3,6 @@ package ss.spec.server;
 import ss.spec.gamepieces.Board;
 import ss.spec.gamepieces.RandomTileBag;
 import ss.spec.gamepieces.TileBag;
-import ss.spec.networking.ClientPeer;
 
 import java.util.ArrayList;
 import java.util.HashSet;

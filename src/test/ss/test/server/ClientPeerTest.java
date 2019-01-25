@@ -1,11 +1,12 @@
-package ss.test.networking;
+package ss.test.server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.Color;
 import ss.spec.gamepieces.Tile;
-import ss.spec.networking.ClientPeer;
-import ss.spec.networking.ClientState;
+import ss.spec.server.ClientPeer;
+import ss.spec.server.ClientState;
+import ss.test.networking.MockConnection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -193,7 +194,8 @@ class ClientPeerTest {
         tiles.put("Bob", bobTiles);
 
         peer.sendTileAndTurnAnnouncement(tiles, "Bob");
-        assertEquals("tiles Bob RPG3 null null null turn Bob", connection.readSentMessage());
+        assertEquals("tiles Bob RPG3 null null null turn Bob",
+                connection.readSentMessage());
 
         bobTiles.add(new Tile(Color.PURPLE, Color.BLUE, Color.YELLOW, 4));
 
@@ -202,7 +204,8 @@ class ClientPeerTest {
         tiles.put("Albert", albertTiles);
 
         peer.sendTileAndTurnAnnouncement(tiles, "Bob");
-        assertEquals("tiles Bob RPG3 PBY4 null null Albert GWG1 null null null turn Bob", connection.readSentMessage());
+        assertEquals("tiles Bob RPG3 PBY4 null null Albert GWG1 null null null turn Bob",
+                connection.readSentMessage());
     }
 
     @Test

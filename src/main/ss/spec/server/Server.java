@@ -1,6 +1,5 @@
 package ss.spec.server;
 
-import ss.spec.networking.ClientPeer;
 import ss.spec.networking.SocketConnection;
 
 import java.io.IOException;

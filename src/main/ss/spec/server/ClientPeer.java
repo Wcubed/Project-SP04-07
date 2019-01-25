@@ -1,6 +1,9 @@
-package ss.spec.networking;
+package ss.spec.server;
 
 import ss.spec.gamepieces.Tile;
+import ss.spec.networking.AbstractPeer;
+import ss.spec.networking.Connection;
+import ss.spec.networking.InvalidCommandException;
 
 import java.util.*;
 

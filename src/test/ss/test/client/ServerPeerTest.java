@@ -1,8 +1,9 @@
-package ss.test.networking;
+package ss.test.client;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.networking.ServerPeer;
+import ss.spec.client.ServerPeer;
+import ss.test.networking.MockConnection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

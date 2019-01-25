@@ -2,8 +2,8 @@ package ss.test.server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.networking.ClientPeer;
-import ss.spec.networking.ClientState;
+import ss.spec.server.ClientPeer;
+import ss.spec.server.ClientState;
 import ss.spec.server.Game;
 import ss.spec.server.Lobby;
 import ss.test.networking.MockConnection;
