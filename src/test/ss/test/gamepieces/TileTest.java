@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.Color;
 import ss.spec.gamepieces.Tile;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TileTest {
 
@@ -81,5 +80,31 @@ class TileTest {
         assertEquals(rotTile.getFlatSide(), tile2.getFlatSide());
         assertNotEquals(rotTile.getClockwise1(), tile2.getClockwise1());
         assertNotEquals(rotTile.getClockwise2(), tile2.getClockwise2());
+    }
+
+    @Test
+    void equality() {
+        assertEquals(tile1, tile1);
+        assertEquals(tile2, tile2);
+        assertNotEquals(tile1, tile2);
+        assertNotEquals(tile2, tile1);
+
+        assertNotEquals(tile1, tile1.rotate120());
+        assertNotEquals(tile1, tile1.rotate240());
+
+        assertNotEquals(tile1, null);
+        assertNotEquals(tile1, 2);
+        assertNotEquals(tile1.rotate120(), Color.GREEN);
+    }
+
+    @Test
+    void equivalency() {
+        assertTrue(tile1.isEquivalent(tile1));
+        assertFalse(tile1.isEquivalent(tile2));
+        assertFalse(tile2.isEquivalent(tile1));
+        assertTrue(tile2.isEquivalent(tile2));
+
+        assertTrue(tile1.isEquivalent(tile1.rotate120()));
+        assertTrue(tile1.isEquivalent(tile1.rotate240()));
     }
 }

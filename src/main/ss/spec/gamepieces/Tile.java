@@ -52,6 +52,44 @@ public class Tile {
         return new Tile(clockwise1, clockwise2, flatSide, points);
     }
 
+    /**
+     * Tests whether two tiles are equivalent.
+     * Meaning: the one tile can be rotated so that it equals the other tile.
+     *
+     * @param other The tile to test equivalency with.
+     * @return Whether the tiles are equivalent or not.
+     */
+    public boolean isEquivalent(Tile other) {
+        return this.equals(other) ||
+                this.equals(other.rotate120()) ||
+                this.equals(other.rotate240());
+    }
+
+    /**
+     * Test for equality. Rotated tiles are not equal to each other.
+     *
+     * @param o The object to test equality with.
+     * @return Whether the two objects are equal.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+
+        Tile other = (Tile) o;
+        return getFlatSide().equals(other.getFlatSide()) &&
+                getClockwise1().equals(other.getClockwise1()) &&
+                getClockwise2().equals(other.getClockwise2()) &&
+                getPoints() == other.getPoints();
+    }
+
     public Color getFlatSide() {
         return flatSide;
     }
