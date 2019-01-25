@@ -17,7 +17,20 @@ public class ClientPeer extends AbstractPeer {
 
     private ClientState state;
 
+    /**
+     * The move the peer wants to make.
+     * TODO: there is probably a better way to do this:
+     * Is only valid when getState() == ClientState.GAME_VERIFY_MOVE.
+     */
     private Move proposedMove;
+
+    /**
+     * The tile we propose to replace.
+     * TODO: there is probably a better way to do this:
+     * `null` if we want to skip.
+     * Is only valid when getState() == ClientState.GAME_VERIFY_SKIP.
+     */
+    private Tile proposedReplaceTile;
 
     public ClientPeer(Connection connection) {
         super(connection);
@@ -44,6 +57,19 @@ public class ClientPeer extends AbstractPeer {
         return proposedMove;
     }
 
+    /**
+     * Returns true if the peer wants to skip, false if they want to replace.
+     *
+     * @return true if the peer wants to skip, false if they want to replace.
+     */
+    public boolean wantsToSkip() {
+        return proposedReplaceTile == null;
+    }
+
+    public Tile getProposedReplaceTile() {
+        return proposedReplaceTile;
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     @Override
@@ -63,6 +89,10 @@ public class ClientPeer extends AbstractPeer {
                         break;
                     case "place":
                         parseMoveMessage(scanner);
+                    case "skip":
+                        parseSkipMessage(scanner);
+                    case "exchange":
+                        parseExchangeMessage(scanner);
                     default:
                         // We don't know this command.
                         // TODO: logging.
@@ -182,6 +212,38 @@ public class ClientPeer extends AbstractPeer {
         state = ClientState.GAME_VERIFY_MOVE;
     }
 
+    private void parseSkipMessage(Scanner message) throws InvalidCommandException {
+        if (getState() != ClientState.PEER_DECIDE_SKIP) {
+            throw new InvalidCommandException("Not expecting a skip message.");
+        }
+
+        // An exchange tile of `null` means we want to skip.
+        proposedReplaceTile = null;
+        state = ClientState.GAME_VERIFY_SKIP;
+    }
+
+    private void parseExchangeMessage(Scanner message) throws InvalidCommandException {
+        if (getState() != ClientState.PEER_DECIDE_SKIP) {
+            throw new InvalidCommandException("Not expecting an exchange message.");
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Exchange message does not have a tile.");
+        }
+
+        Tile tile;
+
+        try {
+            tile = Tile.decode(message.next());
+        } catch (DecodeException e) {
+            throw new InvalidCommandException("Exchange message does not have a tile.", e);
+        }
+
+        proposedReplaceTile = tile;
+        state = ClientState.GAME_VERIFY_SKIP;
+    }
+
+
     /**
      * Called by the Lobby to signal to the client that the chosen name is valid.
      */
@@ -234,7 +296,7 @@ public class ClientPeer extends AbstractPeer {
         state = ClientState.PEER_DECIDE_MOVE;
     }
 
-    void decideSkip() {
+    public void clientDecideSkip() {
         state = ClientState.PEER_DECIDE_SKIP;
     }
 

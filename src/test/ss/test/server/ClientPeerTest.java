@@ -11,8 +11,7 @@ import ss.test.networking.MockConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientPeerTest {
 
@@ -171,6 +170,56 @@ class ClientPeerTest {
         peer.handleReceivedMessage("place WWW1 on -10");
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
         peer.handleReceivedMessage("place on RRR4 12");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+    }
+
+    @Test
+    void handleSkipMessage() {
+        // Not allowed to skip.
+        peer.handleReceivedMessage("skip");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+
+        // Now we are allowed to skip.
+        peer.clientDecideSkip();
+        peer.handleReceivedMessage("skip");
+        assertEquals(ClientState.GAME_VERIFY_SKIP, peer.getState());
+        assertNull(peer.getProposedReplaceTile());
+        assertTrue(peer.wantsToSkip());
+
+        // Mangled message
+        peer.clientDecideSkip();
+        peer.handleReceivedMessage("skipbldk");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+    }
+
+    @Test
+    void handleExchangeMessage() {
+        // Not allowed to exchange.
+        peer.handleReceivedMessage("exchange RGB2");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+
+        // Now we are allowed to exchange.
+        peer.clientDecideSkip();
+        peer.handleReceivedMessage("exchange RGB2");
+        assertEquals(ClientState.GAME_VERIFY_SKIP, peer.getState());
+        assertEquals(new Tile(Color.RED, Color.GREEN, Color.BLUE, 2),
+                peer.getProposedReplaceTile());
+        assertFalse(peer.wantsToSkip());
+
+        peer.clientDecideSkip();
+
+        // Mangled messages.
+        peer.handleReceivedMessage("exchange");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange R");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange blabla");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange       ");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange !");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange PRT-1");
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
     }
 

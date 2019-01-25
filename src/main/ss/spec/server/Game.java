@@ -131,7 +131,7 @@ public class Game implements Runnable {
                             sendTileAndTurnAnnouncement(player.getName());
                         } else {
                             // Whoops, no move for this player.
-                            player.decideSkip();
+                            player.clientDecideSkip();
                             // Announce that this player does not have a valid move option.
                             sendSkipAnnouncement(player.getName());
                         }
