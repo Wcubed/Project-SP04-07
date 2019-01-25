@@ -130,4 +130,5 @@ public class GameTest {
     }
 
     // TODO: Test more game stuff.
+    // TODO: Test game end.
 }

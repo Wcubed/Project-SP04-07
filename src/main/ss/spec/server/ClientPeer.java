@@ -157,7 +157,7 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the Lobby to signal we are waiting for more players.
      */
-    public void signalWaitingForPlayers(List<String> names) {
+    void signalWaitingForPlayers(List<String> names) {
         sendWaitingMessage(names);
         state = ClientState.LOBBY_WAITING_FOR_PLAYERS;
         // TODO: Do we want to signal an inconsistent state?
@@ -167,22 +167,26 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the game to signal we are now waiting for our turn.
      */
-    public void awaitTurn() {
+    void awaitTurn() {
         state = ClientState.GAME_AWAITING_TURN;
     }
 
     /**
      * Called by the game to let us know we are waiting for the client to send a move message.
      */
-    public void clientDecideMove() {
+    void clientDecideMove() {
         state = ClientState.PEER_DECIDE_MOVE;
+    }
+
+    void decideSkip() {
+        state = ClientState.PEER_DECIDE_SKIP;
     }
 
     /**
      * Called when the client returns from a game to the lobby.
      * The peer can now sent a new request for a game.
      */
-    public void returningToLobby() {
+    void returningToLobby() {
         state = ClientState.PEER_AWAITING_GAME_REQUEST;
     }
 
@@ -249,6 +253,33 @@ public class ClientPeer extends AbstractPeer {
 
     public void sendPlayerLeftMessage(String playerName) {
         sendMessage("player " + playerName + " left");
+    }
+
+    public void sendLeaderBoardMessage(Map<String, Integer> scores) {
+        Map<String, Integer> sortScores = new HashMap<>(scores);
+
+        StringBuilder leaderBoard = new StringBuilder();
+
+        // Sort the scores.
+        while (!sortScores.isEmpty()) {
+            int highest = Integer.MIN_VALUE;
+            String highestName = "";
+            for (Map.Entry<String, Integer> score : sortScores.entrySet()) {
+                if (score.getValue() >= highest) {
+                    highest = score.getValue();
+                    highestName = score.getKey();
+                }
+            }
+
+            leaderBoard.append(highestName);
+            leaderBoard.append(" ");
+            leaderBoard.append(highest);
+            leaderBoard.append(" ");
+
+            sortScores.remove(highestName);
+        }
+
+        sendMessage("game finished leaderboard " + leaderBoard);
     }
 
     public void sendInvalidNameError() {

@@ -133,7 +133,6 @@ class ClientPeerTest {
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
         assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
-
     }
 
 
@@ -233,6 +232,29 @@ class ClientPeerTest {
 
         peer.sendPlayerLeftMessage("aLiCe");
         assertEquals("player aLiCe left", connection.readSentMessage());
+    }
+
+    @Test
+    void sendLeaderBoardMessage() {
+        HashMap<String, Integer> scores = new HashMap<>();
+
+        peer.sendLeaderBoardMessage(scores);
+        assertEquals("game finished leaderboard ", connection.readSentMessage());
+
+        scores.put("R2-D2", 80);
+        scores.put("Obi-wan", 0);
+        scores.put("Anakin", 12);
+
+        peer.sendLeaderBoardMessage(scores);
+        assertEquals("game finished leaderboard R2-D2 80 Anakin 12 Obi-wan 0 ",
+                connection.readSentMessage());
+
+        scores.put("Vader", 129348);
+
+        peer.sendLeaderBoardMessage(scores);
+        assertEquals(
+                "game finished leaderboard Vader 129348 R2-D2 80 Anakin 12 Obi-wan 0 ",
+                connection.readSentMessage());
     }
 
     @Test

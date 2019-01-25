@@ -86,6 +86,13 @@ class TileTest {
     void equality() {
         assertEquals(tile1, tile1);
         assertEquals(tile2, tile2);
+
+        assertEquals(tile1,
+                new Tile(tile1.getFlatSide(),
+                        tile1.getClockwise1(),
+                        tile1.getClockwise2(),
+                        tile1.getPoints()));
+
         assertNotEquals(tile1, tile2);
         assertNotEquals(tile2, tile1);
 

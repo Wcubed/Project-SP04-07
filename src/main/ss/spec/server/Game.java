@@ -8,6 +8,7 @@ import ss.spec.gamepieces.TileBag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Game implements Runnable {
@@ -21,7 +22,9 @@ public class Game implements Runnable {
     private ArrayList<String> turnOrder;
     private int currentTurnPlayer;
 
+    // TODO: Do we want to change these two pieces of info to a single separate class?
     private HashMap<String, ArrayList<Tile>> playerTiles;
+    private HashMap<String, Integer> playerScores;
 
     /**
      * Instantiates the Game class with the given players, board and TileBag.
@@ -39,6 +42,7 @@ public class Game implements Runnable {
 
         this.turnOrder = new ArrayList<>();
         this.playerTiles = new HashMap<>();
+        this.playerScores = new HashMap<>();
     }
 
     public boolean isGameOver() {
@@ -83,9 +87,10 @@ public class Game implements Runnable {
     public void setUpGame() {
         bag.addAllStartingTiles();
 
-        // Set up tile lists.
+        // Set up tile and score lists.
         for (ClientPeer player : players) {
             playerTiles.put(player.getName(), new ArrayList<>());
+            playerScores.put(player.getName(), 0);
         }
 
         decideTurnOrder();
@@ -114,19 +119,22 @@ public class Game implements Runnable {
                 break;
             }
 
-            // TODO: Somewhere in here, check if the tile bag is emtpy.
-            //       And no one can make a turn anymore.
-            //       Because that means the game is over.
 
             if (player.getName().equals(getCurrentTurnPlayerName())) {
                 // It's this player's turn.
 
                 switch (player.getState()) {
                     case GAME_AWAITING_TURN:
-                        // TODO: check if the player can actually make a move.
-                        player.clientDecideMove();
-                        // Notify everyone that this player's turn has started.
-                        sendTileAndTurnAnnouncement(player.getName());
+                        if (board.hasValidMoves(playerTiles.get(player.getName()))) {
+                            player.clientDecideMove();
+                            // Notify everyone that this player's turn has started.
+                            sendTileAndTurnAnnouncement(player.getName());
+                        } else {
+                            // Whoops, no move for this player.
+                            player.decideSkip();
+                            // Announce that this player does not have a valid move option.
+                            sendSkipAnnouncement(player.getName());
+                        }
                         break;
                     case PEER_DECIDE_MOVE:
                         // Waiting for the peer to send a move message.
@@ -134,6 +142,7 @@ public class Game implements Runnable {
                         break;
                     case GAME_VERIFY_MOVE:
                         // TODO: Verify and make the move.
+                        // TODO: update the score of the player.
                         // TODO: Notify everyone of the move.
 
                         // Move is valid, the turn goes to the next player.
@@ -162,7 +171,25 @@ public class Game implements Runnable {
                 }
             }
 
-            // TODO: End the game.
+            // Check if the game is over.
+            if (bag.getNumTilesLeft() == 0) {
+                // No tiles left in the bag.
+                // Are there any players who can make a move?
+                boolean noOneCanMove = true;
+                for (ArrayList<Tile> tiles : playerTiles.values()) {
+                    if (board.hasValidMoves(tiles)) {
+                        // Hey! someone can still move.
+                        // The game goes on.
+                        noOneCanMove = false;
+                        break;
+                    }
+                }
+
+                if (noOneCanMove) {
+                    // Uh oh, game over!
+                    stopGameNoMovesLeft();
+                }
+            }
 
         }
     }
@@ -214,10 +241,23 @@ public class Game implements Runnable {
 
     /**
      * Let's all the players know who has what tiles, and who's turn it is.
+     *
+     * @param playerName The player who's turn it is.
      */
     private void sendTileAndTurnAnnouncement(String playerName) {
         for (ClientPeer player : players) {
             player.sendTileAndTurnAnnouncement(playerTiles, playerName);
+        }
+    }
+
+    /**
+     * Let's all the players know that the given player has to skip.
+     *
+     * @param playerName The player who has to skip.
+     */
+    private void sendSkipAnnouncement(String playerName) {
+        for (ClientPeer player : players) {
+            player.sendSkipMessage(playerName);
         }
     }
 
@@ -232,6 +272,27 @@ public class Game implements Runnable {
             // We are also sending this message to the one who disconnected.
             // This is not a problem however, as that is handled gracefully.
             player.sendPlayerLeftMessage(playerName);
+        }
+
+        gameIsNowOver();
+    }
+
+    /**
+     * Stops the game because there are no moves left.
+     * This is the normal way a game stops.
+     */
+    private void stopGameNoMovesLeft() {
+        // Subtract all the tiles left in a players hand from the player's scores.
+        for (Map.Entry<String, ArrayList<Tile>> tiles : playerTiles.entrySet()) {
+            for (Tile tile : tiles.getValue()) {
+                // TODO: Maybe we DO need to change the tiles and points into a proper class.
+                playerScores.put(tiles.getKey(),
+                        playerScores.get(tiles.getKey()) - tile.getPoints());
+            }
+        }
+
+        for (ClientPeer player : players) {
+            player.sendLeaderBoardMessage(playerScores);
         }
 
         gameIsNowOver();
