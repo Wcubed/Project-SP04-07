@@ -135,6 +135,45 @@ class ClientPeerTest {
         assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
     }
 
+    @Test
+    void handleMoveMessage() {
+        // Not allowed to make a move yet.
+        peer.handleReceivedMessage("place RGB2 on 12");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+
+        // Now we are allowed to make a move.
+        peer.clientDecideMove();
+        peer.handleReceivedMessage("place RGB4 on 12");
+        assertEquals(ClientState.GAME_VERIFY_MOVE, peer.getState());
+        assertEquals(
+                new Tile(Color.RED, Color.GREEN, Color.BLUE, 4),
+                peer.getProposedMove().getTile());
+        assertEquals(12, peer.getProposedMove().getIndex());
+
+        // Make another move.
+        peer.clientDecideMove();
+        peer.handleReceivedMessage("place PPP2 on 3");
+        assertEquals(ClientState.GAME_VERIFY_MOVE, peer.getState());
+        assertEquals(
+                new Tile(Color.PURPLE, Color.PURPLE, Color.PURPLE, 2),
+                peer.getProposedMove().getTile());
+        assertEquals(3, peer.getProposedMove().getIndex());
+
+        peer.clientDecideMove();
+
+        // Mangled messages.
+        peer.handleReceivedMessage("place");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("place on ");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("place RGB2 on");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("place WWW1 on -10");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("place on RRR4 12");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+    }
+
 
     // ---- Messages -------------------------------------------------------------------------------
 

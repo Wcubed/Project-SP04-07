@@ -58,7 +58,7 @@ public class Board {
         }
     }
 
-    public boolean isIdValid(int id) {
+    public static boolean isIdValid(int id) {
         return 0 <= id && id < BOARD_SIZE;
     }
 

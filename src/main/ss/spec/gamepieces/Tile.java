@@ -1,5 +1,7 @@
 package ss.spec.gamepieces;
 
+import ss.spec.networking.DecodeException;
+
 /**
  * Represents a Tile on the game gamepieces.
  * Tiles have three colored sides, named "flatSide", "clockwise1" and "clockwise2".
@@ -104,6 +106,24 @@ public class Tile {
 
     public int getPoints() {
         return points;
+    }
+
+    public static Tile decode(String message) throws DecodeException {
+        if (message == null || message.length() != 4) {
+            throw new DecodeException("Cannot create Tile from message: \'" + message + "\'.");
+        }
+
+        //try {
+        Color flat = Color.decode(message.charAt(0));
+        Color cw1 = Color.decode(message.charAt(1));
+        Color cw2 = Color.decode(message.charAt(2));
+        int points = Character.getNumericValue(message.charAt(3));
+
+        if (points <= 0) {
+            throw new DecodeException("Cannot create Tile from message: \'" + message + "\'.");
+        }
+
+        return new Tile(flat, cw1, cw2, points);
     }
 
 }

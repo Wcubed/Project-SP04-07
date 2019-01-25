@@ -141,6 +141,7 @@ public class Game implements Runnable {
                         // Do nothing.
                         break;
                     case GAME_VERIFY_MOVE:
+                        // TODO: verify that the player has the tile they want to place.
                         // TODO: Verify and make the move.
                         // TODO: update the score of the player.
                         // TODO: Notify everyone of the move.
@@ -155,6 +156,7 @@ public class Game implements Runnable {
                         // Do nothing.
                         break;
                     case GAME_VERIFY_SKIP:
+                        // TODO; check if the player has the tile they want to replace.
                         // TODO: Check if the player wants to replace a tile.
                         // TODO: announce the skip.
 

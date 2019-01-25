@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.Color;
 import ss.spec.gamepieces.Tile;
+import ss.spec.networking.DecodeException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,11 +88,7 @@ class TileTest {
         assertEquals(tile1, tile1);
         assertEquals(tile2, tile2);
 
-        assertEquals(tile1,
-                new Tile(tile1.getFlatSide(),
-                        tile1.getClockwise1(),
-                        tile1.getClockwise2(),
-                        tile1.getPoints()));
+        assertEquals(tile1, new Tile(Color.BLUE, Color.RED, Color.PURPLE, 2));
 
         assertNotEquals(tile1, tile2);
         assertNotEquals(tile2, tile1);
@@ -113,5 +110,23 @@ class TileTest {
 
         assertTrue(tile1.isEquivalent(tile1.rotate120()));
         assertTrue(tile1.isEquivalent(tile1.rotate240()));
+    }
+
+    @Test
+    void decode() throws DecodeException {
+        assertEquals(new Tile(Color.RED, Color.PURPLE, Color.WHITE, 3),
+                Tile.decode("RPW3"));
+
+        assertEquals(new Tile(Color.PURPLE, Color.PURPLE, Color.PURPLE, 8),
+                Tile.decode("PPP8"));
+
+        assertThrows(DecodeException.class, () -> Tile.decode(""));
+        assertThrows(DecodeException.class, () -> Tile.decode(null));
+        assertThrows(DecodeException.class, () -> Tile.decode("    "));
+        assertThrows(DecodeException.class, () -> Tile.decode("5DDD"));
+        assertThrows(DecodeException.class, () -> Tile.decode("RPW+"));
+        assertThrows(DecodeException.class, () -> Tile.decode("SDJFKsdfs"));
+        assertThrows(DecodeException.class, () -> Tile.decode("R G B 4"));
+        assertThrows(DecodeException.class, () -> Tile.decode("QRS8"));
     }
 }

@@ -1,5 +1,7 @@
 package ss.spec.gamepieces;
 
+import ss.spec.networking.DecodeException;
+
 public enum Color {
     RED, BLUE, GREEN, YELLOW, PURPLE, WHITE;
 
@@ -16,4 +18,22 @@ public enum Color {
     }
 
 
+    public static Color decode(char c) throws DecodeException {
+        switch (c) {
+            case 'R':
+                return Color.RED;
+            case 'B':
+                return Color.BLUE;
+            case 'G':
+                return Color.GREEN;
+            case 'Y':
+                return Color.YELLOW;
+            case 'P':
+                return Color.PURPLE;
+            case 'W':
+                return Color.WHITE;
+            default:
+                throw new DecodeException("Cannot create a Color from: \'" + c + "\'.");
+        }
+    }
 }

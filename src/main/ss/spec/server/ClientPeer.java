@@ -1,8 +1,11 @@
 package ss.spec.server;
 
+import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.Move;
 import ss.spec.gamepieces.Tile;
 import ss.spec.networking.AbstractPeer;
 import ss.spec.networking.Connection;
+import ss.spec.networking.DecodeException;
 import ss.spec.networking.InvalidCommandException;
 
 import java.util.*;
@@ -13,6 +16,8 @@ public class ClientPeer extends AbstractPeer {
     private int requestedPlayerAmount;
 
     private ClientState state;
+
+    private Move proposedMove;
 
     public ClientPeer(Connection connection) {
         super(connection);
@@ -35,6 +40,12 @@ public class ClientPeer extends AbstractPeer {
         return requestedPlayerAmount;
     }
 
+    public Move getProposedMove() {
+        return proposedMove;
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     @Override
     public void handleReceivedMessage(String message) {
         Scanner scanner = new Scanner(message);
@@ -50,6 +61,8 @@ public class ClientPeer extends AbstractPeer {
                     case "request":
                         parseRequestMessage(scanner);
                         break;
+                    case "place":
+                        parseMoveMessage(scanner);
                     default:
                         // We don't know this command.
                         // TODO: logging.
@@ -57,6 +70,7 @@ public class ClientPeer extends AbstractPeer {
                 }
             } catch (InvalidCommandException e) {
                 // TODO: logging.
+                System.out.println(e.getMessage());
                 sendInvalidCommandError(e);
             }
         } else {
@@ -126,6 +140,48 @@ public class ClientPeer extends AbstractPeer {
         }
     }
 
+    private void parseMoveMessage(Scanner message) throws InvalidCommandException {
+        if (getState() != ClientState.PEER_DECIDE_MOVE) {
+            throw new InvalidCommandException("Client is not allowed to make a move.");
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Move message does not have a tile.");
+        }
+
+        Tile tile;
+
+        try {
+            tile = Tile.decode(message.next());
+        } catch (DecodeException e) {
+            throw new InvalidCommandException("Move message does not have a tile.", e);
+        }
+
+        if (!message.hasNext() || !message.next().equals("on")) {
+            throw new InvalidCommandException("Malformed move message.");
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Move message does not have an index.");
+        }
+
+        int index;
+
+        try {
+            index = Integer.decode(message.next());
+        } catch (NumberFormatException e) {
+            throw new InvalidCommandException("Move message does not have an index.", e);
+        }
+
+        if (!Board.isIdValid(index)) {
+            throw new InvalidCommandException("Move message index is invalid.");
+        }
+
+        // Save the move so that the game thread can check it.
+        proposedMove = new Move(tile, index);
+        state = ClientState.GAME_VERIFY_MOVE;
+    }
+
     /**
      * Called by the Lobby to signal to the client that the chosen name is valid.
      */
@@ -174,7 +230,7 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the game to let us know we are waiting for the client to send a move message.
      */
-    void clientDecideMove() {
+    public void clientDecideMove() {
         state = ClientState.PEER_DECIDE_MOVE;
     }
 
@@ -229,7 +285,8 @@ public class ClientPeer extends AbstractPeer {
      * @param playerTiles The list of tiles for each player.
      * @param playerName  The player who's turn it is.
      */
-    public void sendTileAndTurnAnnouncement(HashMap<String, ArrayList<Tile>> playerTiles, String playerName) {
+    public void sendTileAndTurnAnnouncement(
+            HashMap<String, ArrayList<Tile>> playerTiles, String playerName) {
 
         StringBuilder tileMessage = new StringBuilder();
 
