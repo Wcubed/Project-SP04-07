@@ -105,9 +105,6 @@ public class Game implements Runnable {
 
             player.awaitTurn();
         }
-
-        // Let everyone know their starting tiles.
-        sendTileAnnouncements();
     }
 
 
@@ -130,7 +127,7 @@ public class Game implements Runnable {
                         // TODO: check if the player can actually make a move.
                         player.clientDecideMove();
                         // Notify everyone that this player's turn has started.
-                        sendTurnAnnouncement(player.getName());
+                        sendTileAndTurnAnnouncement(player.getName());
                         break;
                     case PEER_DECIDE_MOVE:
                         // Waiting for the peer to send a move message.
@@ -142,7 +139,6 @@ public class Game implements Runnable {
 
                         // Move is valid, the turn goes to the next player.
                         attemptDrawTileForPlayer(player.getName());
-                        sendTileAnnouncements();
                         player.awaitTurn();
                         advanceTurnPlayer();
                         break;
@@ -218,20 +214,11 @@ public class Game implements Runnable {
     }
 
     /**
-     * Let's all the players know who's turn it is.
+     * Let's all the players know who has what tiles, and who's turn it is.
      */
-    private void sendTurnAnnouncement(String playerName) {
+    private void sendTileAndTurnAnnouncement(String playerName) {
         for (ClientPeer player : players) {
-            player.sendTurnMessage(playerName);
-        }
-    }
-
-    /**
-     * Let's all the players know who has what tiles.
-     */
-    private void sendTileAnnouncements() {
-        for (ClientPeer player : players) {
-            player.sendTileAnnouncement(playerTiles);
+            player.sendTileAndTurnAnnouncement(playerTiles, playerName);
         }
     }
 

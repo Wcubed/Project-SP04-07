@@ -203,10 +203,6 @@ public class ClientPeer extends AbstractPeer {
         sendMessage("order" + convertNameListToProtocol(names));
     }
 
-    public void sendTurnMessage(String playerName) {
-        sendMessage("turn " + playerName);
-    }
-
     public void sendSkipMessage(String playerName) {
         sendMessage("skip " + playerName);
     }
@@ -220,11 +216,32 @@ public class ClientPeer extends AbstractPeer {
 
     /**
      * TODO: This should probably be "Map<String, List<Tile>>" instead of the specific type.
-     * Doing so however, raises a "cannot be applied to..." error when calling it with
-     * the specific types.
+     * * Doing so however, raises a "cannot be applied to..." error when calling it with
+     * * the specific types.
+     *
+     * @param playerTiles The list of tiles for each player.
+     * @param playerName  The player who's turn it is.
      */
-    public void sendTileAnnouncement(HashMap<String, ArrayList<Tile>> playerTiles) {
-        // TODO: Implement
+    public void sendTileAndTurnAnnouncement(HashMap<String, ArrayList<Tile>> playerTiles, String playerName) {
+
+        StringBuilder tileMessage = new StringBuilder();
+
+        for (Map.Entry<String, ArrayList<Tile>> entry : playerTiles.entrySet()) {
+            tileMessage.append(entry.getKey());
+            tileMessage.append(" ");
+
+            for (int i = 0; i < 4; i++) {
+                try {
+                    tileMessage.append(convertTileToProtocol(entry.getValue().get(i)));
+                    tileMessage.append(" ");
+                } catch (IndexOutOfBoundsException e) {
+                    // No tiles left. Pad message to 4 items.
+                    tileMessage.append("null ");
+                }
+            }
+        }
+
+        sendMessage("tiles " + tileMessage + "turn " + playerName);
     }
 
     public void sendPlayerLeftMessage(String playerName) {

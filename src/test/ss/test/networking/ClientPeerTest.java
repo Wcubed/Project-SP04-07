@@ -8,6 +8,7 @@ import ss.spec.networking.ClientPeer;
 import ss.spec.networking.ClientState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -181,12 +182,27 @@ class ClientPeerTest {
     }
 
     @Test
-    void sendTurnMessage() {
-        peer.sendTurnMessage("diaNe");
-        assertEquals("turn diaNe", connection.readSentMessage());
+    void sendTileAndTurnMessage() {
+        HashMap<String, ArrayList<Tile>> tiles = new HashMap<>();
 
-        peer.sendTurnMessage("38981*(#");
-        assertEquals("turn 38981*(#", connection.readSentMessage());
+        peer.sendTileAndTurnAnnouncement(tiles, "Clara");
+        assertEquals("tiles turn Clara", connection.readSentMessage());
+
+        ArrayList<Tile> bobTiles = new ArrayList<>();
+        bobTiles.add(new Tile(Color.RED, Color.PURPLE, Color.GREEN, 3));
+        tiles.put("Bob", bobTiles);
+
+        peer.sendTileAndTurnAnnouncement(tiles, "Bob");
+        assertEquals("tiles Bob RPG3 null null null turn Bob", connection.readSentMessage());
+
+        bobTiles.add(new Tile(Color.PURPLE, Color.BLUE, Color.YELLOW, 4));
+
+        ArrayList<Tile> albertTiles = new ArrayList<>();
+        albertTiles.add(new Tile(Color.GREEN, Color.WHITE, Color.GREEN, 1));
+        tiles.put("Albert", albertTiles);
+
+        peer.sendTileAndTurnAnnouncement(tiles, "Bob");
+        assertEquals("tiles Bob RPG3 PBY4 null null Albert GWG1 null null null turn Bob", connection.readSentMessage());
     }
 
     @Test
