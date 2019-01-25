@@ -38,24 +38,18 @@ public class Tile {
     }
 
     /**
-     * Rotates the tile 120 degrees clockwise.
+     * Returns a copy of the tile that is rotated 120 degrees clockwise.
      */
-    public void rotate120() {
-        Color temp = flatSide;
-        flatSide = clockwise2;
-        clockwise2 = clockwise1;
-        clockwise1 = temp;
+    public Tile rotate120() {
+        return new Tile(clockwise2, flatSide, clockwise1, points);
     }
 
     /**
-     * Rotates the tile 240 degrees clockwise.
+     * Returns a copy of the tile that is rotated 240 degrees clockwise.
      * (the equivalent of rotating 120 degrees counterclockwise.)
      */
-    public void rotate240() {
-        Color temp = flatSide;
-        flatSide = clockwise1;
-        clockwise1 = clockwise2;
-        clockwise2 = temp;
+    public Tile rotate240() {
+        return new Tile(clockwise1, clockwise2, flatSide, points);
     }
 
     public Color getFlatSide() {

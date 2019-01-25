@@ -36,37 +36,50 @@ class TileTest {
 
     @Test
     void rotate120() {
-        tile1.rotate120();
+        Tile rotTile = tile1.rotate120();
 
-        assertEquals(Color.PURPLE, tile1.getFlatSide());
-        assertEquals(Color.BLUE, tile1.getClockwise1());
-        assertEquals(Color.RED, tile1.getClockwise2());
+        assertEquals(Color.PURPLE, rotTile.getFlatSide());
+        assertEquals(Color.BLUE, rotTile.getClockwise1());
+        assertEquals(Color.RED, rotTile.getClockwise2());
+        assertEquals(2, rotTile.getPoints());
+
+        // The original tile should be unchanged.
+        assertEquals(Color.BLUE, tile1.getFlatSide());
+        assertEquals(Color.RED, tile1.getClockwise1());
+        assertEquals(Color.PURPLE, tile1.getClockwise2());
         assertEquals(2, tile1.getPoints());
     }
 
     @Test
     void rotate240() {
-        tile1.rotate240();
+        Tile rotTile = tile1.rotate240();
 
-        assertEquals(Color.RED, tile1.getFlatSide());
-        assertEquals(Color.PURPLE, tile1.getClockwise1());
-        assertEquals(Color.BLUE, tile1.getClockwise2());
+        assertEquals(Color.RED, rotTile.getFlatSide());
+        assertEquals(Color.PURPLE, rotTile.getClockwise1());
+        assertEquals(Color.BLUE, rotTile.getClockwise2());
+        assertEquals(2, rotTile.getPoints());
+
+        // The original tile should be unchanged.
+        assertEquals(Color.BLUE, tile1.getFlatSide());
+        assertEquals(Color.RED, tile1.getClockwise1());
+        assertEquals(Color.PURPLE, tile1.getClockwise2());
         assertEquals(2, tile1.getPoints());
 
-        tile2.rotate120();
+        // Rotate the other one.
+        Tile rotTile2 = tile2.rotate120();
 
-        assertEquals(Color.GREEN, tile2.getFlatSide());
-        assertEquals(Color.PURPLE, tile2.getClockwise1());
-        assertEquals(Color.GREEN, tile2.getClockwise2());
-        assertEquals(6, tile2.getPoints());
+        assertEquals(Color.GREEN, rotTile2.getFlatSide());
+        assertEquals(Color.PURPLE, rotTile2.getClockwise1());
+        assertEquals(Color.GREEN, rotTile2.getClockwise2());
+        assertEquals(6, rotTile2.getPoints());
     }
 
     @Test
     void testEqualSides() {
-        tile1.rotate120();
+        Tile rotTile = tile1.rotate120();
 
-        assertEquals(tile1.getFlatSide(), tile2.getFlatSide());
-        assertNotEquals(tile1.getClockwise1(), tile2.getClockwise1());
-        assertNotEquals(tile1.getClockwise2(), tile2.getClockwise2());
+        assertEquals(rotTile.getFlatSide(), tile2.getFlatSide());
+        assertNotEquals(rotTile.getClockwise1(), tile2.getClockwise1());
+        assertNotEquals(rotTile.getClockwise2(), tile2.getClockwise2());
     }
 }

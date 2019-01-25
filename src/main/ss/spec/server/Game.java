@@ -116,7 +116,7 @@ public class Game implements Runnable {
 
             // TODO: Somewhere in here, check if the tile bag is emtpy.
             //       And no one can make a turn anymore.
-            //       Becaus that means the game is over.
+            //       Because that means the game is over.
 
             if (player.getName().equals(getCurrentTurnPlayerName())) {
                 // It's this player's turn.

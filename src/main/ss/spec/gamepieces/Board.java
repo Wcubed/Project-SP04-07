@@ -1,6 +1,7 @@
 package ss.spec.gamepieces;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
 
@@ -63,6 +64,17 @@ public class Board {
 
     public boolean getIsEmpty() {
         return isEmpty;
+    }
+
+    /**
+     * Returns true if a player with the given tiles would have a valid move to make.
+     *
+     * @param playerTiles The tiles in the player's hand.
+     * @return true if the player can make a move, false otherwise.
+     */
+    public boolean hasValidMoves(List<Tile> playerTiles) {
+        // TODO: Return true if the player has at least 1 valid move, else false.
+        return true;
     }
 
     public boolean isMoveValid(int id, Tile tile) {
