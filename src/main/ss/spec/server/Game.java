@@ -15,6 +15,8 @@ public class Game implements Runnable {
 
     private boolean gameOver;
 
+    // TODO: Refactor the ClientPeer, tiles and scores into a single class!
+    //       Then you can add convenience methods to it, making the game class cleaner.
     private ArrayList<ClientPeer> players;
     private Board board;
     private TileBag bag;
@@ -97,7 +99,13 @@ public class Game implements Runnable {
 
         // Fill the client's tiles till everyone has 4.
         for (ClientPeer player : players) {
-            while (playerTiles.get(player.getName()).size() < 4) {
+            ArrayList<Tile> tiles = playerTiles.get(player.getName());
+            // The turn order procedure can leave players with more than 4 tiles.
+            while (tiles.size() > 4) {
+                // Put them back in the bag.
+                bag.addTile(tiles.remove(tiles.size() - 1));
+            }
+            while (tiles.size() < 4) {
                 attemptDrawTileForPlayer(player.getName());
             }
         }
@@ -196,10 +204,63 @@ public class Game implements Runnable {
         }
     }
 
+    /**
+     * Will draw tiles and use the point values to determine the players' turn order.
+     * Equal points are resolved by having the tied players draw again until there is no tie.
+     * Players can end up with more than 4 tiles after this procedure.
+     */
     private void decideTurnOrder() {
-        // TODO: Properly decide turn order.
+        ArrayList<String> noTurnYet = new ArrayList<>();
+
         for (ClientPeer player : players) {
-            turnOrder.add(player.getName());
+            noTurnYet.add(player.getName());
+            // Draw a tile.
+            try {
+                playerTiles.get(player.getName()).add(bag.takeTile());
+            } catch (EmptyTileBagException e) {
+                // TODO: this should never happen? But what to do if it does...
+                e.printStackTrace();
+            }
+        }
+
+        while (!noTurnYet.isEmpty()) {
+            int highest = Integer.MIN_VALUE;
+            int tiedPoints = Integer.MIN_VALUE;
+            String highestName = "";
+
+            for (String player : noTurnYet) {
+                ArrayList<Tile> tiles = playerTiles.get(player);
+                int points = tiles.get(tiles.size() - 1).getPoints();
+                if (points > highest) {
+                    highest = points;
+                    highestName = player;
+                } else if (points == highest) {
+                    // The highest is potentially a tie.
+                    tiedPoints = points;
+                }
+            }
+
+            if (highest > tiedPoints) {
+                // No tie for highest, let's add the player to the turn order.
+                turnOrder.add(highestName);
+                noTurnYet.remove(highestName);
+            } else {
+                // Two or more players have the highest value.
+                // Have them draw again.
+                for (String player : noTurnYet) {
+                    ArrayList<Tile> tiles = playerTiles.get(player);
+                    int points = tiles.get(tiles.size() - 1).getPoints();
+
+                    if (points == tiedPoints) {
+                        try {
+                            tiles.add(bag.takeTile());
+                        } catch (EmptyTileBagException e) {
+                            // TODO: this should never happen? But what to do if it does...
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
         }
 
         currentTurnPlayer = 0;
