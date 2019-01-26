@@ -154,7 +154,7 @@ class BoardTest {
             // Correct tile on a bonus space.
             Tile tileCorrectCwColor = new Tile(Color.YELLOW, Color.PURPLE, Color.RED, 2);
             assertEquals(8, board.makeMove(13, tileCorrectCwColor));
-            assertEquals(tileCorrectCwColor, board.getTile(8));
+            assertEquals(tileCorrectCwColor, board.getTile(13));
 
             // A few more correct moves.
             assertEquals(1, board.makeMove(7, new Tile(Color.YELLOW, Color.GREEN, Color.RED, 1)));

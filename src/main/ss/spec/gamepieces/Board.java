@@ -3,6 +3,9 @@ package ss.spec.gamepieces;
 import java.util.ArrayList;
 import java.util.List;
 
+import ss.spec.gamepieces.InvalidMoveException;
+import ss.spec.gamepieces.*;
+
 public class Board {
 
     public static final int BOARD_SIZE = 36;
@@ -90,15 +93,17 @@ public class Board {
                     if (colorsValid(id, tile)) {
                         moveValid = true;
                     } else {
-                        // ...
+                        moveValid = false;
                     }
                 } else {
-                    // ...
+                    moveValid = false;
                 }
 
-                // TODO: check for colors.
-
             }
+        }
+
+        if (!getIsEmpty() && getNumSides(id) == 0) {
+            moveValid = false;
         }
 
         return moveValid;
@@ -106,6 +111,8 @@ public class Board {
 
     /**
      * Makes a move on the board, returns the points that this move scored.
+     * <p>
+     * fieldPoints = getScoreMultiplier of BoardSpace
      *
      * @param id   The space to place the tile on.
      * @param tile The tile to place.
@@ -113,8 +120,17 @@ public class Board {
      */
     public int makeMove(int id, Tile tile) throws InvalidMoveException {
         if (!isMoveValid(id, tile)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException(id);
         }
+
+        int tilePoints = tile.getPoints(); // number of points inherent to the tile itself
+        int fieldPoints = spaces[id].getScoreMultiplier(); // points of field that tile is placed on
+        int sidePoints = getNumSides(id);      // points acquired by number of adjacent sides
+        if (sidePoints == 0) {
+            sidePoints = 1;
+        }
+        int movePoints = (tilePoints * fieldPoints * sidePoints);
+
 
         spaces[id].placeTile(tile);
 
@@ -122,9 +138,12 @@ public class Board {
 
         // TODO: properly multiply the points.
 
-        return tile.getPoints();
-    }
+        /**
+         * Notes: Points of move = points of tile * points of field * number of matching sides
+         */
 
+        return movePoints;
+    }
 
     /**
      * method to convert an index representation of a board field to a
@@ -162,6 +181,46 @@ public class Board {
         return index;
     }
 
+    /**
+     * @param id - id of the field
+     *           <p>
+     *           Function that returns the number of sides of
+     *           sides where there is another Tile adjacent to it
+     **/
+
+    public int getNumSides(int id) {
+        ArrayList coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
+
+        try {
+            coordinates = indexToCoordinates(id);
+        } catch (IndexException e) {
+            e.printStackTrace();
+        }
+
+        int r = (int) coordinates.get(0);
+        int c = (int) coordinates.get(1);
+
+        int sides = 0;
+
+        boolean hasBottom = false;
+
+        // Checking bottom
+
+        if ((r + c) % 2 == 0) {
+            hasBottom = true;
+        }
+
+
+        // Checking right neighbor
+
+        if ((c + 1) <= r) {
+            if (hasTile(coordinatesToIndex(r, c + 1))) {
+                sides += 1;
+            }
+        }
+
+        return sides;
+    }
 
     public boolean colorsValid(int id, Tile tile) {
 
@@ -276,5 +335,6 @@ public class Board {
     }
 
 }
+
 
 
