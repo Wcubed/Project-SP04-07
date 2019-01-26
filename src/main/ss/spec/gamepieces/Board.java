@@ -76,7 +76,7 @@ public class Board {
      * @return true if the player can make a move, false otherwise.
      */
     public boolean hasValidMoves(List<Tile> playerTiles) {
-        // TODO: Return true if the player has at least 1 valid move, else false.
+
         return true;
     }
 
@@ -135,8 +135,6 @@ public class Board {
         spaces[id].placeTile(tile);
 
         isEmpty = false;
-
-        // TODO: properly multiply the points.
 
         /**
          * Notes: Points of move = points of tile * points of field * number of matching sides
@@ -238,9 +236,8 @@ public class Board {
          *
          *  SEE PDF for other used relations
          *
-         *  TODO: COMPLETE THIS METHOD , MAKE IT TIDY
          *
-         */
+         **/
 
         ArrayList<Integer> coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
 

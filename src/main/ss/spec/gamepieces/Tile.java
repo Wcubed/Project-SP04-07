@@ -25,6 +25,7 @@ import ss.spec.networking.DecodeException;
  * <code>tile1.getClockwise1().isValidNextTo(tile2.getClockwise1())</code>
  * regardless of tile orientation.
  */
+
 public class Tile {
     private Color flatSide;
     private Color clockwise1;
