@@ -36,4 +36,23 @@ public enum Color {
                 throw new DecodeException("Cannot create a Color from: \'" + c + "\'.");
         }
     }
+
+    public String encode() {
+        switch (this) {
+            case RED:
+                return "R";
+            case BLUE:
+                return "B";
+            case GREEN:
+                return "G";
+            case YELLOW:
+                return "Y";
+            case PURPLE:
+                return "P";
+            case WHITE:
+                return "W";
+            default:
+                return null;
+        }
+    }
 }

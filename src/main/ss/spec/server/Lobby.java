@@ -227,16 +227,16 @@ public class Lobby implements Runnable {
                 // this means the game thread has already stopped.
                 // Because that thread is the only one who can flag the game as over.
                 // We can therefore clean up safely.
-                for (ClientPeer client : game.getPlayers()) {
-                    if (client.isPeerConnected()) {
+                for (Player player : game.getPlayers()) {
+                    if (player.isPeerConnected()) {
 
-                        client.returningToLobby();
-                        waitingClients.add(client);
+                        player.getPeer().returningToLobby();
+                        waitingClients.add(player.getPeer());
 
                     } else {
                         // Client has disconnected.
                         // Free up their name.
-                        freeUpClientName(client);
+                        freeUpClientName(player.getPeer());
                     }
                 }
 

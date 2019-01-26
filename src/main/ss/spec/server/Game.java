@@ -17,16 +17,12 @@ public class Game implements Runnable {
 
     // TODO: Refactor the ClientPeer, tiles and scores into a single class!
     //       Then you can add convenience methods to it, making the game class cleaner.
-    private ArrayList<ClientPeer> players;
+    private ArrayList<Player> players;
     private Board board;
     private TileBag bag;
 
     private ArrayList<String> turnOrder;
     private int currentTurnPlayer;
-
-    // TODO: Do we want to change these two pieces of info to a single separate class?
-    private HashMap<String, ArrayList<Tile>> playerTiles;
-    private HashMap<String, Integer> playerScores;
 
     /**
      * Instantiates the Game class with the given players, board and TileBag.
@@ -36,15 +32,18 @@ public class Game implements Runnable {
      * @param bag     The tile bag to use.
      */
     public Game(List<ClientPeer> players, Board board, TileBag bag) {
-        this.players = new ArrayList<>(players);
+        this.players = new ArrayList<>();
+
+        for (ClientPeer peer : players) {
+            this.players.add(new Player(peer));
+        }
+
         this.board = board;
         this.bag = bag;
 
         gameOver = false;
 
         this.turnOrder = new ArrayList<>();
-        this.playerTiles = new HashMap<>();
-        this.playerScores = new HashMap<>();
     }
 
     public boolean isGameOver() {
@@ -58,7 +57,7 @@ public class Game implements Runnable {
     /**
      * @return The list of players.
      */
-    public List<ClientPeer> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
@@ -89,39 +88,33 @@ public class Game implements Runnable {
     public void setUpGame() {
         bag.addAllStartingTiles();
 
-        // Set up tile and score lists.
-        for (ClientPeer player : players) {
-            playerTiles.put(player.getName(), new ArrayList<>());
-            playerScores.put(player.getName(), 0);
-        }
-
         decideTurnOrder();
 
         // Fill the client's tiles till everyone has 4.
-        for (ClientPeer player : players) {
-            ArrayList<Tile> tiles = playerTiles.get(player.getName());
+        for (Player player : players) {
+            ArrayList<Tile> tiles = player.getTiles();
             // The turn order procedure can leave players with more than 4 tiles.
-            while (tiles.size() > 4) {
+            while (tiles.size() > Player.MAX_HAND_SIZE) {
                 // Put them back in the bag.
                 bag.addTile(tiles.remove(tiles.size() - 1));
             }
-            while (tiles.size() < 4) {
-                attemptDrawTileForPlayer(player.getName());
+            while (tiles.size() < Player.MAX_HAND_SIZE) {
+                attemptDrawTileForPlayer(player);
             }
         }
 
         // Let the clients know the game is on.
-        for (ClientPeer player : players) {
-            player.sendStartMessage(turnOrder);
-            player.sendOrderMessage(turnOrder);
+        for (Player player : players) {
+            player.getPeer().sendStartMessage(turnOrder);
+            player.getPeer().sendOrderMessage(turnOrder);
 
-            player.awaitTurn();
+            player.getPeer().awaitTurn();
         }
     }
 
 
     public void doSingleGameThreadIteration() {
-        for (ClientPeer player : players) {
+        for (Player player : players) {
             if (!player.isPeerConnected()) {
                 stopGamePlayerDisconnected(player.getName());
                 break;
@@ -131,15 +124,15 @@ public class Game implements Runnable {
             if (player.getName().equals(getCurrentTurnPlayerName())) {
                 // It's this player's turn.
 
-                switch (player.getState()) {
+                switch (player.getPeer().getState()) {
                     case GAME_AWAITING_TURN:
-                        if (board.hasValidMoves(playerTiles.get(player.getName()))) {
-                            player.clientDecideMove();
+                        if (board.hasValidMoves(player.getTiles())) {
+                            player.getPeer().clientDecideMove();
                             // Notify everyone that this player's turn has started.
                             sendTileAndTurnAnnouncement(player.getName());
                         } else {
                             // Whoops, no move for this player.
-                            player.clientDecideSkip();
+                            player.getPeer().clientDecideSkip();
                             // Announce that this player does not have a valid move option.
                             sendSkipAnnouncement(player.getName());
                         }
@@ -155,8 +148,8 @@ public class Game implements Runnable {
                         // TODO: Notify everyone of the move.
 
                         // Move is valid, the turn goes to the next player.
-                        attemptDrawTileForPlayer(player.getName());
-                        player.awaitTurn();
+                        attemptDrawTileForPlayer(player);
+                        player.getPeer().awaitTurn();
                         advanceTurnPlayer();
                         break;
                     case PEER_DECIDE_SKIP:
@@ -170,37 +163,36 @@ public class Game implements Runnable {
 
                         // Skip is valid, the turn goes to the next player.
                         // TODO: Do we announce tiles here? Or is that not needed.
-                        player.awaitTurn();
+                        player.getPeer().awaitTurn();
                         advanceTurnPlayer();
                         break;
                     default:
                         // This is a weird state to be in. Shouldn't happen.
                         // Awaiting turn is a save state, so put them in that.
                         // TODO: logging.
-                        player.awaitTurn();
+                        player.getPeer().awaitTurn();
+                }
+            }
+        }
+
+        // Check if the game is over.
+        if (bag.getNumTilesLeft() == 0) {
+            // No tiles left in the bag.
+            // Are there any players who can make a move?
+            boolean noOneCanMove = true;
+            for (Player player : players) {
+                if (board.hasValidMoves(player.getTiles())) {
+                    // Hey! someone can still move.
+                    // The game goes on.
+                    noOneCanMove = false;
+                    break;
                 }
             }
 
-            // Check if the game is over.
-            if (bag.getNumTilesLeft() == 0) {
-                // No tiles left in the bag.
-                // Are there any players who can make a move?
-                boolean noOneCanMove = true;
-                for (ArrayList<Tile> tiles : playerTiles.values()) {
-                    if (board.hasValidMoves(tiles)) {
-                        // Hey! someone can still move.
-                        // The game goes on.
-                        noOneCanMove = false;
-                        break;
-                    }
-                }
-
-                if (noOneCanMove) {
-                    // Uh oh, game over!
-                    stopGameNoMovesLeft();
-                }
+            if (noOneCanMove) {
+                // Uh oh, game over!
+                stopGameNoMovesLeft();
             }
-
         }
     }
 
@@ -210,13 +202,13 @@ public class Game implements Runnable {
      * Players can end up with more than 4 tiles after this procedure.
      */
     private void decideTurnOrder() {
-        ArrayList<String> noTurnYet = new ArrayList<>();
+        ArrayList<Player> noTurnYet = new ArrayList<>();
 
-        for (ClientPeer player : players) {
-            noTurnYet.add(player.getName());
+        for (Player player : players) {
+            noTurnYet.add(player);
             // Draw a tile.
             try {
-                playerTiles.get(player.getName()).add(bag.takeTile());
+                player.addTileToHand(bag.takeTile());
             } catch (EmptyTileBagException e) {
                 // TODO: this should never happen? But what to do if it does...
                 e.printStackTrace();
@@ -226,14 +218,14 @@ public class Game implements Runnable {
         while (!noTurnYet.isEmpty()) {
             int highest = Integer.MIN_VALUE;
             int tiedPoints = Integer.MIN_VALUE;
-            String highestName = "";
+            Player highestPlayer = noTurnYet.get(0);
 
-            for (String player : noTurnYet) {
-                ArrayList<Tile> tiles = playerTiles.get(player);
+            for (Player player : noTurnYet) {
+                ArrayList<Tile> tiles = player.getTiles();
                 int points = tiles.get(tiles.size() - 1).getPoints();
                 if (points > highest) {
                     highest = points;
-                    highestName = player;
+                    highestPlayer = player;
                 } else if (points == highest) {
                     // The highest is potentially a tie.
                     tiedPoints = points;
@@ -242,13 +234,13 @@ public class Game implements Runnable {
 
             if (highest > tiedPoints) {
                 // No tie for highest, let's add the player to the turn order.
-                turnOrder.add(highestName);
-                noTurnYet.remove(highestName);
+                turnOrder.add(highestPlayer.getName());
+                noTurnYet.remove(highestPlayer);
             } else {
                 // Two or more players have the highest value.
                 // Have them draw again.
-                for (String player : noTurnYet) {
-                    ArrayList<Tile> tiles = playerTiles.get(player);
+                for (Player player : noTurnYet) {
+                    ArrayList<Tile> tiles = player.getTiles();
                     int points = tiles.get(tiles.size() - 1).getPoints();
 
                     if (points == tiedPoints) {
@@ -280,24 +272,21 @@ public class Game implements Runnable {
 
     /**
      * Will attempt to draw a tile for the given player.
-     * Will not draw a tile for a non-existing player.
      * Will not allow a player to have more than 4 tiles.
      * Will not crash on an empty bag.
      * All of the cases above are handled gracefully.
      *
-     * @param playerName The name of the player to draw a tile for.
+     * @param player The player to draw a tile for.
      */
-    private void attemptDrawTileForPlayer(String playerName) {
-        if (playerTiles.containsKey(playerName)) {
-            ArrayList<Tile> tiles = playerTiles.get(playerName);
+    private void attemptDrawTileForPlayer(Player player) {
+        ArrayList<Tile> tiles = player.getTiles();
 
-            if (tiles.size() < 4) {
-                try {
-                    tiles.add(bag.takeTile());
-                } catch (EmptyTileBagException e) {
-                    // Empty bag.
-                    // No need to do anything.
-                }
+        if (tiles.size() < Player.MAX_HAND_SIZE) {
+            try {
+                tiles.add(bag.takeTile());
+            } catch (EmptyTileBagException e) {
+                // Empty bag.
+                // No need to do anything.
             }
         }
     }
@@ -308,9 +297,34 @@ public class Game implements Runnable {
      * @param playerName The player who's turn it is.
      */
     private void sendTileAndTurnAnnouncement(String playerName) {
-        for (ClientPeer player : players) {
-            player.sendTileAndTurnAnnouncement(playerTiles, playerName);
+        StringBuilder message = new StringBuilder();
+
+        message.append("tiles ");
+
+        for (Player player : players) {
+            message.append(player.getName());
+            message.append(" ");
+
+            for (int i = 0; i < 4; i++) {
+                try {
+                    message.append(player.getTiles().get(i).encode());
+                    message.append(" ");
+                } catch (IndexOutOfBoundsException e) {
+                    // No tiles left. Pad message to 4 items.
+                    message.append("null ");
+                }
+            }
         }
+
+
+        message.append("turn ");
+        message.append(playerName);
+
+        for (Player player : players) {
+            player.getPeer().sendMessage(message.toString());
+        }
+
+
     }
 
     /**
@@ -319,8 +333,43 @@ public class Game implements Runnable {
      * @param playerName The player who has to skip.
      */
     private void sendSkipAnnouncement(String playerName) {
-        for (ClientPeer player : players) {
-            player.sendSkipMessage(playerName);
+        for (Player player : players) {
+            player.getPeer().sendSkipMessage(playerName);
+        }
+    }
+
+    private void sendLeaderBoardAnnouncment() {
+        Map<String, Integer> sortScores = new HashMap<>();
+
+        for (Player player : players) {
+            sortScores.put(player.getName(), player.getScore());
+        }
+
+        StringBuilder message = new StringBuilder();
+
+        message.append("game finished leaderboard ");
+
+        // Sort the scores.
+        while (!sortScores.isEmpty()) {
+            int highest = Integer.MIN_VALUE;
+            String highestName = "";
+            for (Map.Entry<String, Integer> score : sortScores.entrySet()) {
+                if (score.getValue() >= highest) {
+                    highest = score.getValue();
+                    highestName = score.getKey();
+                }
+            }
+
+            message.append(highestName);
+            message.append(" ");
+            message.append(highest);
+            message.append(" ");
+
+            sortScores.remove(highestName);
+        }
+
+        for (Player player : players) {
+            player.getPeer().sendMessage(message.toString());
         }
     }
 
@@ -331,10 +380,10 @@ public class Game implements Runnable {
      * @param playerName The name of the player who disconnected.
      */
     private void stopGamePlayerDisconnected(String playerName) {
-        for (ClientPeer player : players) {
+        for (Player player : players) {
             // We are also sending this message to the one who disconnected.
             // This is not a problem however, as that is handled gracefully.
-            player.sendPlayerLeftMessage(playerName);
+            player.getPeer().sendPlayerLeftMessage(playerName);
         }
 
         gameIsNowOver();
@@ -346,17 +395,11 @@ public class Game implements Runnable {
      */
     private void stopGameNoMovesLeft() {
         // Subtract all the tiles left in a players hand from the player's scores.
-        for (Map.Entry<String, ArrayList<Tile>> tiles : playerTiles.entrySet()) {
-            for (Tile tile : tiles.getValue()) {
-                // TODO: Maybe we DO need to change the tiles and points into a proper class.
-                playerScores.put(tiles.getKey(),
-                        playerScores.get(tiles.getKey()) - tile.getPoints());
-            }
+        for (Player player : players) {
+            player.endGameSubtractTilesFromScore();
         }
 
-        for (ClientPeer player : players) {
-            player.sendLeaderBoardMessage(playerScores);
-        }
+        sendLeaderBoardAnnouncment();
 
         gameIsNowOver();
     }

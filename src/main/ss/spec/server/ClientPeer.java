@@ -8,7 +8,9 @@ import ss.spec.networking.Connection;
 import ss.spec.networking.DecodeException;
 import ss.spec.networking.InvalidCommandException;
 
-import java.util.*;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 public class ClientPeer extends AbstractPeer {
 
@@ -334,72 +336,15 @@ public class ClientPeer extends AbstractPeer {
 
     public void sendReplaceMessage(String playerName, Tile previous, Tile replacement) {
         sendMessage("replace " + playerName + " " +
-                convertTileToProtocol(previous) +
+                previous.encode() +
                 " with " +
-                convertTileToProtocol(replacement));
-    }
-
-    /**
-     * TODO: This should probably be "Map<String, List<Tile>>" instead of the specific type.
-     * * Doing so however, raises a "cannot be applied to..." error when calling it with
-     * * the specific types.
-     *
-     * @param playerTiles The list of tiles for each player.
-     * @param playerName  The player who's turn it is.
-     */
-    public void sendTileAndTurnAnnouncement(
-            HashMap<String, ArrayList<Tile>> playerTiles, String playerName) {
-
-        StringBuilder tileMessage = new StringBuilder();
-
-        for (Map.Entry<String, ArrayList<Tile>> entry : playerTiles.entrySet()) {
-            tileMessage.append(entry.getKey());
-            tileMessage.append(" ");
-
-            for (int i = 0; i < 4; i++) {
-                try {
-                    tileMessage.append(convertTileToProtocol(entry.getValue().get(i)));
-                    tileMessage.append(" ");
-                } catch (IndexOutOfBoundsException e) {
-                    // No tiles left. Pad message to 4 items.
-                    tileMessage.append("null ");
-                }
-            }
-        }
-
-        sendMessage("tiles " + tileMessage + "turn " + playerName);
+                replacement.encode());
     }
 
     public void sendPlayerLeftMessage(String playerName) {
         sendMessage("player " + playerName + " left");
     }
 
-    public void sendLeaderBoardMessage(Map<String, Integer> scores) {
-        Map<String, Integer> sortScores = new HashMap<>(scores);
-
-        StringBuilder leaderBoard = new StringBuilder();
-
-        // Sort the scores.
-        while (!sortScores.isEmpty()) {
-            int highest = Integer.MIN_VALUE;
-            String highestName = "";
-            for (Map.Entry<String, Integer> score : sortScores.entrySet()) {
-                if (score.getValue() >= highest) {
-                    highest = score.getValue();
-                    highestName = score.getKey();
-                }
-            }
-
-            leaderBoard.append(highestName);
-            leaderBoard.append(" ");
-            leaderBoard.append(highest);
-            leaderBoard.append(" ");
-
-            sortScores.remove(highestName);
-        }
-
-        sendMessage("game finished leaderboard " + leaderBoard);
-    }
 
     public void sendInvalidNameError() {
         sendMessage(INVALID_NAME_ERROR_MESSAGE);

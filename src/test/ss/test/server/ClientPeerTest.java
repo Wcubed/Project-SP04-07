@@ -9,7 +9,6 @@ import ss.spec.server.ClientState;
 import ss.test.networking.MockConnection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -270,32 +269,6 @@ class ClientPeerTest {
     }
 
     @Test
-    void sendTileAndTurnMessage() {
-        HashMap<String, ArrayList<Tile>> tiles = new HashMap<>();
-
-        peer.sendTileAndTurnAnnouncement(tiles, "Clara");
-        assertEquals("tiles turn Clara", connection.readSentMessage());
-
-        ArrayList<Tile> bobTiles = new ArrayList<>();
-        bobTiles.add(new Tile(Color.RED, Color.PURPLE, Color.GREEN, 3));
-        tiles.put("Bob", bobTiles);
-
-        peer.sendTileAndTurnAnnouncement(tiles, "Bob");
-        assertEquals("tiles Bob RPG3 null null null turn Bob",
-                connection.readSentMessage());
-
-        bobTiles.add(new Tile(Color.PURPLE, Color.BLUE, Color.YELLOW, 4));
-
-        ArrayList<Tile> albertTiles = new ArrayList<>();
-        albertTiles.add(new Tile(Color.GREEN, Color.WHITE, Color.GREEN, 1));
-        tiles.put("Albert", albertTiles);
-
-        peer.sendTileAndTurnAnnouncement(tiles, "Bob");
-        assertEquals("tiles Bob RPG3 PBY4 null null Albert GWG1 null null null turn Bob",
-                connection.readSentMessage());
-    }
-
-    @Test
     void sendSkipMessage() {
         peer.sendSkipMessage("Bob");
         assertEquals("skip Bob", connection.readSentMessage());
@@ -320,29 +293,6 @@ class ClientPeerTest {
 
         peer.sendPlayerLeftMessage("aLiCe");
         assertEquals("player aLiCe left", connection.readSentMessage());
-    }
-
-    @Test
-    void sendLeaderBoardMessage() {
-        HashMap<String, Integer> scores = new HashMap<>();
-
-        peer.sendLeaderBoardMessage(scores);
-        assertEquals("game finished leaderboard ", connection.readSentMessage());
-
-        scores.put("R2-D2", 80);
-        scores.put("Obi-wan", 0);
-        scores.put("Anakin", 12);
-
-        peer.sendLeaderBoardMessage(scores);
-        assertEquals("game finished leaderboard R2-D2 80 Anakin 12 Obi-wan 0 ",
-                connection.readSentMessage());
-
-        scores.put("Vader", 129348);
-
-        peer.sendLeaderBoardMessage(scores);
-        assertEquals(
-                "game finished leaderboard Vader 129348 R2-D2 80 Anakin 12 Obi-wan 0 ",
-                connection.readSentMessage());
     }
 
     @Test

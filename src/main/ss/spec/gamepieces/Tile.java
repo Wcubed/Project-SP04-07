@@ -126,4 +126,11 @@ public class Tile {
         return new Tile(flat, cw1, cw2, points);
     }
 
+    public String encode() {
+        return flatSide.encode() +
+                clockwise1.encode() +
+                clockwise2.encode() +
+                Integer.toString(points);
+    }
+
 }
