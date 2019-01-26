@@ -1,9 +1,6 @@
 package ss.spec.server;
 
-import ss.spec.gamepieces.Board;
-import ss.spec.gamepieces.EmptyTileBagException;
-import ss.spec.gamepieces.Tile;
-import ss.spec.gamepieces.TileBag;
+import ss.spec.gamepieces.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,6 +112,8 @@ public class Game implements Runnable {
 
     public void doSingleGameThreadIteration() {
         for (Player player : players) {
+            ClientPeer peer = player.getPeer();
+
             if (!player.isPeerConnected()) {
                 stopGamePlayerDisconnected(player.getName());
                 break;
@@ -124,15 +123,15 @@ public class Game implements Runnable {
             if (player.getName().equals(getCurrentTurnPlayerName())) {
                 // It's this player's turn.
 
-                switch (player.getPeer().getState()) {
+                switch (peer.getState()) {
                     case GAME_AWAITING_TURN:
                         if (board.hasValidMoves(player.getTiles())) {
-                            player.getPeer().clientDecideMove();
+                            peer.clientDecideMove();
                             // Notify everyone that this player's turn has started.
                             sendTileAndTurnAnnouncement(player.getName());
                         } else {
                             // Whoops, no move for this player.
-                            player.getPeer().clientDecideSkip();
+                            peer.clientDecideSkip();
                             // Announce that this player does not have a valid move option.
                             sendSkipAnnouncement(player.getName());
                         }
@@ -142,35 +141,71 @@ public class Game implements Runnable {
                         // Do nothing.
                         break;
                     case GAME_VERIFY_MOVE:
-                        // TODO: verify that the player has the tile they want to place.
-                        // TODO: Verify and make the move.
-                        // TODO: update the score of the player.
-                        // TODO: Notify everyone of the move.
+                        Move move = peer.getProposedMove();
 
-                        // Move is valid, the turn goes to the next player.
-                        attemptDrawTileForPlayer(player);
-                        player.getPeer().awaitTurn();
-                        advanceTurnPlayer();
+                        if (move == null) {
+                            // No move, try again.
+                            peer.invalidMove();
+                            break;
+                        }
+                        if (!player.hasTileInHand(move.getTile())) {
+                            // You can't place a tile you don't have in hand.
+                            peer.invalidMove();
+                            break;
+                        }
+
+                        try {
+                            // Now we can make the move.
+                            int points = board.makeMove(move);
+
+                            player.addPoints(points);
+                            player.removeTile(move.getTile());
+
+                            sendMoveAnnouncement(player.getName(), move, points);
+
+                            // Move is valid, the turn goes to the next player.
+                            attemptDrawTileForPlayer(player);
+                            peer.awaitTurn();
+                            advanceTurnPlayer();
+                        } catch (InvalidMoveException e) {
+                            // Invalid move, try again.
+                            peer.invalidMove();
+                        }
                         break;
+
                     case PEER_DECIDE_SKIP:
                         // Peer is deciding whether to skip or not.
                         // Do nothing.
                         break;
                     case GAME_VERIFY_SKIP:
-                        // TODO; check if the player has the tile they want to replace.
-                        // TODO: Check if the player wants to replace a tile.
-                        // TODO: announce the skip.
+                        Tile replaceTile = peer.getProposedReplaceTile();
 
-                        // Skip is valid, the turn goes to the next player.
-                        // TODO: Do we announce tiles here? Or is that not needed.
-                        player.getPeer().awaitTurn();
+                        if (replaceTile == null) {
+                            // Player wants to skip.
+                            sendSkipAnnouncement(player.getName());
+                        } else {
+                            // Player wants to replace a tile.
+
+                            if (!player.hasTileInHand(replaceTile)) {
+                                // You can't replace a tile you don't have in hand.
+                                peer.invalidMove();
+                                break;
+                            }
+
+                            // Ready to replace.
+                            player.removeTile(replaceTile);
+                            Tile drawnTile = attemptDrawTileForPlayer(player);
+                            sendReplaceAnnouncement(player.getName(), replaceTile, drawnTile);
+                        }
+
+                        peer.awaitTurn();
                         advanceTurnPlayer();
                         break;
                     default:
                         // This is a weird state to be in. Shouldn't happen.
                         // Awaiting turn is a save state, so put them in that.
                         // TODO: logging.
-                        player.getPeer().awaitTurn();
+                        peer.awaitTurn();
                 }
             }
         }
@@ -277,18 +312,24 @@ public class Game implements Runnable {
      * All of the cases above are handled gracefully.
      *
      * @param player The player to draw a tile for.
+     * @return A copy of the tile the player got, null if there are no tiles left in the bag.
      */
-    private void attemptDrawTileForPlayer(Player player) {
+    private Tile attemptDrawTileForPlayer(Player player) {
         ArrayList<Tile> tiles = player.getTiles();
+        Tile tile = null;
 
         if (tiles.size() < Player.MAX_HAND_SIZE) {
             try {
-                tiles.add(bag.takeTile());
+                tile = bag.takeTile();
+                // Make sure we copy the tile.
+                tiles.add(new Tile(tile));
             } catch (EmptyTileBagException e) {
                 // Empty bag.
                 // No need to do anything.
             }
         }
+
+        return tile;
     }
 
     /**
@@ -327,6 +368,18 @@ public class Game implements Runnable {
 
     }
 
+    private void sendMoveAnnouncement(String name, Move move, int points) {
+        for (Player player : players) {
+            player.getPeer().sendMoveMessage(name, move, points);
+        }
+    }
+
+    private void sendReplaceAnnouncement(String name, Tile removed, Tile drawn) {
+        for (Player player : players) {
+            player.getPeer().sendReplaceMessage(name, removed, drawn);
+        }
+    }
+
     /**
      * Let's all the players know that the given player has to skip.
      *
@@ -338,7 +391,7 @@ public class Game implements Runnable {
         }
     }
 
-    private void sendLeaderBoardAnnouncment() {
+    private void sendLeaderBoardAnnouncement() {
         Map<String, Integer> sortScores = new HashMap<>();
 
         for (Player player : players) {
@@ -399,7 +452,7 @@ public class Game implements Runnable {
             player.endGameSubtractTilesFromScore();
         }
 
-        sendLeaderBoardAnnouncment();
+        sendLeaderBoardAnnouncement();
 
         gameIsNowOver();
     }

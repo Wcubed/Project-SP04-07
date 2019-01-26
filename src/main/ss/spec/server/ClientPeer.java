@@ -310,6 +310,11 @@ public class ClientPeer extends AbstractPeer {
         state = ClientState.PEER_AWAITING_GAME_REQUEST;
     }
 
+    public void invalidMove() {
+        clientDecideMove();
+        sendInvalidMoveError();
+    }
+
     // ---- Messages -------------------------------------------------------------------------------
 
 
@@ -330,12 +335,21 @@ public class ClientPeer extends AbstractPeer {
         sendMessage("order" + convertNameListToProtocol(names));
     }
 
+    public void sendMoveMessage(String playerName, Move move, int points) {
+        sendMessage("move " +
+                playerName + " " +
+                move.getTile().encode() + " " +
+                move.getIndex() + " " +
+                points);
+    }
+
     public void sendSkipMessage(String playerName) {
         sendMessage("skip " + playerName);
     }
 
     public void sendReplaceMessage(String playerName, Tile previous, Tile replacement) {
-        sendMessage("replace " + playerName + " " +
+        sendMessage("replace " +
+                playerName + " " +
                 previous.encode() +
                 " with " +
                 replacement.encode());
@@ -348,6 +362,10 @@ public class ClientPeer extends AbstractPeer {
 
     public void sendInvalidNameError() {
         sendMessage(INVALID_NAME_ERROR_MESSAGE);
+    }
+
+    public void sendInvalidMoveError() {
+        sendMessage(INVALID_MOVE_ERROR_MESSAGE);
     }
 
 

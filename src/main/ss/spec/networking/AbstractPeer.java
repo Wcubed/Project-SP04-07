@@ -4,6 +4,7 @@ public abstract class AbstractPeer implements Runnable {
 
     public static final String INVALID_COMMAND_ERROR_MESSAGE = "invalidCommand";
     public static final String INVALID_NAME_ERROR_MESSAGE = "invalidName";
+    public static final String INVALID_MOVE_ERROR_MESSAGE = "invalidMove";
 
     private Connection connection;
 

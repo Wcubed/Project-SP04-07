@@ -107,22 +107,21 @@ public class Board {
     /**
      * Makes a move on the board, returns the points that this move scored.
      *
-     * @param id   The space to place the tile on.
-     * @param tile The tile to place.
+     * @param move the move to make.
      * @return The points scored with this move.
      */
-    public int makeMove(int id, Tile tile) throws InvalidMoveException {
-        if (!isMoveValid(id, tile)) {
+    public int makeMove(Move move) throws InvalidMoveException {
+        if (!isMoveValid(move.getIndex(), move.getTile())) {
             throw new InvalidMoveException();
         }
 
-        spaces[id].placeTile(tile);
+        spaces[move.getIndex()].placeTile(move.getTile());
 
         isEmpty = false;
 
         // TODO: properly multiply the points.
 
-        return tile.getPoints();
+        return move.getTile().getPoints();
     }
 
 
