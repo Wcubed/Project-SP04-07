@@ -348,11 +348,17 @@ public class ClientPeer extends AbstractPeer {
     }
 
     public void sendReplaceMessage(String playerName, Tile previous, Tile replacement) {
+        // It can happen that there is no replacement left in the bag.
+        String replacedWith = "null";
+        if (replacement != null) {
+            replacedWith = replacement.encode();
+        }
+
         sendMessage("replace " +
                 playerName + " " +
                 previous.encode() +
                 " with " +
-                replacement.encode());
+                replacedWith);
     }
 
     public void sendPlayerLeftMessage(String playerName) {

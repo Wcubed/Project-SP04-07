@@ -284,6 +284,10 @@ class ClientPeerTest {
         peer.sendReplaceMessage("Patrice", previous, replacement);
 
         assertEquals("replace Patrice RGW6 with BPY2", connection.readSentMessage());
+
+        // Not being able to replace a tile can happen.
+        peer.sendReplaceMessage("Jack", previous, null);
+        assertEquals("replace Jack RGW6 with null", connection.readSentMessage());
     }
 
     @Test
