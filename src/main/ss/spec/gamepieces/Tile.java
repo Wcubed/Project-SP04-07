@@ -140,7 +140,7 @@ public class Tile {
         return flatSide.encode() +
                 clockwise1.encode() +
                 clockwise2.encode() +
-                Integer.toString(points);
+                points;
     }
 
 }

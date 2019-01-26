@@ -194,12 +194,12 @@ class LobbyTest {
         assertEquals(0, lobby.getNumberOfWaitingClients());
     }
 
-    @Test
     /**
      * This would probably be better as 2 or 3 separate tests,
      * if this was a program that was going to be used in actual production.
      * However, for now it is sufficient to make sure stuff works.
      */
+    @Test
     void startAndStopGameTest() {
         MockConnection connection1 = new MockConnection();
         ClientPeer client1 = new ClientPeer(connection1);

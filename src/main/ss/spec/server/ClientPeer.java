@@ -91,10 +91,13 @@ public class ClientPeer extends AbstractPeer {
                         break;
                     case "place":
                         parseMoveMessage(scanner);
+                        break;
                     case "skip":
                         parseSkipMessage(scanner);
+                        break;
                     case "exchange":
                         parseExchangeMessage(scanner);
+                        break;
                     default:
                         // We don't know this command.
                         // TODO: logging.

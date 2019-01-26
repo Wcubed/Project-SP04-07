@@ -8,9 +8,9 @@ import ss.spec.server.Player;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PlayerTest {
+class PlayerTest {
 
-    Player player;
+    private Player player;
 
     @BeforeEach
     void setUp() {
@@ -26,8 +26,10 @@ public class PlayerTest {
         player.addTileToHand(tile2);
 
         // Tiles not in hand.
-        assertFalse(player.hasTileInHand(new Tile(Color.GREEN, Color.PURPLE, Color.YELLOW, 4)));
-        assertFalse(player.hasTileInHand(new Tile(Color.BLUE, Color.BLUE, Color.WHITE, 5)));
+        assertFalse(player.hasTileInHand(
+                new Tile(Color.GREEN, Color.PURPLE, Color.YELLOW, 4)));
+        assertFalse(player.hasTileInHand(
+                new Tile(Color.BLUE, Color.BLUE, Color.WHITE, 5)));
 
         assertTrue(player.hasTileInHand(tile1));
         // Should recognize rotated tiles.
