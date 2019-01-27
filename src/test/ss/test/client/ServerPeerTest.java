@@ -22,6 +22,8 @@ class ServerPeerTest {
         peer = new ServerPeer(connection);
     }
 
+    // ---------------------------------------------------------------------------------------------
+
     @Test
     void sendConnectMessage() {
         String name = "TestingName";
