@@ -14,7 +14,7 @@ public abstract class AbstractPlayer {
 
 
     public AbstractPlayer(String name) {
-        name = name;
+        this.name = name;
         score = 0;
         tiles = new ArrayList<>();
     }

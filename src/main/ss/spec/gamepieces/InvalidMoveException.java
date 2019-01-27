@@ -2,14 +2,14 @@ package ss.spec.gamepieces;
 
 public class InvalidMoveException extends Exception {
 
-    int index;
+    Move move;
 
-    public InvalidMoveException(int index) {
-        this.index = index;
+    public InvalidMoveException(Move move) {
+        this.move = move;
     }
 
     public String toString() {
-        return "InvalidMoveException: Move on" + "[" + index + "] + not valid";
+        return "InvalidMoveException: Move on" + "[" + move.getIndex() + "] + not valid";
     }
 
 }

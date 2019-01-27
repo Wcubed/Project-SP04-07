@@ -4,7 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.Color;
 import ss.spec.gamepieces.Tile;
+import ss.spec.networking.Connection;
+import ss.spec.server.ClientPeer;
 import ss.spec.server.Player;
+import ss.test.networking.MockConnection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +17,11 @@ class PlayerTest {
 
     @BeforeEach
     void setUp() {
-        player = new Player(null);
+        Connection testConnection = new MockConnection();
+        ClientPeer testPeer = new ClientPeer(testConnection);
+        testPeer.handleReceivedMessage("connect Bob");
+
+        player = new Player(testPeer);
     }
 
     @Test

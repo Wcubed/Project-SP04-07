@@ -3,9 +3,6 @@ package ss.spec.gamepieces;
 import java.util.ArrayList;
 import java.util.List;
 
-import ss.spec.gamepieces.InvalidMoveException;
-import ss.spec.gamepieces.*;
-
 public class Board {
 
     public static final int BOARD_SIZE = 36;
@@ -114,13 +111,15 @@ public class Board {
      * <p>
      * fieldPoints = getScoreMultiplier of BoardSpace
      *
-     * @param id   The space to place the tile on.
-     * @param tile The tile to place.
+     * @param move The move to make.
      * @return The points scored with this move.
      */
-    public int makeMove(int id, Tile tile) throws InvalidMoveException {
+    public int makeMove(Move move) throws InvalidMoveException {
+        int id = move.getIndex();
+        Tile tile = move.getTile();
+
         if (!isMoveValid(id, tile)) {
-            throw new InvalidMoveException(id);
+            throw new InvalidMoveException(move);
         }
 
         int tilePoints = tile.getPoints(); // number of points inherent to the tile itself
@@ -330,7 +329,6 @@ public class Board {
             return true;
         }
     }
-
 }
 
 
