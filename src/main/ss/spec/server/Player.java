@@ -7,7 +7,7 @@ public class Player extends AbstractPlayer {
     private ClientPeer peer;
 
     public Player(ClientPeer peer) {
-        super();
+        super(peer.getName());
 
         this.peer = peer;
     }
@@ -20,10 +20,6 @@ public class Player extends AbstractPlayer {
 
 
     // ---------------------------------------------------------------------------------------------
-
-    public String getName() {
-        return peer.getName();
-    }
 
     public boolean isPeerConnected() {
         return peer.isPeerConnected();

@@ -8,11 +8,13 @@ public abstract class AbstractPlayer {
 
     public static final int MAX_HAND_SIZE = 4;
 
+    private String name;
     private int score;
     private ArrayList<Tile> tiles;
 
 
-    public AbstractPlayer() {
+    public AbstractPlayer(String name) {
+        name = name;
         score = 0;
         tiles = new ArrayList<>();
     }
@@ -24,6 +26,10 @@ public abstract class AbstractPlayer {
 
     public ArrayList<Tile> getTiles() {
         return tiles;
+    }
+
+    public String getName() {
+        return name;
     }
 
 
