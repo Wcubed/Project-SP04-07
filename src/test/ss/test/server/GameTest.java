@@ -13,20 +13,20 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GameTest {
+class GameTest {
 
-    Game game;
-    Board board;
-    MockTileBag tileBag;
+    private Game game;
+    private Board board;
+    private MockTileBag tileBag;
 
-    ClientPeer player1Alice;
-    MockConnection con1Alice;
-    ClientPeer player2Bob;
-    MockConnection con2Bob;
-    ClientPeer player3Clarice;
-    MockConnection con3Clarice;
-    ClientPeer player4Diane;
-    MockConnection con4Diane;
+    private ClientPeer player1Alice;
+    private MockConnection con1Alice;
+    private ClientPeer player2Bob;
+    private MockConnection con2Bob;
+    private ClientPeer player3Clarice;
+    private MockConnection con3Clarice;
+    private ClientPeer player4Diane;
+    private MockConnection con4Diane;
 
     @BeforeEach
     void setUp() {

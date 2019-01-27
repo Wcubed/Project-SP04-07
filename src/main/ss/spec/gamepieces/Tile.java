@@ -41,6 +41,16 @@ public class Tile {
     }
 
     /**
+     * Creates a copy of the tile.
+     */
+    public Tile(Tile other) {
+        this.flatSide = other.flatSide;
+        this.clockwise1 = other.clockwise1;
+        this.clockwise2 = other.clockwise2;
+        this.points = other.points;
+    }
+
+    /**
      * Returns a copy of the tile that is rotated 120 degrees clockwise.
      */
     public Tile rotate120() {
@@ -125,6 +135,13 @@ public class Tile {
         }
 
         return new Tile(flat, cw1, cw2, points);
+    }
+
+    public String encode() {
+        return flatSide.encode() +
+                clockwise1.encode() +
+                clockwise2.encode() +
+                points;
     }
 
 }

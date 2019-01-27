@@ -2,10 +2,7 @@ package ss.test.server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.server.ClientPeer;
-import ss.spec.server.ClientState;
-import ss.spec.server.Game;
-import ss.spec.server.Lobby;
+import ss.spec.server.*;
 import ss.test.networking.MockConnection;
 
 import java.util.ArrayList;
@@ -197,12 +194,12 @@ class LobbyTest {
         assertEquals(0, lobby.getNumberOfWaitingClients());
     }
 
-    @Test
     /**
      * This would probably be better as 2 or 3 separate tests,
      * if this was a program that was going to be used in actual production.
      * However, for now it is sufficient to make sure stuff works.
      */
+    @Test
     void startAndStopGameTest() {
         MockConnection connection1 = new MockConnection();
         ClientPeer client1 = new ClientPeer(connection1);
@@ -231,11 +228,9 @@ class LobbyTest {
         assertEquals(1, games.size());
         assertFalse(games.get(0).isGameOver());
 
-        // With the 2 players we expect.
-        ArrayList<ClientPeer> players = new ArrayList<>(games.get(0).getPlayers());
+        // We expect 2 players.
+        ArrayList<Player> players = new ArrayList<>(games.get(0).getPlayers());
         assertEquals(2, players.size());
-        assertTrue(players.contains(client1));
-        assertTrue(players.contains(client2));
 
         // And there should be no-one left in the lobby.
         assertEquals(0, lobby.getNumberOfWaitingClients());

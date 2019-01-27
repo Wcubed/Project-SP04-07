@@ -8,7 +8,9 @@ import ss.spec.networking.Connection;
 import ss.spec.networking.DecodeException;
 import ss.spec.networking.InvalidCommandException;
 
-import java.util.*;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 public class ClientPeer extends AbstractPeer {
 
@@ -17,7 +19,20 @@ public class ClientPeer extends AbstractPeer {
 
     private ClientState state;
 
+    /**
+     * The move the peer wants to make.
+     * TODO: there is probably a better way to do this:
+     * Is only valid when getState() == ClientState.GAME_VERIFY_MOVE.
+     */
     private Move proposedMove;
+
+    /**
+     * The tile we propose to replace.
+     * TODO: there is probably a better way to do this:
+     * `null` if we want to skip.
+     * Is only valid when getState() == ClientState.GAME_VERIFY_SKIP.
+     */
+    private Tile proposedReplaceTile;
 
     public ClientPeer(Connection connection) {
         super(connection);
@@ -44,6 +59,19 @@ public class ClientPeer extends AbstractPeer {
         return proposedMove;
     }
 
+    /**
+     * Returns true if the peer wants to skip, false if they want to replace.
+     *
+     * @return true if the peer wants to skip, false if they want to replace.
+     */
+    public boolean wantsToSkip() {
+        return proposedReplaceTile == null;
+    }
+
+    public Tile getProposedReplaceTile() {
+        return proposedReplaceTile;
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     @Override
@@ -63,6 +91,13 @@ public class ClientPeer extends AbstractPeer {
                         break;
                     case "place":
                         parseMoveMessage(scanner);
+                        break;
+                    case "skip":
+                        parseSkipMessage(scanner);
+                        break;
+                    case "exchange":
+                        parseExchangeMessage(scanner);
+                        break;
                     default:
                         // We don't know this command.
                         // TODO: logging.
@@ -182,6 +217,38 @@ public class ClientPeer extends AbstractPeer {
         state = ClientState.GAME_VERIFY_MOVE;
     }
 
+    private void parseSkipMessage(Scanner message) throws InvalidCommandException {
+        if (getState() != ClientState.PEER_DECIDE_SKIP) {
+            throw new InvalidCommandException("Not expecting a skip message.");
+        }
+
+        // An exchange tile of `null` means we want to skip.
+        proposedReplaceTile = null;
+        state = ClientState.GAME_VERIFY_SKIP;
+    }
+
+    private void parseExchangeMessage(Scanner message) throws InvalidCommandException {
+        if (getState() != ClientState.PEER_DECIDE_SKIP) {
+            throw new InvalidCommandException("Not expecting an exchange message.");
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Exchange message does not have a tile.");
+        }
+
+        Tile tile;
+
+        try {
+            tile = Tile.decode(message.next());
+        } catch (DecodeException e) {
+            throw new InvalidCommandException("Exchange message does not have a tile.", e);
+        }
+
+        proposedReplaceTile = tile;
+        state = ClientState.GAME_VERIFY_SKIP;
+    }
+
+
     /**
      * Called by the Lobby to signal to the client that the chosen name is valid.
      */
@@ -234,7 +301,7 @@ public class ClientPeer extends AbstractPeer {
         state = ClientState.PEER_DECIDE_MOVE;
     }
 
-    void decideSkip() {
+    public void clientDecideSkip() {
         state = ClientState.PEER_DECIDE_SKIP;
     }
 
@@ -244,6 +311,11 @@ public class ClientPeer extends AbstractPeer {
      */
     void returningToLobby() {
         state = ClientState.PEER_AWAITING_GAME_REQUEST;
+    }
+
+    public void invalidMove() {
+        clientDecideMove();
+        sendInvalidMoveError();
     }
 
     // ---- Messages -------------------------------------------------------------------------------
@@ -266,81 +338,43 @@ public class ClientPeer extends AbstractPeer {
         sendMessage("order" + convertNameListToProtocol(names));
     }
 
+    public void sendMoveMessage(String playerName, Move move, int points) {
+        sendMessage("move " +
+                playerName + " " +
+                move.getTile().encode() + " " +
+                move.getIndex() + " " +
+                points);
+    }
+
     public void sendSkipMessage(String playerName) {
         sendMessage("skip " + playerName);
     }
 
     public void sendReplaceMessage(String playerName, Tile previous, Tile replacement) {
-        sendMessage("replace " + playerName + " " +
-                convertTileToProtocol(previous) +
-                " with " +
-                convertTileToProtocol(replacement));
-    }
-
-    /**
-     * TODO: This should probably be "Map<String, List<Tile>>" instead of the specific type.
-     * * Doing so however, raises a "cannot be applied to..." error when calling it with
-     * * the specific types.
-     *
-     * @param playerTiles The list of tiles for each player.
-     * @param playerName  The player who's turn it is.
-     */
-    public void sendTileAndTurnAnnouncement(
-            HashMap<String, ArrayList<Tile>> playerTiles, String playerName) {
-
-        StringBuilder tileMessage = new StringBuilder();
-
-        for (Map.Entry<String, ArrayList<Tile>> entry : playerTiles.entrySet()) {
-            tileMessage.append(entry.getKey());
-            tileMessage.append(" ");
-
-            for (int i = 0; i < 4; i++) {
-                try {
-                    tileMessage.append(convertTileToProtocol(entry.getValue().get(i)));
-                    tileMessage.append(" ");
-                } catch (IndexOutOfBoundsException e) {
-                    // No tiles left. Pad message to 4 items.
-                    tileMessage.append("null ");
-                }
-            }
+        // It can happen that there is no replacement left in the bag.
+        String replacedWith = "null";
+        if (replacement != null) {
+            replacedWith = replacement.encode();
         }
 
-        sendMessage("tiles " + tileMessage + "turn " + playerName);
+        sendMessage("replace " +
+                playerName + " " +
+                previous.encode() +
+                " with " +
+                replacedWith);
     }
 
     public void sendPlayerLeftMessage(String playerName) {
         sendMessage("player " + playerName + " left");
     }
 
-    public void sendLeaderBoardMessage(Map<String, Integer> scores) {
-        Map<String, Integer> sortScores = new HashMap<>(scores);
-
-        StringBuilder leaderBoard = new StringBuilder();
-
-        // Sort the scores.
-        while (!sortScores.isEmpty()) {
-            int highest = Integer.MIN_VALUE;
-            String highestName = "";
-            for (Map.Entry<String, Integer> score : sortScores.entrySet()) {
-                if (score.getValue() >= highest) {
-                    highest = score.getValue();
-                    highestName = score.getKey();
-                }
-            }
-
-            leaderBoard.append(highestName);
-            leaderBoard.append(" ");
-            leaderBoard.append(highest);
-            leaderBoard.append(" ");
-
-            sortScores.remove(highestName);
-        }
-
-        sendMessage("game finished leaderboard " + leaderBoard);
-    }
 
     public void sendInvalidNameError() {
         sendMessage(INVALID_NAME_ERROR_MESSAGE);
+    }
+
+    public void sendInvalidMoveError() {
+        sendMessage(INVALID_MOVE_ERROR_MESSAGE);
     }
 
 

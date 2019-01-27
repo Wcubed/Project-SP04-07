@@ -1,12 +1,10 @@
 package ss.spec.networking;
 
-import ss.spec.gamepieces.Color;
-import ss.spec.gamepieces.Tile;
-
 public abstract class AbstractPeer implements Runnable {
 
     public static final String INVALID_COMMAND_ERROR_MESSAGE = "invalidCommand";
     public static final String INVALID_NAME_ERROR_MESSAGE = "invalidName";
+    public static final String INVALID_MOVE_ERROR_MESSAGE = "invalidMove";
 
     private Connection connection;
 
@@ -71,40 +69,5 @@ public abstract class AbstractPeer implements Runnable {
         // TODO: send the message along with the error?
         //   This has to be added to the protocol in that case.
         sendMessage(INVALID_COMMAND_ERROR_MESSAGE);
-    }
-
-    protected String convertTileToProtocol(Tile tile) {
-        return "" +
-                convertColorToProtocol(tile.getFlatSide()) +
-                convertColorToProtocol(tile.getClockwise1()) +
-                convertColorToProtocol(tile.getClockwise2()) +
-                tile.getPoints();
-    }
-
-    private Character convertColorToProtocol(Color color) {
-        Character result = null;
-
-        switch (color) {
-            case RED:
-                result = 'R';
-                break;
-            case BLUE:
-                result = 'B';
-                break;
-            case GREEN:
-                result = 'G';
-                break;
-            case YELLOW:
-                result = 'Y';
-                break;
-            case PURPLE:
-                result = 'P';
-                break;
-            case WHITE:
-                result = 'W';
-                break;
-        }
-
-        return result;
     }
 }

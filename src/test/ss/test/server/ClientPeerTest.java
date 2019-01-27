@@ -9,10 +9,8 @@ import ss.spec.server.ClientState;
 import ss.test.networking.MockConnection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ClientPeerTest {
 
@@ -174,6 +172,56 @@ class ClientPeerTest {
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
     }
 
+    @Test
+    void handleSkipMessage() {
+        // Not allowed to skip.
+        peer.handleReceivedMessage("skip");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+
+        // Now we are allowed to skip.
+        peer.clientDecideSkip();
+        peer.handleReceivedMessage("skip");
+        assertEquals(ClientState.GAME_VERIFY_SKIP, peer.getState());
+        assertNull(peer.getProposedReplaceTile());
+        assertTrue(peer.wantsToSkip());
+
+        // Mangled message
+        peer.clientDecideSkip();
+        peer.handleReceivedMessage("skipbldk");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+    }
+
+    @Test
+    void handleExchangeMessage() {
+        // Not allowed to exchange.
+        peer.handleReceivedMessage("exchange RGB2");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+
+        // Now we are allowed to exchange.
+        peer.clientDecideSkip();
+        peer.handleReceivedMessage("exchange RGB2");
+        assertEquals(ClientState.GAME_VERIFY_SKIP, peer.getState());
+        assertEquals(new Tile(Color.RED, Color.GREEN, Color.BLUE, 2),
+                peer.getProposedReplaceTile());
+        assertFalse(peer.wantsToSkip());
+
+        peer.clientDecideSkip();
+
+        // Mangled messages.
+        peer.handleReceivedMessage("exchange");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange R");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange blabla");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange       ");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange !");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+        peer.handleReceivedMessage("exchange PRT-1");
+        assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
+    }
+
 
     // ---- Messages -------------------------------------------------------------------------------
 
@@ -221,32 +269,6 @@ class ClientPeerTest {
     }
 
     @Test
-    void sendTileAndTurnMessage() {
-        HashMap<String, ArrayList<Tile>> tiles = new HashMap<>();
-
-        peer.sendTileAndTurnAnnouncement(tiles, "Clara");
-        assertEquals("tiles turn Clara", connection.readSentMessage());
-
-        ArrayList<Tile> bobTiles = new ArrayList<>();
-        bobTiles.add(new Tile(Color.RED, Color.PURPLE, Color.GREEN, 3));
-        tiles.put("Bob", bobTiles);
-
-        peer.sendTileAndTurnAnnouncement(tiles, "Bob");
-        assertEquals("tiles Bob RPG3 null null null turn Bob",
-                connection.readSentMessage());
-
-        bobTiles.add(new Tile(Color.PURPLE, Color.BLUE, Color.YELLOW, 4));
-
-        ArrayList<Tile> albertTiles = new ArrayList<>();
-        albertTiles.add(new Tile(Color.GREEN, Color.WHITE, Color.GREEN, 1));
-        tiles.put("Albert", albertTiles);
-
-        peer.sendTileAndTurnAnnouncement(tiles, "Bob");
-        assertEquals("tiles Bob RPG3 PBY4 null null Albert GWG1 null null null turn Bob",
-                connection.readSentMessage());
-    }
-
-    @Test
     void sendSkipMessage() {
         peer.sendSkipMessage("Bob");
         assertEquals("skip Bob", connection.readSentMessage());
@@ -262,6 +284,10 @@ class ClientPeerTest {
         peer.sendReplaceMessage("Patrice", previous, replacement);
 
         assertEquals("replace Patrice RGW6 with BPY2", connection.readSentMessage());
+
+        // Not being able to replace a tile can happen.
+        peer.sendReplaceMessage("Jack", previous, null);
+        assertEquals("replace Jack RGW6 with null", connection.readSentMessage());
     }
 
     @Test
@@ -271,29 +297,6 @@ class ClientPeerTest {
 
         peer.sendPlayerLeftMessage("aLiCe");
         assertEquals("player aLiCe left", connection.readSentMessage());
-    }
-
-    @Test
-    void sendLeaderBoardMessage() {
-        HashMap<String, Integer> scores = new HashMap<>();
-
-        peer.sendLeaderBoardMessage(scores);
-        assertEquals("game finished leaderboard ", connection.readSentMessage());
-
-        scores.put("R2-D2", 80);
-        scores.put("Obi-wan", 0);
-        scores.put("Anakin", 12);
-
-        peer.sendLeaderBoardMessage(scores);
-        assertEquals("game finished leaderboard R2-D2 80 Anakin 12 Obi-wan 0 ",
-                connection.readSentMessage());
-
-        scores.put("Vader", 129348);
-
-        peer.sendLeaderBoardMessage(scores);
-        assertEquals(
-                "game finished leaderboard Vader 129348 R2-D2 80 Anakin 12 Obi-wan 0 ",
-                connection.readSentMessage());
     }
 
     @Test
