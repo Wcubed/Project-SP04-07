@@ -2,9 +2,7 @@ package ss.spec.client;
 
 import ss.spec.gamepieces.Board;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Observable;
 import java.util.Scanner;
@@ -16,9 +14,9 @@ public class TuiView implements SpecView {
 
     private boolean running;
 
-    public TuiView(BufferedReader in, BufferedWriter out) {
-        this.in = in;
-        this.out = out;
+    public TuiView(Reader in, Writer out) {
+        this.in = new BufferedReader(in);
+        this.out = new BufferedWriter(out);
     }
 
     @Override

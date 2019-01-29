@@ -19,6 +19,12 @@ public class Server {
     }
 
     public void start() {
+        // TODO: it is apparently a requirement that we be able to manually enter a port.
+        //       but the protocoll states that we always use port 4000. So how to fix that?
+
+        // TODO: Apparently all communication messages have to be written to std::out.
+        //       Again, that's in the requirements. Can we do that in a nice way?
+
         // try to open a server socket;
         try {
             serverSocket = new ServerSocket(PORT);

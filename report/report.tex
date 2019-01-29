@@ -1,0 +1,71 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    left=25mm,
+    right=25mm,
+    top=25mm,
+    bottom=25mm
+}
+
+% TODO: Do I want 1 or 2 columns?
+\usepackage{multicol}
+
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+\usepackage{wrapfig}
+
+\usepackage{textcomp}
+
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+
+% Set the link style for the document.
+\hypersetup{
+    colorlinks,
+    citecolor=blue,
+    filecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\usepackage[explicit]{titlesec}
+
+\titleformat{\paragraph}[runin]
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{#1\quad--}
+
+
+% Start fix titlesec numbering.
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}
+\patchcmd{\ttlh@hang}{\noindent}{}{}{}
+\makeatother
+% End fix titlesec numbering.
+
+
+\providecommand{\keywords}[1]{\textbf{\textit{Keywords---}} #1}
+
+
+
+% ==============================================================================
+
+% TODO: Check title, author, supervisor, affilitation, date etc.
+% Check everything that should be on the front page.
+% Check the GP manual for this.
+
+\title{} % TODO: Title.
+\author{Wybe Westra}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+
+
+\end{document}

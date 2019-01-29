@@ -1,60 +1,19 @@
 package ss.spec.client;
 
-import ss.spec.networking.SocketConnection;
-
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
 
-    private static final int PORT = 4000;
-
+    // TODO: you should be able to enter the port and ip through command line.
+    //       Is in the requirements. As with the server, the protocoll states port 4000...
+    //       So how to fix that?
     private static final String USAGE = "usage: <name> <address>";
 
-    String name;
-    InetAddress address;
+    // TODO: AI.
 
-    public Client(String name, InetAddress address) {
-        this.name = name;
-        this.address = address;
-    }
-
-    public void start() {
-
-        try {
-            Socket socket = new Socket(address, PORT);
-            SocketConnection connection = new SocketConnection(socket);
-
-            ServerPeer server;
-            server = new ServerPeer(connection);
-
-            Thread connectionThread = new Thread(server);
-            connectionThread.start();
-
-
-            server.sendConnectMessage(name);
-
-            while (server.isPeerConnected()) {
-                server.sendMessage("Hello world!");
-
-                // TODO: Remove sleeping for final application.
-                Thread.sleep(1000);
-            }
-
-            System.out.println("Server disconnected, exiting.");
-
-        } catch (ConnectException e) {
-            // TODO: nice error handling.
-            System.out.println("Something went wrong while connecting:");
-            e.printStackTrace();
-        } catch (IOException | InterruptedException e) {
-            // TODO: nice error handling.
-            e.printStackTrace();
-        }
-    }
+    // TODO: Hint functionality.
 
 
     public static void main(String[] args) {
@@ -75,9 +34,14 @@ public class Client {
             System.exit(0);
         }
 
+        try {
+            ClientController controller = new ClientController(name, addr);
+        } catch (IOException e) {
+            // TODO: Allow user to try connecting again.
+            System.out.println("Something went wrong while connecting:");
+            e.printStackTrace();
+        }
 
-        Client client = new Client(name, addr);
-
-        client.start();
+        System.out.println("Server disconnected, exiting.");
     }
 }
