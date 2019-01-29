@@ -11,9 +11,16 @@ public class Client {
     //       So how to fix that?
     private static final String USAGE = "usage: <name> <address>";
 
-    // TODO: AI.
+    // TODO: AI. (Optional for single person groups)
 
     // TODO: Hint functionality.
+
+    // TODO: Write readme.md according to the info in the module manual.
+
+    // TODO: Check that everything is ready for submission. See the module manual for what should
+    //       be handed in.
+
+    // TODO: Does there need to be javadoc? and for which classes?
 
 
     public static void main(String[] args) {
