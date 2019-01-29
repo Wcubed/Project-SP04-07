@@ -1,32 +1,23 @@
 package ss.spec.client;
 
-import ss.spec.networking.SocketConnection;
+import ss.spec.networking.Connection;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
-import java.net.Socket;
 
 public class ClientController {
+    private String name;
 
-    private static final int PORT = 4000;
+    private SpecView view;
+    private GameModel model;
 
-    String name;
+    private ServerPeer peer;
 
-    SpecView view;
-    GameModel model;
-
-    ServerPeer peer;
-
-    public ClientController(String name, InetAddress serverAddress) throws IOException {
+    public ClientController(String name, Connection connection) {
         this.name = name;
 
-        Socket socket = new Socket(serverAddress, PORT);
-        SocketConnection connection = new SocketConnection(socket);
-
-        ServerPeer server;
-        server = new ServerPeer(connection);
+        ServerPeer peer;
+        peer = new ServerPeer(connection);
 
         this.view = new TuiView(
                 new InputStreamReader(System.in),
