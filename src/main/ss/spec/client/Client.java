@@ -6,6 +6,12 @@ import java.net.UnknownHostException;
 
 public class Client {
 
+    // TODO: The following requirements are optional for lone wolfs:
+    //       Support for computer players.
+    //       Metrics report.
+    //       Coverage test for complex server classes.
+    //       Telnet test.
+
     // TODO: you should be able to enter the port and ip through command line.
     //       Is in the requirements. As with the server, the protocoll states port 4000...
     //       So how to fix that?
