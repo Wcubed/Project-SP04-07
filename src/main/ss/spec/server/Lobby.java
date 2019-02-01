@@ -168,7 +168,7 @@ public class Lobby implements Runnable {
             } else {
                 // Connection lost, client will be removed from list.
                 // TODO: Nice logging.
-                System.out.println("Connection to client lost.");
+                System.out.println("Connection to client \'" + client.getName() + "\' lost.");
 
                 // Remove the clients name from the list of used names.
                 freeUpClientName(client);
@@ -194,7 +194,7 @@ public class Lobby implements Runnable {
             if (!client.isPeerConnected()) {
                 // Connection lost, client will be removed from list.
                 // TODO: Nice logging.
-                System.out.println("Connection to client lost.");
+                System.out.println("Connection to client \'" + client.getName() + "\' lost.");
 
                 // Remove the clients name from the list of used names.
                 freeUpClientName(client);

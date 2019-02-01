@@ -50,9 +50,6 @@ public class SocketConnection implements Connection {
         if (!isDead()) {
             connectionDead = true;
 
-            // TODO: Proper logging.
-            System.out.println("Killing connection.");
-
             if (!socket.isClosed()) {
                 try {
                     socket.close();

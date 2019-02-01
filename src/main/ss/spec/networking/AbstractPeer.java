@@ -44,7 +44,7 @@ public abstract class AbstractPeer implements Runnable {
         }
 
         // TODO: Nice logging.
-        System.out.println("Connection read thread stopping...");
+        System.out.println("Peer disconnected...");
     }
 
     /**
