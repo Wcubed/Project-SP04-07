@@ -10,4 +10,6 @@ public interface SpecView extends Observer, Runnable {
     void showBoard(Board board);
 
     void showTurnAdvance(List<String> turnOrder, Player currentPlayer);
+
+    void closeView();
 }

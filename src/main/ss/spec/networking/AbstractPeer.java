@@ -20,6 +20,11 @@ public abstract class AbstractPeer implements Runnable {
         return peerConnected;
     }
 
+    public void disconnect() {
+        connection.killConnection();
+        peerConnected = false;
+    }
+
     /**
      * Watches for messages from the other end of the connection.
      */

@@ -76,6 +76,9 @@ public class ClientPeer extends AbstractPeer {
 
     @Override
     public void handleReceivedMessage(String message) {
+        // TODO: Nice printing of received messages.
+        System.out.println("Client \'" + name + "\' sent: \'" + message + "\'");
+
         Scanner scanner = new Scanner(message);
 
         if (scanner.hasNext()) {

@@ -9,6 +9,8 @@ import java.net.Socket;
 
 public class Server {
 
+    // TODO: Some classes in the server need JML. See module guide for which ones and how.
+
     private static final int PORT = 4000;
 
     private ServerSocket serverSocket;

@@ -97,7 +97,6 @@ public class Client {
                 if (message.equals(ServerPeer.INVALID_NAME_ERROR_MESSAGE)) {
                     System.out.println("Sorry, that name is already taken.");
                     // Try again.
-                    continue;
                 } else if (message.contains("welcome")) {
                     // TODO: parse extensions, if any.
                     // Name has been confirmed.
@@ -116,6 +115,18 @@ public class Client {
 
         ClientController controller = new ClientController(confirmedName, connection);
 
+        controller.startViewThread();
+
+        // This thread will run the network connection.
+        controller.runPeer();
+
         System.out.println("Closing program.");
+
+        // If we fall through, that means the network connection is lost.
+        // Make sure the other threads are stopped.
+        controller.exitProgram();
+
+        // TUI threads might not want to close, so we use system.exit to force them to stop.
+        System.exit(0);
     }
 }

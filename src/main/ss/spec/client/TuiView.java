@@ -9,12 +9,16 @@ import java.util.Scanner;
 
 public class TuiView implements SpecView {
 
+    private ClientController controller;
+
     private BufferedReader in;
     private BufferedWriter out;
 
     private boolean running;
 
-    public TuiView(Reader in, Writer out) {
+    public TuiView(ClientController controller, Reader in, Writer out) {
+        this.controller = controller;
+
         this.in = new BufferedReader(in);
         this.out = new BufferedWriter(out);
     }
@@ -25,7 +29,15 @@ public class TuiView implements SpecView {
 
         while (running) {
             try {
-                handleTerminalCommand(in.readLine());
+                print("> ");
+                String command = in.readLine();
+
+                if (command != null) {
+                    handleTerminalCommand(command);
+                } else {
+                    // End of stream, input has been closed.
+                    running = false;
+                }
             } catch (IOException e) {
                 // TODO: print nice message.
                 e.printStackTrace();
@@ -48,8 +60,7 @@ public class TuiView implements SpecView {
             }
 
             if (word.equals("exit")) {
-                running = false;
-
+                controller.exitProgram();
                 return;
             }
         }
@@ -63,12 +74,25 @@ public class TuiView implements SpecView {
 
     public void print(String message) throws IOException {
         out.write(message);
+        out.flush();
     }
 
     public void println(String message) throws IOException {
         out.write(message + "\n");
         out.flush();
     }
+
+    @Override
+    public void closeView() {
+        running = false;
+
+        // TODO: would very much like to stop the tui input thread here.
+        //       But trying to close the `in` buffer that it is stuck reading on does not work.
+        //       Instead of throwing an exception on the other thread, as expected, it deadlocks.
+        //       This also happens when trying to close the underlying `System.in`.
+    }
+
+    // ---------------------------------------------------------------------------------------------
 
     @Override
     public void update(Observable observable, Object o) {

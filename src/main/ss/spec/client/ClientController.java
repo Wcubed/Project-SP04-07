@@ -16,14 +16,29 @@ public class ClientController {
     public ClientController(String name, Connection connection) {
         this.name = name;
 
-        ServerPeer peer;
         peer = new ServerPeer(connection);
 
         this.view = new TuiView(
+                this,
                 new InputStreamReader(System.in),
                 new OutputStreamWriter(System.out));
 
         // There is no game yet.
         this.model = null;
+    }
+
+    public void startViewThread() {
+        Thread viewThread = new Thread(view);
+        viewThread.start();
+    }
+
+
+    public void runPeer() {
+        peer.run();
+    }
+
+    public void exitProgram() {
+        view.closeView();
+        peer.disconnect();
     }
 }
