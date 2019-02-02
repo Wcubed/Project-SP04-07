@@ -7,8 +7,12 @@ import ss.spec.networking.Connection;
 
 public class ServerPeer extends AbstractPeer {
 
-    public ServerPeer(Connection connection) {
+    private boolean serverSupportsChat;
+
+    public ServerPeer(Connection connection, boolean serverSupportsChat) {
         super(connection);
+
+        this.serverSupportsChat = serverSupportsChat;
     }
 
     @Override
@@ -18,10 +22,10 @@ public class ServerPeer extends AbstractPeer {
 
     // ---------------------------------------------------------------------------------------------
 
-    public void sendConnectMessage(String name) {
-        sendMessage("connect " + name);
-
-        // TODO: Include list of extensions.
+    public void sendChatMessage(String message) {
+        if (serverSupportsChat) {
+            sendMessage("chat " + message);
+        }
     }
 
     public void sendRequestMessage(int players) {

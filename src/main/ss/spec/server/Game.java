@@ -12,8 +12,6 @@ public class Game implements Runnable {
 
     private boolean gameOver;
 
-    // TODO: Refactor the ClientPeer, tiles and scores into a single class!
-    //       Then you can add convenience methods to it, making the game class cleaner.
     private ArrayList<Player> players;
     private Board board;
     private TileBag bag;
@@ -125,6 +123,7 @@ public class Game implements Runnable {
 
                 switch (peer.getState()) {
                     case GAME_AWAITING_TURN:
+
                         if (board.hasValidMoves(player.getTiles())) {
                             peer.clientDecideMove();
                             // Notify everyone that this player's turn has started.
@@ -136,11 +135,13 @@ public class Game implements Runnable {
                             sendSkipAnnouncement(player.getName());
                         }
                         break;
+
                     case PEER_DECIDE_MOVE:
                         // Waiting for the peer to send a move message.
                         // Do nothing.
                         break;
                     case GAME_VERIFY_MOVE:
+
                         Move move = peer.getProposedMove();
 
                         if (move == null) {
@@ -178,6 +179,7 @@ public class Game implements Runnable {
                         // Do nothing.
                         break;
                     case GAME_VERIFY_SKIP:
+
                         Tile replaceTile = peer.getProposedReplaceTile();
 
                         if (replaceTile == null) {
@@ -433,6 +435,8 @@ public class Game implements Runnable {
      * @param playerName The name of the player who disconnected.
      */
     private void stopGamePlayerDisconnected(String playerName) {
+        System.out.println("Connection to client \'" + playerName + "\' lost.");
+
         for (Player player : players) {
             // We are also sending this message to the one who disconnected.
             // This is not a problem however, as that is handled gracefully.

@@ -3,6 +3,7 @@ package ss.spec.client;
 import ss.spec.gamepieces.Board;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Scanner;
@@ -16,11 +17,21 @@ public class TuiView implements SpecView {
 
     private boolean running;
 
-    public TuiView(ClientController controller, Reader in, Writer out) {
+    private String lastPrompt;
+
+    private boolean serverSupportsChat;
+    private ArrayList<String> chatHistory;
+
+    public TuiView(ClientController controller, Reader in, Writer out, boolean serverSupportsChat) {
         this.controller = controller;
 
         this.in = new BufferedReader(in);
         this.out = new BufferedWriter(out);
+
+        this.serverSupportsChat = serverSupportsChat;
+
+        lastPrompt = "";
+        chatHistory = new ArrayList<>();
     }
 
     @Override
@@ -54,32 +65,65 @@ public class TuiView implements SpecView {
         if (scanner.hasNext()) {
             String word = scanner.next();
 
-            if (word.equals("help")) {
-                printHelpMessage();
-                return;
-            }
+            switch (word) {
+                case "help":
+                    printHelpMessage();
+                    break;
+                case "exit":
+                    controller.exitProgram();
+                    break;
+                case "chat":
+                    if (serverSupportsChat) {
+                        // TODO: Implement chat?.
+                    } else {
+                        println("Sorry, but the server does not support chat messages.");
+                    }
+                    break;
 
-            if (word.equals("exit")) {
-                controller.exitProgram();
-                return;
+                default:
+                    printHelpMessage();
             }
         }
     }
 
-    public void printHelpMessage() throws IOException {
+    private void printHelpMessage() {
         println("-----------------");
         println("help -> Print this help message.");
         println("exit -> Exit the program.");
+
+        if (serverSupportsChat) {
+            println("chat -> Send a chat message.");
+        }
     }
 
-    public void print(String message) throws IOException {
-        out.write(message);
-        out.flush();
+    private void print(String message) {
+        try {
+            out.write(message);
+            out.flush();
+        } catch (IOException e) {
+            running = false;
+        }
     }
 
-    public void println(String message) throws IOException {
-        out.write(message + "\n");
-        out.flush();
+    private void println(String message) {
+        try {
+            out.write(message + "\n");
+            out.flush();
+        } catch (IOException e) {
+            running = false;
+        }
+    }
+
+    private void printPrompt() {
+        println(lastPrompt);
+
+        if (serverSupportsChat) {
+            println("/-- Chat ----------------\\");
+            for (String message : chatHistory) {
+                println("| " + message);
+            }
+            println("\\------------------------/");
+        }
     }
 
     @Override
@@ -108,29 +152,23 @@ public class TuiView implements SpecView {
         }
     }
 
-    @Override
     public void showBoard(Board board) {
 
     }
 
-    @Override
     public void showTurnAdvance(List<String> turnOrder, Player currentPlayer) {
-        try {
-            print("Turn order: ");
+        // TODO: Put this in the lastPrompt string.
 
-            for (String name : turnOrder) {
-                print(name);
-                print(" ");
-            }
+        print("Turn order: ");
 
-            println("");
-            print("It is now the turn of ");
-            print(currentPlayer.getName());
-            println(".");
-
-        } catch (IOException e) {
-            // TODO: what to do here?
-            e.printStackTrace();
+        for (String name : turnOrder) {
+            print(name);
+            print(" ");
         }
+
+        println("");
+        print("It is now the turn of ");
+        print(currentPlayer.getName());
+        println(".");
     }
 }

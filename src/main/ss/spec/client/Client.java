@@ -73,6 +73,7 @@ public class Client {
         System.out.println("Connection established.");
 
         String confirmedName = null;
+        boolean chatSupported = false;
 
 
         System.out.println("What is your name?");
@@ -89,8 +90,8 @@ public class Client {
             }
 
             try {
-                // TODO: Add supported extensions, if any?
-                connection.sendMessage("connect " + potentialName);
+                // We support the chat extension.
+                connection.sendMessage("connect " + potentialName + " chat");
 
                 String message = connection.readMessage();
 
@@ -102,6 +103,11 @@ public class Client {
                     // Name has been confirmed.
                     confirmedName = potentialName;
                     System.out.println("Welcome " + confirmedName + "!");
+
+                    if (message.contains("chat")) {
+                        System.out.println("Server supports chat extension.");
+                        chatSupported = true;
+                    }
                 } else {
                     System.out.println("Something went wrong while communicating with the server.");
                 }
@@ -113,7 +119,8 @@ public class Client {
         }
 
 
-        ClientController controller = new ClientController(confirmedName, connection);
+        ClientController controller = new ClientController(
+                confirmedName, connection, chatSupported);
 
         controller.startViewThread();
 

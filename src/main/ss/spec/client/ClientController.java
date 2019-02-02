@@ -7,21 +7,24 @@ import java.io.OutputStreamWriter;
 
 public class ClientController {
     private String name;
+    private boolean serverSupportsChat;
 
     private SpecView view;
     private GameModel model;
 
     private ServerPeer peer;
 
-    public ClientController(String name, Connection connection) {
+    public ClientController(String name, Connection connection, boolean serverSupportsChat) {
         this.name = name;
+        this.serverSupportsChat = serverSupportsChat;
 
-        peer = new ServerPeer(connection);
+        peer = new ServerPeer(connection, serverSupportsChat);
 
         this.view = new TuiView(
                 this,
                 new InputStreamReader(System.in),
-                new OutputStreamWriter(System.out));
+                new OutputStreamWriter(System.out),
+                serverSupportsChat);
 
         // There is no game yet.
         this.model = null;
