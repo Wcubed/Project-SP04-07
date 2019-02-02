@@ -8,9 +8,7 @@ import ss.spec.networking.Connection;
 import ss.spec.networking.DecodeException;
 import ss.spec.networking.InvalidCommandException;
 
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ClientPeer extends AbstractPeer {
 
@@ -43,6 +41,10 @@ public class ClientPeer extends AbstractPeer {
     }
 
     private String name;
+
+    private boolean supportsChat;
+    private LinkedList<String> chatMessages;
+
     private int requestedPlayerAmount;
 
     private State state;
@@ -66,6 +68,9 @@ public class ClientPeer extends AbstractPeer {
         super(connection);
 
         name = null;
+        this.supportsChat = false;
+        this.chatMessages = new LinkedList<>();
+
         state = State.PEER_AWAITING_CONNECT_MESSAGE;
         requestedPlayerAmount = 0;
     }
@@ -100,6 +105,17 @@ public class ClientPeer extends AbstractPeer {
         return proposedReplaceTile;
     }
 
+    /**
+     * @return The next chat message in the queue. `null` if the queue is empty.
+     */
+    public String getNextChatMessage() {
+        try {
+            return chatMessages.removeFirst();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     @Override
@@ -128,6 +144,9 @@ public class ClientPeer extends AbstractPeer {
                         break;
                     case "exchange":
                         parseExchangeMessage(scanner);
+                        break;
+                    case "chat":
+                        parseChatMessage(scanner);
                         break;
                     default:
                         // We don't know this command.
@@ -175,8 +194,12 @@ public class ClientPeer extends AbstractPeer {
 
         this.name = newName;
 
-        // TODO: Proper logging.
-        // TODO: parse [extensions]
+        // See if the client supports the chat extension.
+        while (message.hasNext()) {
+            if (message.next().equals("chat")) {
+                this.supportsChat = true;
+            }
+        }
     }
 
 
@@ -279,6 +302,14 @@ public class ClientPeer extends AbstractPeer {
         state = State.GAME_VERIFY_SKIP;
     }
 
+    private void parseChatMessage(Scanner message) {
+        if (message.hasNextLine()) {
+            // Add the chat message to the message queue.
+            // Remove unnecessary spaces.
+            chatMessages.addLast(message.nextLine().trim());
+        }
+    }
+
 
     /**
      * Called by the Lobby to signal to the client that the chosen name is valid.
@@ -351,10 +382,15 @@ public class ClientPeer extends AbstractPeer {
 
     // ---- Messages -------------------------------------------------------------------------------
 
-
     private void sendWelcomeMessage() {
-        // TODO: Send the supported extensions (if any).
-        sendMessage("welcome");
+        // We support the chat extension.
+        sendMessage("welcome chat");
+    }
+
+    public void sendChatMessage(String name, String message) {
+        if (supportsChat) {
+            sendMessage("chat " + name + " " + message);
+        }
     }
 
     public void sendWaitingMessage(List<String> names) {

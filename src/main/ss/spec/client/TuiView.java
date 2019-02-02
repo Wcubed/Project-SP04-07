@@ -1,10 +1,7 @@
 package ss.spec.client;
 
-import ss.spec.gamepieces.Board;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Scanner;
 
@@ -20,7 +17,8 @@ public class TuiView implements SpecView {
     private String lastPrompt;
 
     private boolean serverSupportsChat;
-    private ArrayList<String> chatHistory;
+    private LinkedList<String> chatHistory;
+    private int maxChatHistory;
 
     public TuiView(ClientController controller, Reader in, Writer out, boolean serverSupportsChat) {
         this.controller = controller;
@@ -31,7 +29,8 @@ public class TuiView implements SpecView {
         this.serverSupportsChat = serverSupportsChat;
 
         lastPrompt = "";
-        chatHistory = new ArrayList<>();
+        chatHistory = new LinkedList<>();
+        maxChatHistory = 4;
     }
 
     @Override
@@ -40,7 +39,6 @@ public class TuiView implements SpecView {
 
         while (running) {
             try {
-                print("> ");
                 String command = in.readLine();
 
                 if (command != null) {
@@ -59,11 +57,28 @@ public class TuiView implements SpecView {
         }
     }
 
-    public void handleTerminalCommand(String command) throws IOException {
+    public void handleTerminalCommand(String command) {
         Scanner scanner = new Scanner(command);
 
         if (scanner.hasNext()) {
             String word = scanner.next();
+
+            try {
+                int number = Integer.decode(word);
+
+                if (controller.canRequestGame()) {
+                    controller.requestGame(number);
+                }
+
+                return;
+            } catch (NumberFormatException e) {
+                // Input is not a number, continue to check for commands.
+            } catch (InvalidNumberException e) {
+                // Whoops, that was not a valid number.
+                // Show the player the prompt again.
+                printPrompt();
+                return;
+            }
 
             switch (word) {
                 case "help":
@@ -74,7 +89,11 @@ public class TuiView implements SpecView {
                     break;
                 case "chat":
                     if (serverSupportsChat) {
-                        // TODO: Implement chat?.
+                        if (scanner.hasNextLine()) {
+                            // Send the chat message.
+                            // Remove unnecessary spaces.
+                            controller.sendChatMessage(scanner.nextLine().trim());
+                        }
                     } else {
                         println("Sorry, but the server does not support chat messages.");
                     }
@@ -118,12 +137,28 @@ public class TuiView implements SpecView {
         println(lastPrompt);
 
         if (serverSupportsChat) {
-            println("/-- Chat ----------------\\");
+            println("/-- Chat --------------------------");
             for (String message : chatHistory) {
                 println("| " + message);
             }
-            println("\\------------------------/");
+            println("\\----------------------------------");
         }
+
+        print("> ");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Override
+    public void addChatMessage(String name, String message) {
+        chatHistory.addLast(name + ": " + message);
+
+        while (chatHistory.size() > maxChatHistory) {
+            chatHistory.removeFirst();
+        }
+
+        // Display the prompt along with the chat messages.
+        printPrompt();
     }
 
     @Override
@@ -135,8 +170,6 @@ public class TuiView implements SpecView {
         //       Instead of throwing an exception on the other thread, as expected, it deadlocks.
         //       This also happens when trying to close the underlying `System.in`.
     }
-
-    // ---------------------------------------------------------------------------------------------
 
     @Override
     public void update(Observable observable, Object o) {
@@ -152,23 +185,10 @@ public class TuiView implements SpecView {
         }
     }
 
-    public void showBoard(Board board) {
-
-    }
-
-    public void showTurnAdvance(List<String> turnOrder, Player currentPlayer) {
-        // TODO: Put this in the lastPrompt string.
-
-        print("Turn order: ");
-
-        for (String name : turnOrder) {
-            print(name);
-            print(" ");
-        }
-
-        println("");
-        print("It is now the turn of ");
-        print(currentPlayer.getName());
-        println(".");
+    @Override
+    public void promptGameRequest() {
+        lastPrompt = "You are in the lobby. How many players do you want to play with?\n" +
+                "Options: [2-4]";
+        printPrompt();
     }
 }

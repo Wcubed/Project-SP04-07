@@ -18,7 +18,7 @@ class ServerPeerTest {
     @BeforeEach
     void setUp() {
         connection = new MockConnection();
-        peer = new ServerPeer(connection, true);
+        peer = new ServerPeer(null, connection, true);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ class ServerPeerTest {
         peer.sendChatMessage("Hello world!");
         assertEquals("chat Hello world!", connection.readSentMessage());
 
-        ServerPeer noChatPeer = new ServerPeer(connection, false);
+        ServerPeer noChatPeer = new ServerPeer(null, connection, false);
         noChatPeer.sendChatMessage("Oh no! We don't have chat!");
         // Should not send anything.
         assertNull(connection.readSentMessage());

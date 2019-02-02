@@ -177,6 +177,8 @@ public class Lobby implements Runnable {
                 clientIter.remove();
             }
         }
+
+        distributeChatMessages(waitingClients);
     }
 
     /**
@@ -203,6 +205,8 @@ public class Lobby implements Runnable {
                 clientIter.remove();
             }
         }
+
+        distributeChatMessages(clients);
 
         if (clients.size() >= numberOfPlayers) {
             ArrayList<ClientPeer> players = new ArrayList<>();
@@ -279,6 +283,20 @@ public class Lobby implements Runnable {
                         client.getName() +
                         " managed to request a weird amount of players: " +
                         client.getRequestedPlayerAmount());
+        }
+    }
+
+    private void distributeChatMessages(List<ClientPeer> clients) {
+        for (ClientPeer client : clients) {
+            String message = client.getNextChatMessage();
+
+            while (message != null) {
+                for (ClientPeer sendClient : clients) {
+                    sendClient.sendChatMessage(client.getName(), message);
+                }
+
+                message = client.getNextChatMessage();
+            }
         }
     }
 

@@ -6,6 +6,12 @@ import java.util.*;
 
 public class GameModel extends Observable {
 
+    public enum State {
+        WAITING_FOR_TURN,
+        MAKE_MOVE,
+        DECIDE_SKIP
+    }
+
     public enum Change {
         TURN_ADVANCES,
     }
