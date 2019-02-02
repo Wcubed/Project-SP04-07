@@ -2,7 +2,10 @@ package ss.test.server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ss.spec.server.*;
+import ss.spec.server.ClientPeer;
+import ss.spec.server.Game;
+import ss.spec.server.Lobby;
+import ss.spec.server.Player;
 import ss.test.networking.MockConnection;
 
 import java.util.ArrayList;
@@ -86,7 +89,7 @@ class LobbyTest {
         lobby.doSingleLobbyIteration();
         lobby.doSingleLobbyIteration();
 
-        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, client1.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, client1.getState());
 
         // Name already taken.
         client2.handleReceivedMessage("connect Bob");
@@ -94,12 +97,12 @@ class LobbyTest {
         lobby.doSingleLobbyIteration();
 
         // Client2 should be back on the connect message.
-        assertEquals(ClientState.PEER_AWAITING_CONNECT_MESSAGE, client2.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_CONNECT_MESSAGE, client2.getState());
 
         // Name is unique.
         client2.handleReceivedMessage("connect Peter");
         lobby.doSingleLobbyIteration();
-        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, client2.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, client2.getState());
 
         // Killing client1
         connection1.killConnection();
@@ -117,7 +120,7 @@ class LobbyTest {
         lobby.doSingleLobbyIteration();
 
         assertEquals("Bob", client3.getName());
-        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, client3.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, client3.getState());
     }
 
     @Test
@@ -149,7 +152,7 @@ class LobbyTest {
         client1.handleReceivedMessage("request 4");
         lobby.doSingleLobbyIteration();
 
-        assertEquals(ClientState.LOBBY_WAITING_FOR_PLAYERS, client1.getState());
+        assertEquals(ClientPeer.State.LOBBY_WAITING_FOR_PLAYERS, client1.getState());
         assertEquals("waiting Bob", connection1.readSentMessage());
 
         // Second client requests a 4 player game.
@@ -157,7 +160,7 @@ class LobbyTest {
         lobby.doSingleLobbyIteration();
 
         // Client 2 should get a waiting message with client1's name in it.
-        assertEquals(ClientState.LOBBY_WAITING_FOR_PLAYERS, client2.getState());
+        assertEquals(ClientPeer.State.LOBBY_WAITING_FOR_PLAYERS, client2.getState());
         assertTrue(connection2.readSentMessage().contains("Bob"));
 
 

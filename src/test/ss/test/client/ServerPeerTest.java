@@ -8,8 +8,7 @@ import ss.spec.gamepieces.Move;
 import ss.spec.gamepieces.Tile;
 import ss.test.networking.MockConnection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ServerPeerTest {
 
@@ -19,18 +18,21 @@ class ServerPeerTest {
     @BeforeEach
     void setUp() {
         connection = new MockConnection();
-        peer = new ServerPeer(connection);
+        peer = new ServerPeer(connection, true);
     }
 
     // ---------------------------------------------------------------------------------------------
 
+
     @Test
-    void sendConnectMessage() {
-        String name = "TestingName";
+    void sendChatMessage() {
+        peer.sendChatMessage("Hello world!");
+        assertEquals("chat Hello world!", connection.readSentMessage());
 
-        peer.sendConnectMessage(name);
-
-        assertEquals("connect " + name, connection.readSentMessage());
+        ServerPeer noChatPeer = new ServerPeer(connection, false);
+        noChatPeer.sendChatMessage("Oh no! We don't have chat!");
+        // Should not send anything.
+        assertNull(connection.readSentMessage());
     }
 
     @Test

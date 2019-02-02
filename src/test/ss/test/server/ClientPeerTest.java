@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.Color;
 import ss.spec.gamepieces.Tile;
 import ss.spec.server.ClientPeer;
-import ss.spec.server.ClientState;
 import ss.test.networking.MockConnection;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ class ClientPeerTest {
     @Test
     void initialState() {
         assertNull(peer.getName());
-        assertEquals(ClientState.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
         assertEquals(0, peer.getRequestedPlayerAmount());
     }
 
@@ -37,7 +36,7 @@ class ClientPeerTest {
         peer.handleReceivedMessage("connect " + name);
 
         assertEquals(name, peer.getName());
-        assertEquals(ClientState.LOBBY_VERIFY_NAME, peer.getState());
+        assertEquals(ClientPeer.State.LOBBY_VERIFY_NAME, peer.getState());
 
         // Sending the same command again should be invalid, and have no effect.
         String differentName = "anotherName";
@@ -50,7 +49,7 @@ class ClientPeerTest {
         peer.rejectName();
 
         assertNull(peer.getName());
-        assertEquals(ClientState.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_CONNECT_MESSAGE, peer.getState());
         assertEquals(ClientPeer.INVALID_NAME_ERROR_MESSAGE, connection.readSentMessage());
 
         // Send a new name, and this time accept it.
@@ -58,7 +57,7 @@ class ClientPeerTest {
         peer.acceptName();
 
         assertEquals(name, peer.getName());
-        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, peer.getState());
         assertEquals("welcome", connection.readSentMessage());
     }
 
@@ -83,11 +82,11 @@ class ClientPeerTest {
 
     @Test
     void handleValidRequestMessage() {
-        // Send the message in an invalid state.
+        // Send the message in an invalid ClientPeer.State.
         peer.handleReceivedMessage("request 3");
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
-        // Get the peer into the right state.
+        // Get the peer into the right ClientPeer.State.
         peer.handleReceivedMessage("connect Bob");
         peer.acceptName();
         connection.readSentMessage();
@@ -95,23 +94,23 @@ class ClientPeerTest {
         // The message should now be okay.
         peer.handleReceivedMessage("request 3");
         assertEquals(3, peer.getRequestedPlayerAmount());
-        assertEquals(ClientState.LOBBY_START_WAITING_FOR_PLAYERS, peer.getState());
+        assertEquals(ClientPeer.State.LOBBY_START_WAITING_FOR_PLAYERS, peer.getState());
         assertNull(connection.readSentMessage());
     }
 
     @Test
     void handleInvalidRequestMessage() {
-        // Send invalid message in an invalid state.
+        // Send invalid message in an invalid ClientPeer.State.
         peer.handleReceivedMessage("request 16");
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
-        // Get the peer into the right state.
+        // Get the peer into the right ClientPeer.State.
         peer.handleReceivedMessage("connect Bob");
         peer.acceptName();
         connection.readSentMessage();
-        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, peer.getState());
 
-        // Send invalid messages in the right state.
+        // Send invalid messages in the right ClientPeer.State.
         peer.handleReceivedMessage("request 16");
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
@@ -130,7 +129,7 @@ class ClientPeerTest {
         peer.handleReceivedMessage("request -1");
         assertEquals(ClientPeer.INVALID_COMMAND_ERROR_MESSAGE, connection.readSentMessage());
 
-        assertEquals(ClientState.PEER_AWAITING_GAME_REQUEST, peer.getState());
+        assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, peer.getState());
     }
 
     @Test
@@ -142,7 +141,7 @@ class ClientPeerTest {
         // Now we are allowed to make a move.
         peer.clientDecideMove();
         peer.handleReceivedMessage("place RGB4 on 12");
-        assertEquals(ClientState.GAME_VERIFY_MOVE, peer.getState());
+        assertEquals(ClientPeer.State.GAME_VERIFY_MOVE, peer.getState());
         assertEquals(
                 new Tile(Color.RED, Color.GREEN, Color.BLUE, 4),
                 peer.getProposedMove().getTile());
@@ -151,7 +150,7 @@ class ClientPeerTest {
         // Make another move.
         peer.clientDecideMove();
         peer.handleReceivedMessage("place PPP2 on 3");
-        assertEquals(ClientState.GAME_VERIFY_MOVE, peer.getState());
+        assertEquals(ClientPeer.State.GAME_VERIFY_MOVE, peer.getState());
         assertEquals(
                 new Tile(Color.PURPLE, Color.PURPLE, Color.PURPLE, 2),
                 peer.getProposedMove().getTile());
@@ -181,7 +180,7 @@ class ClientPeerTest {
         // Now we are allowed to skip.
         peer.clientDecideSkip();
         peer.handleReceivedMessage("skip");
-        assertEquals(ClientState.GAME_VERIFY_SKIP, peer.getState());
+        assertEquals(ClientPeer.State.GAME_VERIFY_SKIP, peer.getState());
         assertNull(peer.getProposedReplaceTile());
         assertTrue(peer.wantsToSkip());
 
@@ -200,7 +199,7 @@ class ClientPeerTest {
         // Now we are allowed to exchange.
         peer.clientDecideSkip();
         peer.handleReceivedMessage("exchange RGB2");
-        assertEquals(ClientState.GAME_VERIFY_SKIP, peer.getState());
+        assertEquals(ClientPeer.State.GAME_VERIFY_SKIP, peer.getState());
         assertEquals(new Tile(Color.RED, Color.GREEN, Color.BLUE, 2),
                 peer.getProposedReplaceTile());
         assertFalse(peer.wantsToSkip());

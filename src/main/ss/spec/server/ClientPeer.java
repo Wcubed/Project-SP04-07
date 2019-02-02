@@ -14,15 +14,43 @@ import java.util.Scanner;
 
 public class ClientPeer extends AbstractPeer {
 
+    /**
+     * Enum to denote the current state the client is in.
+     * The first word indicates who we are waiting for to further the state.
+     * Other threads can send messages, they just shouldn't touch the state,
+     * or do something that would be invalid in this state.
+     * <p>
+     * PEER: means that we are waiting for a message from the peer.
+     * It is the responsibility of the peer thread to further the state.
+     * LOBBY: means we are waiting for an action or verification from the lobby.
+     * It is the responsibility of the lobby thread to further the state.
+     * GAME: means we are waiting for an action from the game thread.
+     * </p>
+     */
+    public enum State {
+        PEER_AWAITING_CONNECT_MESSAGE,
+        LOBBY_VERIFY_NAME,
+        PEER_AWAITING_GAME_REQUEST,
+        // Client has requested a game, but has not been sent a `waiting` message yet.
+        LOBBY_START_WAITING_FOR_PLAYERS,
+        LOBBY_WAITING_FOR_PLAYERS,
+
+        GAME_AWAITING_TURN,
+        PEER_DECIDE_MOVE,
+        GAME_VERIFY_MOVE,
+        PEER_DECIDE_SKIP,
+        GAME_VERIFY_SKIP,
+    }
+
     private String name;
     private int requestedPlayerAmount;
 
-    private ClientState state;
+    private State state;
 
     /**
      * The move the peer wants to make.
      * TODO: there is probably a better way to do this:
-     * Is only valid when getState() == ClientState.GAME_VERIFY_MOVE.
+     * Is only valid when getState() == ClientPeer.State.GAME_VERIFY_MOVE.
      */
     private Move proposedMove;
 
@@ -30,7 +58,7 @@ public class ClientPeer extends AbstractPeer {
      * The tile we propose to replace.
      * TODO: there is probably a better way to do this:
      * `null` if we want to skip.
-     * Is only valid when getState() == ClientState.GAME_VERIFY_SKIP.
+     * Is only valid when getState() == ClientPeer.State.GAME_VERIFY_SKIP.
      */
     private Tile proposedReplaceTile;
 
@@ -38,7 +66,7 @@ public class ClientPeer extends AbstractPeer {
         super(connection);
 
         name = null;
-        state = ClientState.PEER_AWAITING_CONNECT_MESSAGE;
+        state = State.PEER_AWAITING_CONNECT_MESSAGE;
         requestedPlayerAmount = 0;
     }
 
@@ -47,7 +75,7 @@ public class ClientPeer extends AbstractPeer {
         return name;
     }
 
-    public ClientState getState() {
+    public State getState() {
         return state;
     }
 
@@ -125,7 +153,7 @@ public class ClientPeer extends AbstractPeer {
     private void parseConnectMessage(Scanner message)
             throws InvalidCommandException {
 
-        if (getState() != ClientState.PEER_AWAITING_CONNECT_MESSAGE) {
+        if (getState() != State.PEER_AWAITING_CONNECT_MESSAGE) {
             throw new InvalidCommandException("Not expecting a connect message.");
         }
 
@@ -137,7 +165,7 @@ public class ClientPeer extends AbstractPeer {
 
         String newName = message.next();
         // Wait for the lobby to verify the given name.
-        state = ClientState.LOBBY_VERIFY_NAME;
+        state = State.LOBBY_VERIFY_NAME;
 
         // We cannot check for spaces in the name, because a space means we start
         // with the list of extensions.
@@ -153,7 +181,7 @@ public class ClientPeer extends AbstractPeer {
 
 
     private void parseRequestMessage(Scanner message) throws InvalidCommandException {
-        if (getState() != ClientState.PEER_AWAITING_GAME_REQUEST) {
+        if (getState() != State.PEER_AWAITING_GAME_REQUEST) {
             throw new InvalidCommandException("Not expecting a game request.");
         }
 
@@ -167,7 +195,7 @@ public class ClientPeer extends AbstractPeer {
             // 2 to 4 players.
             if (amount >= 2 && amount <= 4) {
                 requestedPlayerAmount = amount;
-                state = ClientState.LOBBY_START_WAITING_FOR_PLAYERS;
+                state = State.LOBBY_START_WAITING_FOR_PLAYERS;
             } else {
                 throw new InvalidCommandException("Can only request 2 to 4 players.");
             }
@@ -179,7 +207,7 @@ public class ClientPeer extends AbstractPeer {
     }
 
     private void parseMoveMessage(Scanner message) throws InvalidCommandException {
-        if (getState() != ClientState.PEER_DECIDE_MOVE) {
+        if (getState() != State.PEER_DECIDE_MOVE) {
             throw new InvalidCommandException("Client is not allowed to make a move.");
         }
 
@@ -217,21 +245,21 @@ public class ClientPeer extends AbstractPeer {
 
         // Save the move so that the game thread can check it.
         proposedMove = new Move(tile, index);
-        state = ClientState.GAME_VERIFY_MOVE;
+        state = State.GAME_VERIFY_MOVE;
     }
 
     private void parseSkipMessage(Scanner message) throws InvalidCommandException {
-        if (getState() != ClientState.PEER_DECIDE_SKIP) {
+        if (getState() != State.PEER_DECIDE_SKIP) {
             throw new InvalidCommandException("Not expecting a skip message.");
         }
 
         // An exchange tile of `null` means we want to skip.
         proposedReplaceTile = null;
-        state = ClientState.GAME_VERIFY_SKIP;
+        state = State.GAME_VERIFY_SKIP;
     }
 
     private void parseExchangeMessage(Scanner message) throws InvalidCommandException {
-        if (getState() != ClientState.PEER_DECIDE_SKIP) {
+        if (getState() != State.PEER_DECIDE_SKIP) {
             throw new InvalidCommandException("Not expecting an exchange message.");
         }
 
@@ -248,7 +276,7 @@ public class ClientPeer extends AbstractPeer {
         }
 
         proposedReplaceTile = tile;
-        state = ClientState.GAME_VERIFY_SKIP;
+        state = State.GAME_VERIFY_SKIP;
     }
 
 
@@ -256,8 +284,8 @@ public class ClientPeer extends AbstractPeer {
      * Called by the Lobby to signal to the client that the chosen name is valid.
      */
     public void acceptName() {
-        if (getState() == ClientState.LOBBY_VERIFY_NAME) {
-            state = ClientState.PEER_AWAITING_GAME_REQUEST;
+        if (getState() == State.LOBBY_VERIFY_NAME) {
+            state = State.PEER_AWAITING_GAME_REQUEST;
 
             // Let the client know everything is ok.
             sendWelcomeMessage();
@@ -269,8 +297,8 @@ public class ClientPeer extends AbstractPeer {
      * Called by the Lobby to signal to the client that the chosen name is invalid.
      */
     public void rejectName() {
-        if (getState() == ClientState.LOBBY_VERIFY_NAME) {
-            state = ClientState.PEER_AWAITING_CONNECT_MESSAGE;
+        if (getState() == State.LOBBY_VERIFY_NAME) {
+            state = State.PEER_AWAITING_CONNECT_MESSAGE;
             // Clear the name.
             name = null;
 
@@ -285,7 +313,7 @@ public class ClientPeer extends AbstractPeer {
      */
     void signalWaitingForPlayers(List<String> names) {
         sendWaitingMessage(names);
-        state = ClientState.LOBBY_WAITING_FOR_PLAYERS;
+        state = State.LOBBY_WAITING_FOR_PLAYERS;
         // TODO: Do we want to signal an inconsistent state?
     }
 
@@ -294,18 +322,18 @@ public class ClientPeer extends AbstractPeer {
      * Called by the game to signal we are now waiting for our turn.
      */
     void awaitTurn() {
-        state = ClientState.GAME_AWAITING_TURN;
+        state = State.GAME_AWAITING_TURN;
     }
 
     /**
      * Called by the game to let us know we are waiting for the client to send a move message.
      */
     public void clientDecideMove() {
-        state = ClientState.PEER_DECIDE_MOVE;
+        state = State.PEER_DECIDE_MOVE;
     }
 
     public void clientDecideSkip() {
-        state = ClientState.PEER_DECIDE_SKIP;
+        state = State.PEER_DECIDE_SKIP;
     }
 
     /**
@@ -313,7 +341,7 @@ public class ClientPeer extends AbstractPeer {
      * The peer can now sent a new request for a game.
      */
     void returningToLobby() {
-        state = ClientState.PEER_AWAITING_GAME_REQUEST;
+        state = State.PEER_AWAITING_GAME_REQUEST;
     }
 
     public void invalidMove() {
