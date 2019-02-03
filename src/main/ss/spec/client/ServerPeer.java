@@ -8,6 +8,7 @@ import ss.spec.networking.DecodeException;
 import ss.spec.networking.InvalidCommandException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ServerPeer extends AbstractPeer {
@@ -34,6 +35,9 @@ public class ServerPeer extends AbstractPeer {
                 switch (command) {
                     case "chat":
                         parseChatMessage(scanner);
+                        break;
+                    case "waiting":
+                        parseWaitingMessage(scanner);
                         break;
                     case "start":
                         // We dont have to do anything with the "start with" message.
@@ -72,6 +76,16 @@ public class ServerPeer extends AbstractPeer {
                 controller.receiveChatMessage(name, chatMessage);
             }
         }
+    }
+
+    private void parseWaitingMessage(Scanner message) {
+        List<String> names = new ArrayList<>();
+
+        while (message.hasNext()) {
+            names.add(message.next());
+        }
+
+        controller.updateWaitingForGame(names);
     }
 
     private void parseOrderMessage(Scanner message) throws InvalidCommandException {

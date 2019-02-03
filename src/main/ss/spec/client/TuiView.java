@@ -198,6 +198,22 @@ public class TuiView implements SpecView {
         printPrompt();
     }
 
+    @Override
+    public void promptWaitingForGame(List<String> names) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("Waiting for a game...\n");
+        prompt.append("Also waiting: ");
+
+        for (String name : names) {
+            prompt.append(name);
+            prompt.append(", ");
+        }
+
+        lastPrompt = prompt.toString();
+        printPrompt();
+    }
+
     public void promptTurnAdvances(GameModel model) {
         StringBuilder prompt = new StringBuilder();
 

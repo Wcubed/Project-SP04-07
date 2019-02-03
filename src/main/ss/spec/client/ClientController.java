@@ -98,6 +98,10 @@ public class ClientController {
         view.promptGameRequest();
     }
 
+    public void updateWaitingForGame(List<String> names) {
+        view.promptWaitingForGame(names);
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     public void requestGame(int numPlayers) throws InvalidNumberException {
