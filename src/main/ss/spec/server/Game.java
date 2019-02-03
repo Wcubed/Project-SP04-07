@@ -212,6 +212,9 @@ public class Game implements Runnable {
             }
         }
 
+        // Handle chat.
+        distributeChatMessages();
+
         // Check if the game is over.
         if (bag.getNumTilesLeft() == 0) {
             // No tiles left in the bag.
@@ -437,7 +440,7 @@ public class Game implements Runnable {
      * @param playerName The name of the player who disconnected.
      */
     private void stopGamePlayerDisconnected(String playerName) {
-        System.out.println("Connection to client \'" + playerName + "\' lost.");
+        System.out.println("Connection to client \'" + playerName + "\' lost during a game.");
 
         for (Player player : players) {
             // We are also sending this message to the one who disconnected.
@@ -461,5 +464,19 @@ public class Game implements Runnable {
         sendLeaderBoardAnnouncement();
 
         gameIsNowOver();
+    }
+
+    private void distributeChatMessages() {
+        for (Player player : players) {
+            String message = player.getPeer().getNextChatMessage();
+
+            while (message != null) {
+                for (Player sendPlayer : players) {
+                    sendPlayer.getPeer().sendChatMessage(player.getName(), message);
+                }
+
+                message = player.getPeer().getNextChatMessage();
+            }
+        }
     }
 }

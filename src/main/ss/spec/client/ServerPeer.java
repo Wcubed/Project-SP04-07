@@ -45,6 +45,9 @@ public class ServerPeer extends AbstractPeer {
                     case "tiles":
                         parseTurnMessage(scanner);
                         break;
+                    case "player":
+                        parsePlayerLeftMessage(scanner);
+                        break;
                     case "invalidCommand":
                         System.out.println("Uh oh! It looks like we sent an invalid command!");
                         break;
@@ -147,6 +150,14 @@ public class ServerPeer extends AbstractPeer {
         } catch (NoSuchPlayerException e) {
             throw new InvalidCommandException("Malformed tiles message", e);
         }
+    }
+
+    public void parsePlayerLeftMessage(Scanner message) throws InvalidCommandException {
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Malformed player left message");
+        }
+
+        controller.playerLeftReturnToLobby(message.next());
     }
 
     // ---------------------------------------------------------------------------------------------

@@ -90,6 +90,14 @@ public class ClientController {
         model.setTurn(playerName);
     }
 
+    public void playerLeftReturnToLobby(String playerName) {
+        // Other player left, game is over!
+        model = null;
+
+        // Let the player know that we are back in the lobby.
+        view.promptGameRequest();
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     public void requestGame(int numPlayers) throws InvalidNumberException {

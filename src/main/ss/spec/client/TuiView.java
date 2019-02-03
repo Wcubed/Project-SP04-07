@@ -101,6 +101,7 @@ public class TuiView implements SpecView {
 
                 default:
                     printHelpMessage();
+                    print("> ");
             }
         }
     }
@@ -134,6 +135,7 @@ public class TuiView implements SpecView {
     }
 
     private void printPrompt() {
+        println("");
         println(lastPrompt);
 
         if (serverSupportsChat) {

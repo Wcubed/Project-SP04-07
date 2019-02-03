@@ -286,20 +286,6 @@ public class Lobby implements Runnable {
         }
     }
 
-    private void distributeChatMessages(List<ClientPeer> clients) {
-        for (ClientPeer client : clients) {
-            String message = client.getNextChatMessage();
-
-            while (message != null) {
-                for (ClientPeer sendClient : clients) {
-                    sendClient.sendChatMessage(client.getName(), message);
-                }
-
-                message = client.getNextChatMessage();
-            }
-        }
-    }
-
     private void startNewGame(List<ClientPeer> players) {
         Board board = new Board();
         TileBag bag = new RandomTileBag();
@@ -355,5 +341,19 @@ public class Lobby implements Runnable {
         }
 
         return names;
+    }
+
+    private void distributeChatMessages(List<ClientPeer> clients) {
+        for (ClientPeer client : clients) {
+            String message = client.getNextChatMessage();
+
+            while (message != null) {
+                for (ClientPeer sendClient : clients) {
+                    sendClient.sendChatMessage(client.getName(), message);
+                }
+
+                message = client.getNextChatMessage();
+            }
+        }
     }
 }
