@@ -1,6 +1,7 @@
 package ss.spec.client;
 
 import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.Tile;
 
 import java.util.*;
 
@@ -62,19 +63,23 @@ public class GameModel extends Observable {
 
     // ---------------------------------------------------------------------------------------------
 
-    public void setTurn(String playerName) {
-        Player currentPlayer = players.get(playerName);
-
-        if (currentPlayer == null) {
-            // This should not happen.
-            // TODO: maybe return an exception?
-            return;
+    public void setTurn(String playerName) throws NoSuchPlayerException {
+        if (!players.containsKey(playerName)) {
+            throw new NoSuchPlayerException();
         }
 
-        currentTurnPlayer = currentPlayer;
+        currentTurnPlayer = players.get(playerName);
 
         setChanged();
         notifyObservers(Change.TURN_ADVANCES);
 
+    }
+
+    public void setPlayerHand(String playerName, List<Tile> hand) throws NoSuchPlayerException {
+        if (players.containsKey(playerName)) {
+            players.get(playerName).overrideTiles(hand);
+        } else {
+            throw new NoSuchPlayerException();
+        }
     }
 }

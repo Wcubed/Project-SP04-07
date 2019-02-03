@@ -1,9 +1,12 @@
 package ss.spec.client;
 
+import ss.spec.gamepieces.Tile;
 import ss.spec.networking.Connection;
 
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientController {
     private String name;
@@ -50,6 +53,41 @@ public class ClientController {
     public void exitProgram() {
         view.closeView();
         peer.disconnect();
+    }
+
+    public void startGame(List<String> turnOrder) throws GameStartedWithoutUsException {
+
+        ArrayList<Player> players = new ArrayList<>();
+        Player localPlayer = null;
+
+        for (String name : turnOrder) {
+            Player player = new Player(name);
+            players.add(player);
+
+            if (name.equals(this.name)) {
+                // This is us :)
+                localPlayer = player;
+            }
+        }
+
+        if (localPlayer == null) {
+            // This game does not include us?!
+            throw new GameStartedWithoutUsException();
+        }
+
+        model = new GameModel(players, localPlayer, turnOrder);
+        model.addObserver(view);
+
+        // We don't need to let the player know anything.
+        // Because we will immediately get a "tiles and turn" message.
+    }
+
+    public void setPlayerHand(String playerName, List<Tile> hand) throws NoSuchPlayerException {
+        model.setPlayerHand(playerName, hand);
+    }
+
+    public void setTurn(String playerName) throws NoSuchPlayerException {
+        model.setTurn(playerName);
     }
 
     // ---------------------------------------------------------------------------------------------

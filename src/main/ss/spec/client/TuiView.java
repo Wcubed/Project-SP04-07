@@ -173,15 +173,18 @@ public class TuiView implements SpecView {
 
     @Override
     public void update(Observable observable, Object o) {
-        if (o.getClass().equals(GameModel.Change.class)) {
+        if (!o.getClass().equals(GameModel.Change.class) ||
+                !observable.getClass().equals(GameModel.class)) {
             return;
         }
 
         GameModel.Change change = (GameModel.Change) o;
+        GameModel model = (GameModel) observable;
 
         switch (change) {
             case TURN_ADVANCES:
-                break;
+                // TODO: Do something different when it's our turn.
+                promptTurnAdvances(model);
         }
     }
 
@@ -189,6 +192,19 @@ public class TuiView implements SpecView {
     public void promptGameRequest() {
         lastPrompt = "You are in the lobby. How many players do you want to play with?\n" +
                 "Options: [2-4]";
+        printPrompt();
+    }
+
+    public void promptTurnAdvances(GameModel model) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("It is now the turn of ");
+        prompt.append(model.getCurrentTurnPlayer().getName());
+        prompt.append(".\n");
+
+        // TODO: Show the board and everything.
+
+        lastPrompt = prompt.toString();
         printPrompt();
     }
 }

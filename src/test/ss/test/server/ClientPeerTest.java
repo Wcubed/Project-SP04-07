@@ -58,7 +58,7 @@ class ClientPeerTest {
 
         assertEquals(name, peer.getName());
         assertEquals(ClientPeer.State.PEER_AWAITING_GAME_REQUEST, peer.getState());
-        assertEquals("welcome", connection.readSentMessage());
+        assertEquals("welcome chat", connection.readSentMessage());
     }
 
     @Test

@@ -87,7 +87,7 @@ public class Game implements Runnable {
 
         // Fill the client's tiles till everyone has 4.
         for (Player player : players) {
-            ArrayList<Tile> tiles = player.getTiles();
+            List<Tile> tiles = player.getTiles();
             // The turn order procedure can leave players with more than 4 tiles.
             while (tiles.size() > Player.MAX_HAND_SIZE) {
                 // Put them back in the bag.
@@ -258,7 +258,8 @@ public class Game implements Runnable {
             Player highestPlayer = noTurnYet.get(0);
 
             for (Player player : noTurnYet) {
-                ArrayList<Tile> tiles = player.getTiles();
+                List<Tile> tiles = player.getTiles();
+
                 int points = tiles.get(tiles.size() - 1).getPoints();
                 if (points > highest) {
                     highest = points;
@@ -277,7 +278,8 @@ public class Game implements Runnable {
                 // Two or more players have the highest value.
                 // Have them draw again.
                 for (Player player : noTurnYet) {
-                    ArrayList<Tile> tiles = player.getTiles();
+                    List<Tile> tiles = player.getTiles();
+
                     int points = tiles.get(tiles.size() - 1).getPoints();
 
                     if (points == tiedPoints) {
@@ -317,7 +319,7 @@ public class Game implements Runnable {
      * @return A copy of the tile the player got, null if there are no tiles left in the bag.
      */
     private Tile attemptDrawTileForPlayer(Player player) {
-        ArrayList<Tile> tiles = player.getTiles();
+        List<Tile> tiles = player.getTiles();
         Tile tile = null;
 
         if (tiles.size() < Player.MAX_HAND_SIZE) {

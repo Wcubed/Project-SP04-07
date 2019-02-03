@@ -24,6 +24,9 @@ cp "report/build/report.pdf" "${packDir}/Spectrangle-s1578472.pdf"
 echo "Copying readme."
 cp "README.md" "${zipDir}/README.md"
 
+echo "Copying protocol."
+cp "Network protocol v1_4.pdf" "${zipDir}/Network protocol v1_4.pdf"
+
 echo "Copying images."
 cp -a "images" "${zipDir}/images"
 

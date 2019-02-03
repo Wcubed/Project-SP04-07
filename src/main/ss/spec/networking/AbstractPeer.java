@@ -69,8 +69,6 @@ public abstract class AbstractPeer implements Runnable {
     }
 
     public void sendInvalidCommandError(InvalidCommandException e) {
-        System.out.println("Invalid command: \'" + e.getMessage() + "\'.");
-
         // TODO: send the message along with the error?
         //   This has to be added to the protocol in that case.
         sendMessage(INVALID_COMMAND_ERROR_MESSAGE);

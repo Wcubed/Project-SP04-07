@@ -265,6 +265,6 @@ class LobbyTest {
         lobby.addNewClient(client3);
         lobby.doSingleLobbyIteration();
 
-        assertEquals("welcome", connection3.readSentMessage());
+        assertEquals("welcome chat", connection3.readSentMessage());
     }
 }

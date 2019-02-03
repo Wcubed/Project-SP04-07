@@ -3,6 +3,7 @@ package ss.spec.Player;
 import ss.spec.gamepieces.Tile;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractPlayer {
 
@@ -24,8 +25,12 @@ public abstract class AbstractPlayer {
         return score;
     }
 
-    public ArrayList<Tile> getTiles() {
+    public List<Tile> getTiles() {
         return tiles;
+    }
+
+    public void overrideTiles(List<Tile> newTiles) {
+        tiles = new ArrayList<>(newTiles);
     }
 
     public String getName() {

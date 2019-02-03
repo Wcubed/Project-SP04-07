@@ -120,6 +120,9 @@ class TileTest {
         assertEquals(new Tile(Color.PURPLE, Color.PURPLE, Color.PURPLE, 8),
                 Tile.decode("PPP8"));
 
+        assertEquals(new Tile(Color.YELLOW, Color.YELLOW, Color.PURPLE, 4),
+                Tile.decode("YYP4"));
+
         assertThrows(DecodeException.class, () -> Tile.decode(""));
         assertThrows(DecodeException.class, () -> Tile.decode(null));
         assertThrows(DecodeException.class, () -> Tile.decode("    "));

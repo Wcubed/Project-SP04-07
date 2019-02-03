@@ -148,14 +148,17 @@ public class ClientPeer extends AbstractPeer {
                     case "chat":
                         parseChatMessage(scanner);
                         break;
+                    case "invalidCommand":
+                        System.out.println("Uh oh! It looks like we sent an invalid command!");
+                        break;
                     default:
                         // We don't know this command.
                         // TODO: logging.
                         throw new InvalidCommandException("Unknown command: " + command + ".");
                 }
             } catch (InvalidCommandException e) {
-                // TODO: logging.
-                System.out.println(e.getMessage());
+                // TODO: logging
+                System.out.println("Invalid command: \'" + e.getMessage() + "\'.");
                 sendInvalidCommandError(e);
             }
         } else {
