@@ -138,7 +138,7 @@ public class Tile {
     }
 
     public String encode() {
-        return flatSide.encode() +
+        return "" + flatSide.encode() +
                 clockwise1.encode() +
                 clockwise2.encode() +
                 points;

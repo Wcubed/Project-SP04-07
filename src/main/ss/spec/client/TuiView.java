@@ -1,9 +1,10 @@
 package ss.spec.client;
 
+import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.Tile;
+
 import java.io.*;
-import java.util.LinkedList;
-import java.util.Observable;
-import java.util.Scanner;
+import java.util.*;
 
 public class TuiView implements SpecView {
 
@@ -200,13 +201,40 @@ public class TuiView implements SpecView {
     public void promptTurnAdvances(GameModel model) {
         StringBuilder prompt = new StringBuilder();
 
+        prompt.append(boardAsString(model.getBoard()));
+
+        prompt.append("\n");
+
         prompt.append("It is now the turn of ");
         prompt.append(model.getCurrentTurnPlayer().getName());
         prompt.append(".\n");
 
-        // TODO: Show the board and everything.
-
         lastPrompt = prompt.toString();
         printPrompt();
+    }
+
+    private String boardAsString(Board board) {
+        List<Integer> values = new ArrayList<>();
+        List<Character> flat = new ArrayList<>();
+        List<Character> cw = new ArrayList<>();
+        List<Character> ccw = new ArrayList<>();
+
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            Tile tile = board.getTile(i);
+
+            if (tile != null) {
+                values.add(tile.getPoints());
+                flat.add(tile.getFlatSide().encode());
+                cw.add(tile.getClockwise1().encode());
+                ccw.add(tile.getClockwise2().encode());
+            } else {
+                values.add(null);
+                flat.add(null);
+                cw.add(null);
+                ccw.add(null);
+            }
+        }
+
+        return SpectrangleBoardPrinter.getBoardString(values, flat, cw, ccw);
     }
 }

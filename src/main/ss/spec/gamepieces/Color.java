@@ -37,20 +37,20 @@ public enum Color {
         }
     }
 
-    public String encode() {
+    public Character encode() {
         switch (this) {
             case RED:
-                return "R";
+                return 'R';
             case BLUE:
-                return "B";
+                return 'B';
             case GREEN:
-                return "G";
+                return 'G';
             case YELLOW:
-                return "Y";
+                return 'Y';
             case PURPLE:
-                return "P";
+                return 'P';
             case WHITE:
-                return "W";
+                return 'W';
             default:
                 return null;
         }
