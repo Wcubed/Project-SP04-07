@@ -61,6 +61,14 @@ public class ClientController {
 
                     peer.sendMoveMessage(move);
                     break;
+                case DECIDE_SKIP_OR_REPLACE:
+                    model.decideSkipOrReplace(number);
+
+                    if (model.getSelectedTile() == null) {
+                        peer.sendSkipMessage();
+                    } else {
+                        peer.sendExchangeMessage(model.getSelectedTile());
+                    }
                 default:
                     // We were not expecting a number here.
                     throw new InvalidNumberException();
@@ -160,7 +168,15 @@ public class ClientController {
         }
     }
 
-    public void receiveChatMessage(String name, String message) {
-        view.addChatMessage(name, message);
+    public void receiveChatMessage(String playerName, String message) {
+        view.addChatMessage(playerName, message);
+    }
+
+    public void replaceTile(String playerName, Tile replacedTile, Tile replacingTile) {
+        model.replaceTile(playerName, replacedTile, replacingTile);
+    }
+
+    public void setTurnSkip(String playerName) throws NoSuchPlayerException {
+        model.setTurnSkip(playerName);
     }
 }

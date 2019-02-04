@@ -50,12 +50,10 @@ public class ServerPeer extends AbstractPeer {
                         parseTurnMessage(scanner);
                         break;
                     case "skip":
-                        // TODO: parse skip message.
+                        parseSkipMessage(scanner);
                         break;
                     case "replace":
-                        // TODO: parse replace message.
-                        // We do have to act on this, as the "skip" message does not show
-                        // Which tiles players have...
+                        parseReplaceMessage(scanner);
                         break;
                     case "move":
                         parseMoveMessage(scanner);
@@ -83,6 +81,57 @@ public class ServerPeer extends AbstractPeer {
                 sendInvalidCommandError(e);
             }
         }
+    }
+
+    private void parseSkipMessage(Scanner message) throws InvalidCommandException {
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Skip message has no name.");
+        }
+
+        String name = message.next();
+
+        try {
+            controller.setTurnSkip(name);
+        } catch (NoSuchPlayerException e) {
+            // Cant set the hand of a player that does not exist.
+            throw new InvalidCommandException("Malformed skip message", e);
+        }
+    }
+
+    private void parseReplaceMessage(Scanner message) throws InvalidCommandException {
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Replace message has no name.");
+        }
+
+        String name = message.next();
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Replace message has no replaced tile.");
+        }
+
+        Tile replacedTile;
+        try {
+            replacedTile = Tile.decode(message.next());
+        } catch (DecodeException e) {
+            throw new InvalidCommandException("Replace message has malformed replaced tile.", e);
+        }
+
+        if (!message.hasNext() && !message.next().equals("with")) {
+            throw new InvalidCommandException("Malformed replace message.");
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Replace message has no replacing tile.");
+        }
+
+        Tile replacingTile;
+        try {
+            replacingTile = Tile.decode(message.next());
+        } catch (DecodeException e) {
+            throw new InvalidCommandException("Replace message has malformed replacing tile.", e);
+        }
+
+        controller.replaceTile(name, replacedTile, replacingTile);
     }
 
     private void parseMoveMessage(Scanner message) throws InvalidCommandException {

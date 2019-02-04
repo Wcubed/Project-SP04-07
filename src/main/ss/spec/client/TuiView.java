@@ -209,7 +209,14 @@ public class TuiView implements SpecView {
                 }
                 break;
             case INVALID_MOVE_ATTEMPTED:
-                promptTileChoiceAfterInvalidMove(model);
+                switch (model.getState()) {
+                    case MAKE_MOVE_DECIDE_TILE:
+                        promptTileChoiceAfterInvalidMove(model);
+                        break;
+                    case DECIDE_SKIP_OR_REPLACE:
+                        promptSkipChoiceAfterInvalidMove(model);
+                        break;
+                }
                 break;
         }
     }
@@ -337,7 +344,7 @@ public class TuiView implements SpecView {
         prompt.append(tileListAsString(orientations, flatSideDown));
 
         prompt.append("In which orientation do you want to place the tile? ");
-        prompt.append("[0-3]\n");
+        prompt.append("[0-2]\n");
 
         // TODO: Allow for CANCEL!
 
@@ -346,7 +353,39 @@ public class TuiView implements SpecView {
     }
 
     public void promptSkipChoice(GameModel model) {
-        // TODO: implement skipping or replace.
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append(boardAsString(model.getBoard()));
+        prompt.append("\n");
+
+        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
+
+        prompt.append("There are no possible moves!\n");
+        prompt.append("You can either skip [0], or replace one of the tiles in you hand ");
+        prompt.append("[1-");
+        prompt.append(model.getLocalPlayer().getTiles().size());
+        prompt.append("].\n");
+
+        lastPrompt = prompt.toString();
+        printPrompt();
+    }
+
+    private void promptSkipChoiceAfterInvalidMove(GameModel model) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append(boardAsString(model.getBoard()));
+        prompt.append("\n");
+
+        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
+
+        prompt.append("Sorry, but you don't have that tile in your hand.\n");
+        prompt.append("You can either skip [0], or replace one of the tiles in you hand ");
+        prompt.append("[1-");
+        prompt.append(model.getLocalPlayer().getTiles().size());
+        prompt.append("].\n");
+
+        lastPrompt = prompt.toString();
+        printPrompt();
     }
 
     private String boardAsString(Board board) {

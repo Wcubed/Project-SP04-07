@@ -14,8 +14,8 @@ public class GameModel extends Observable {
         MAKE_MOVE_DECIDE_BOARD_SPACE,
         MAKE_MOVE_DECIDE_ORIENTATION,
         WAITING_FOR_MOVE_VALIDITY,
-        DECIDE_SKIP,
-        DECIDE_REPLACE_TILE,
+        DECIDE_SKIP_OR_REPLACE,
+        WAITING_FOR_SKIP_REPLACE_VALIDITY,
     }
 
     public enum Change {
@@ -24,6 +24,7 @@ public class GameModel extends Observable {
         MOVE_DECISION_PROGRESS,
         INVALID_MOVE_ATTEMPTED,
         MOVE_MADE,
+        TILE_REPLACED,
     }
 
     private Board board;
@@ -134,6 +135,29 @@ public class GameModel extends Observable {
         }
     }
 
+    public void setTurnSkip(String playerName) throws NoSuchPlayerException {
+        if (!players.containsKey(playerName)) {
+            throw new NoSuchPlayerException();
+        }
+
+        currentTurnPlayer = players.get(playerName);
+
+        setChanged();
+
+        if (currentTurnPlayer.equals(localPlayer)) {
+            // Hey! It's our turn now.
+            // And we have to skip or replace.
+            selectedTile = null;
+
+            currentState = State.DECIDE_SKIP_OR_REPLACE;
+            notifyObservers(Change.TURN_ADVANCES_OUR_TURN);
+        } else {
+            // Someone else's turn.
+            currentState = State.WAITING_FOR_TURN;
+            notifyObservers(Change.TURN_ADVANCES);
+        }
+    }
+
     public void setPlayerHand(String playerName, List<Tile> hand) throws NoSuchPlayerException {
         if (players.containsKey(playerName)) {
             players.get(playerName).overrideTiles(hand);
@@ -157,6 +181,46 @@ public class GameModel extends Observable {
 
         setChanged();
         notifyObservers(Change.MOVE_MADE);
+    }
+
+    public void replaceTile(String name, Tile replacedTile, Tile replacingTile) {
+        if (players.containsKey(name)) {
+            players.get(name).removeTile(replacedTile);
+            players.get(name).addTileToHand(replacingTile);
+        }
+
+        if (name.equals(localPlayer.getName()) &&
+                currentState.equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY)) {
+            // That was our tile being replaced. Move is ove.
+            currentState = State.WAITING_FOR_TURN;
+        }
+
+        setChanged();
+        notifyObservers(Change.TILE_REPLACED);
+    }
+
+    public void decideSkipOrReplace(int tileNumber) throws InvalidNumberException {
+        if (tileNumber == 0) {
+            // Skipping
+            selectedTile = null;
+            currentState = State.WAITING_FOR_SKIP_REPLACE_VALIDITY;
+            notifyObservers(Change.MOVE_DECISION_PROGRESS);
+        } else {
+            // Replace.
+            if (tileNumber >= 1 && tileNumber <= localPlayer.getTiles().size()) {
+                selectedTile = localPlayer.getTiles().get(tileNumber - 1);
+
+                currentState = State.WAITING_FOR_SKIP_REPLACE_VALIDITY;
+                notifyObservers(Change.MOVE_DECISION_PROGRESS);
+            } else {
+                // Whoops, that tile does not exist.
+                selectedTile = null;
+                currentState = State.DECIDE_SKIP_OR_REPLACE;
+
+                throw new InvalidNumberException();
+            }
+        }
+
     }
 
     /**
@@ -230,6 +294,14 @@ public class GameModel extends Observable {
 
             // Try the selections again.
             currentState = State.MAKE_MOVE_DECIDE_TILE;
+            setChanged();
+            notifyObservers(Change.INVALID_MOVE_ATTEMPTED);
+        } else if (currentState.equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY)) {
+            // Clear out the selection.
+            selectedTile = null;
+
+            // Try the selection again.
+            currentState = State.DECIDE_SKIP_OR_REPLACE;
             setChanged();
             notifyObservers(Change.INVALID_MOVE_ATTEMPTED);
         }
