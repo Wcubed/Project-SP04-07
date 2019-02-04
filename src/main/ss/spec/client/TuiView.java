@@ -233,6 +233,8 @@ public class TuiView implements SpecView {
         prompt.append(model.getCurrentTurnPlayer().getName());
         prompt.append(".\n");
 
+        // TODO: show turn order?
+
         lastPrompt = prompt.toString();
         printPrompt();
     }
@@ -244,9 +246,15 @@ public class TuiView implements SpecView {
 
         prompt.append("\n");
 
-        prompt.append("It is your turn!");
+        prompt.append("It is your turn!\n");
 
-        // TODO: implement tile coice.
+        prompt.append(tileListAsString(model.getLocalPlayer().getTiles()));
+
+        prompt.append("Which tile would you like to place? ");
+        prompt.append("[" + 0 + "-" + model.getLocalPlayer().getTiles().size() + "]\n");
+
+        lastPrompt = prompt.toString();
+        printPrompt();
     }
 
     public void promptSkipChoice(GameModel model) {
@@ -276,5 +284,34 @@ public class TuiView implements SpecView {
         }
 
         return SpectrangleBoardPrinter.getBoardString(values, flat, cw, ccw);
+    }
+
+    private String tileListAsString(List<Tile> tiles) {
+        ArrayList<StringBuilder> lines = new ArrayList<>();
+
+        for (int i = 0; i < 6; i++) {
+            lines.add(new StringBuilder());
+        }
+
+        for (Tile tile : tiles) {
+            lines.get(0).append("     ^     ");
+            lines.get(1).append("    / \\    ");
+            lines.get(2).append("   /   \\   ");
+            lines.get(3).append(String.format("  /%c %1d %c\\  ",
+                    tile.getClockwise1().encode(),
+                    tile.getPoints(),
+                    tile.getClockwise2().encode()));
+            lines.get(4).append(String.format(" /   %c   \\ ", tile.getFlatSide().encode()));
+            lines.get(5).append("/---------\\");
+        }
+
+        StringBuilder output = new StringBuilder();
+
+        for (StringBuilder line : lines) {
+            output.append(line);
+            output.append("\n");
+        }
+
+        return output.toString();
     }
 }

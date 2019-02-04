@@ -59,6 +59,7 @@ public abstract class AbstractPeer implements Runnable {
      * @param message The message to send.
      */
     public void sendMessage(String message) {
+        // TODO: Allow for verbose sending? According to the requirements, you have to have it...
         if (peerConnected) {
             try {
                 connection.sendMessage(message);

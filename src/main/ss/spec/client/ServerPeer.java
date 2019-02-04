@@ -54,6 +54,8 @@ public class ServerPeer extends AbstractPeer {
                         break;
                     case "replace":
                         // TODO: parse replace message.
+                        // We do have to act on this, as the "skip" message does not show
+                        // Which tiles players have...
                         break;
                     case "move":
                         // TODO: parse move message.
