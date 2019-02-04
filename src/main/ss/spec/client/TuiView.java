@@ -222,7 +222,7 @@ public class TuiView implements SpecView {
         printPrompt();
     }
 
-    public void promptTurnAdvances(GameModel model) {
+    private void promptTurnAdvances(GameModel model) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append(boardAsString(model.getBoard()));

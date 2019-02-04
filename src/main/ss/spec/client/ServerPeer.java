@@ -49,8 +49,21 @@ public class ServerPeer extends AbstractPeer {
                     case "tiles":
                         parseTurnMessage(scanner);
                         break;
+                    case "skip":
+                        // TODO: parse skip message.
+                        break;
+                    case "replace":
+                        // TODO: parse replace message.
+                        break;
+                    case "move":
+                        // TODO: parse move message.
+                        break;
+                    case "game":
+                        // TODO: parse game finished message.
+                        //   Show the leaderboard, and send them back to the lobby.
+                        break;
                     case "player":
-                        parsePlayerLeftMessage(scanner);
+                        parsePlayerMessage(scanner);
                         break;
                     case "invalidCommand":
                         System.out.println("Uh oh! It looks like we sent an invalid command!");
@@ -166,12 +179,23 @@ public class ServerPeer extends AbstractPeer {
         }
     }
 
-    public void parsePlayerLeftMessage(Scanner message) throws InvalidCommandException {
+    public void parsePlayerMessage(Scanner message) throws InvalidCommandException {
         if (!message.hasNext()) {
-            throw new InvalidCommandException("Malformed player left message");
+            throw new InvalidCommandException("Malformed message starting with \'player\'");
         }
 
-        controller.playerLeftReturnToLobby(message.next());
+        String word = message.next();
+
+        if (word.equals("skipped")) {
+            // TODO: Parse player skipped message.
+        } else {
+            if (message.hasNext() && message.next().equals("left")) {
+                // Player left.
+                controller.playerLeftReturnToLobby(word);
+            } else {
+                throw new InvalidCommandException("Malformed message starting with \'player\'");
+            }
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
