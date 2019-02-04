@@ -77,29 +77,25 @@ public class Board {
         return true;
     }
 
-    public boolean isMoveValid(int id, Tile tile) {
+    public boolean isMoveValid(Move move) {
         boolean moveValid = false; // Initialized to false prevent "variable might have not been initialized error by intellij"
 
-        if (isIdValid(id) && tile != null) {
+        if (isIdValid(move.getIndex()) && move.getTile() != null) {
             if (getIsEmpty()) {
                 // First move cannot be placed on bonus tiles.
-                moveValid = !getSpace(id).isBonusSpace();
+                moveValid = !getSpace(move.getIndex()).isBonusSpace();
             } else {
                 // Check if the space is empty.
-                if (!hasTile(id)) {
-                    if (colorsValid(id, tile)) {
+                if (!hasTile(move.getIndex())) {
+                    if (colorsValid(move.getIndex(), move.getTile())) {
                         moveValid = true;
-                    } else {
-                        moveValid = false;
                     }
-                } else {
-                    moveValid = false;
                 }
 
             }
         }
 
-        if (!getIsEmpty() && getNumSides(id) == 0) {
+        if (!getIsEmpty() && getNumSides(move.getIndex()) == 0) {
             moveValid = false;
         }
 
@@ -118,7 +114,7 @@ public class Board {
         int id = move.getIndex();
         Tile tile = move.getTile();
 
-        if (!isMoveValid(id, tile)) {
+        if (!isMoveValid(move)) {
             throw new InvalidMoveException(move);
         }
 
@@ -128,16 +124,14 @@ public class Board {
         if (sidePoints == 0) {
             sidePoints = 1;
         }
-        int movePoints = (tilePoints * fieldPoints * sidePoints);
+        int movePoints = tilePoints * fieldPoints * sidePoints;
 
 
         spaces[id].placeTile(tile);
 
         isEmpty = false;
 
-        /**
-         * Notes: Points of move = points of tile * points of field * number of matching sides
-         */
+        // Notes: Points of move = points of tile * points of field * number of matching sides.
 
         return movePoints;
     }

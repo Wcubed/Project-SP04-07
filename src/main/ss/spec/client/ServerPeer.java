@@ -67,6 +67,9 @@ public class ServerPeer extends AbstractPeer {
                     case "player":
                         parsePlayerMessage(scanner);
                         break;
+                    case "invalidMove":
+                        controller.invalidMoveAttempted();
+                        break;
                     case "invalidCommand":
                         System.out.println("Uh oh! It looks like we sent an invalid command!");
                         break;

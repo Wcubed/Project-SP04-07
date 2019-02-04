@@ -200,4 +200,18 @@ public class GameModel extends Observable {
             throw new InvalidNumberException();
         }
     }
+
+    public void invalidMoveAttempted() {
+        // Whoops, that move was invalid.
+        if (currentState.equals(State.WAITING_FOR_MOVE_VALIDITY)) {
+            // Clear out the selections.
+            selectedTile = null;
+            selectedBoardSpace = -1;
+
+            // Try the selections again.
+            currentState = State.MAKE_MOVE_DECIDE_TILE;
+            setChanged();
+            notifyObservers(Change.MOVE_DECISION_PROGRESS);
+        }
+    }
 }

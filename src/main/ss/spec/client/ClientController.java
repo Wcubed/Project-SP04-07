@@ -51,9 +51,15 @@ public class ClientController {
                 case MAKE_MOVE_DECIDE_ORIENTATION:
                     model.decideOrientation(number);
 
+                    Move move = new Move(model.getSelectedTile(), model.getSelectedBoardSpace());
+
+                    if (!model.getBoard().isMoveValid(move)) {
+                        // Whoops, that is not valid.
+                        throw new InvalidNumberException();
+                    }
                     // If we reached this without exceptions, we can send the move.
-                    peer.sendMoveMessage(
-                            new Move(model.getSelectedTile(), model.getSelectedBoardSpace()));
+
+                    peer.sendMoveMessage(move);
                     break;
             }
         }
@@ -121,11 +127,15 @@ public class ClientController {
         view.promptGameRequest();
     }
 
+
     public void updateWaitingForGame(List<String> names) {
         view.promptWaitingForGame(names);
     }
 
-    // ---------------------------------------------------------------------------------------------
+    public void invalidMoveAttempted() {
+        model.invalidMoveAttempted();
+    }
+
 
     private void requestGame(int numPlayers) throws InvalidNumberException {
         if (numPlayers < 2 || numPlayers > 4) {

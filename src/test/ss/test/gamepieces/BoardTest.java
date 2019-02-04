@@ -41,14 +41,14 @@ class BoardTest {
     @Test
     void isValidId() {
         // No negative id's
-        assertFalse(board.isIdValid(-10));
+        assertFalse(Board.isIdValid(-10));
 
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
-            assertTrue(board.isIdValid(i));
+            assertTrue(Board.isIdValid(i));
         }
 
-        assertFalse(board.isIdValid(Board.BOARD_SIZE));
-        assertFalse(board.isIdValid(Board.BOARD_SIZE + 120));
+        assertFalse(Board.isIdValid(Board.BOARD_SIZE));
+        assertFalse(Board.isIdValid(Board.BOARD_SIZE + 120));
     }
 
     @Test
@@ -91,32 +91,32 @@ class BoardTest {
      * isMoveValid function.
      */
     @Test
-    void isMoveValid() throws InvalidMoveException {
+    void isMoveValid() {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
 
         Tile tile2 = new Tile(Color.BLUE, Color.BLUE, Color.GREEN, 4);
 
-        assertTrue(board.isMoveValid(4, tile));             // testing if test on line 144 should really show false, I think not because no other tiles are
-        // have been places, and it is not on a bonus field
+        assertTrue(board.isMoveValid(new Move(tile, 4)));
 
-        board.makeMove(new Move(tile, 13));
 
-        assertTrue(board.isMoveValid(21, tile2));
+        assertTrue(board.isMoveValid(new Move(tile2, 21)));
         // Placing outside of the board is not a valid move.
-        assertFalse(board.isMoveValid(-4, tile));
-        assertFalse(board.isMoveValid(Board.BOARD_SIZE, tile));
+        assertFalse(board.isMoveValid(new Move(tile, -4)));
+        assertFalse(board.isMoveValid(new Move(tile, Board.BOARD_SIZE)));
 
         // Not placing a tile is an invalid move.
-        assertFalse(board.isMoveValid(4, null));
+        assertFalse(board.isMoveValid(new Move(null, 4)));
 
         // Placing the first tile on a bonus space is invalid.
-        assertFalse(board.isMoveValid(2, tile));
-        assertFalse(board.isMoveValid(11, tile));
+        assertFalse(board.isMoveValid(new Move(tile, 2)));
+        assertFalse(board.isMoveValid(new Move(tile, 11)));
 
         // Valid moves.
-        assertTrue(board.isMoveValid(3, tile));
-        assertTrue(board.isMoveValid(8, tile));
-        assertTrue(board.isMoveValid(24, tile));
+        assertTrue(board.isMoveValid(new Move(tile, 3)));
+        assertTrue(board.isMoveValid(new Move(tile, 8)));
+        assertTrue(board.isMoveValid(new Move(tile, 24)));
+
+        // Other moves validity is already tested in the `makeMove()` test.
     }
 
     @Test
