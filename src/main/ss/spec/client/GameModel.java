@@ -25,6 +25,7 @@ public class GameModel extends Observable {
         INVALID_MOVE_ATTEMPTED,
         MOVE_MADE,
         TILE_REPLACED,
+        PLAYER_SKIPPED,
     }
 
     private Board board;
@@ -197,6 +198,17 @@ public class GameModel extends Observable {
 
         setChanged();
         notifyObservers(Change.TILE_REPLACED);
+    }
+
+    public void playerSkipped(String playerName) {
+        if (playerName.equals(localPlayer.getName()) &&
+                currentState.equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY)) {
+            // Our skip was valid.
+            currentState = State.WAITING_FOR_TURN;
+        }
+
+        setChanged();
+        notifyObservers(Change.PLAYER_SKIPPED);
     }
 
     public void decideSkipOrReplace(int tileNumber) throws InvalidNumberException {

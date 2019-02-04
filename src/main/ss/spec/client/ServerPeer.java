@@ -7,9 +7,7 @@ import ss.spec.networking.Connection;
 import ss.spec.networking.DecodeException;
 import ss.spec.networking.InvalidCommandException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ServerPeer extends AbstractPeer {
 
@@ -59,8 +57,7 @@ public class ServerPeer extends AbstractPeer {
                         parseMoveMessage(scanner);
                         break;
                     case "game":
-                        // TODO: parse game finished message.
-                        //   Show the leaderboard, and send them back to the lobby.
+                        parseLeaderBoardMessage(scanner);
                         break;
                     case "player":
                         parsePlayerMessage(scanner);
@@ -284,7 +281,14 @@ public class ServerPeer extends AbstractPeer {
         String word = message.next();
 
         if (word.equals("skipped")) {
-            // TODO: Parse player skipped message.
+            if (!message.hasNext()) {
+                throw new InvalidCommandException("Player skipped message has no name.");
+            }
+
+            String name = message.next();
+
+            controller.playerSkipped(name);
+
         } else {
             if (message.hasNext() && message.next().equals("left")) {
                 // Player left.
@@ -293,6 +297,35 @@ public class ServerPeer extends AbstractPeer {
                 throw new InvalidCommandException("Malformed message starting with \'player\'");
             }
         }
+    }
+
+    public void parseLeaderBoardMessage(Scanner message) throws InvalidCommandException {
+        if (!(message.hasNext() && message.next().equals("finished"))) {
+            throw new InvalidCommandException("Malformed leaderboard message");
+        }
+        if (!(message.hasNext() && message.next().equals("leaderboard"))) {
+            throw new InvalidCommandException("Malformed leaderboard message");
+        }
+
+        Map<String, Integer> leaderboard = new HashMap<String, Integer>();
+
+        while (message.hasNext()) {
+            String name = message.next();
+
+            if (!message.hasNext()) {
+                throw new InvalidCommandException("Leaderboard message has name without score");
+            }
+
+            try {
+                int score = message.nextInt();
+
+                leaderboard.put(name, score);
+            } catch (InputMismatchException e) {
+                throw new InvalidCommandException("Leaderboard message has malformed number", e);
+            }
+        }
+
+        controller.leaderboardReturnToLobby(leaderboard);
     }
 
     // ---------------------------------------------------------------------------------------------

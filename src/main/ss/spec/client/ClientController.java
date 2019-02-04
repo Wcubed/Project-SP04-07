@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ClientController {
     private String name;
@@ -136,14 +137,6 @@ public class ClientController {
         model.setTurn(playerName);
     }
 
-    public void playerLeftReturnToLobby(String playerName) {
-        // Other player left, game is over!
-        model = null;
-
-        // Let the player know that we are back in the lobby.
-        view.promptGameRequest();
-    }
-
 
     public void updateWaitingForGame(List<String> names) {
         view.promptWaitingForGame(names);
@@ -176,7 +169,26 @@ public class ClientController {
         model.replaceTile(playerName, replacedTile, replacingTile);
     }
 
+    public void playerSkipped(String playerName) {
+        model.playerSkipped(playerName);
+    }
+
     public void setTurnSkip(String playerName) throws NoSuchPlayerException {
         model.setTurnSkip(playerName);
+    }
+
+    public void leaderboardReturnToLobby(Map<String, Integer> leaderboard) {
+        // Game is over.
+        model = null;
+
+        view.promptLeaderboardGameRequest(leaderboard);
+    }
+
+    public void playerLeftReturnToLobby(String playerName) {
+        // Other player left, game is over!
+        model = null;
+
+        // Let the player know that we are back in the lobby.
+        view.promptGameRequest();
     }
 }

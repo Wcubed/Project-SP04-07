@@ -163,6 +163,31 @@ public class TuiView implements SpecView {
     }
 
     @Override
+    public void promptLeaderboardGameRequest(Map<String, Integer> leaderboard) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("The game is over! The standing is as follows:\n");
+
+        int i = 1;
+        for (Map.Entry<String, Integer> entry : leaderboard.entrySet()) {
+            prompt.append(i);
+            prompt.append(": ");
+            prompt.append(entry.getKey());
+            prompt.append(" with ");
+            prompt.append(entry.getValue());
+            prompt.append(" points!\n");
+
+            i++;
+        }
+
+        prompt.append("You are back in the lobby. How many players do you want to play with?\n");
+        prompt.append("Options: [2-4] or type \'exit\' to close the program.");
+
+        lastPrompt = prompt.toString();
+        printPrompt();
+    }
+
+    @Override
     public void closeView() {
         running = false;
 

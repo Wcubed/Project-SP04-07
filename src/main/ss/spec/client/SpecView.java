@@ -1,6 +1,7 @@
 package ss.spec.client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Observer;
 
 public interface SpecView extends Observer, Runnable {
@@ -12,4 +13,6 @@ public interface SpecView extends Observer, Runnable {
     void closeView();
 
     void addChatMessage(String name, String message);
+
+    void promptLeaderboardGameRequest(Map<String, Integer> leaderboard);
 }
