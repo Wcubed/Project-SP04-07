@@ -1,6 +1,5 @@
 package ss.spec.gamepieces;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
@@ -78,25 +77,18 @@ public class Board {
     }
 
     public boolean isMoveValid(Move move) {
-        boolean moveValid = false; // Initialized to false prevent "variable might have not been initialized error by intellij"
+        boolean moveValid = false;
 
         if (isIdValid(move.getIndex()) && move.getTile() != null) {
             if (getIsEmpty()) {
                 // First move cannot be placed on bonus tiles.
                 moveValid = !getSpace(move.getIndex()).isBonusSpace();
             } else {
-                // Check if the space is empty.
-                if (!hasTile(move.getIndex())) {
-                    if (colorsValid(move.getIndex(), move.getTile())) {
-                        moveValid = true;
-                    }
-                }
-
+                // Space should be empty.
+                // The adjacency rules should be respected.
+                moveValid = !hasTile(move.getIndex()) &&
+                        adjacencyValid(move);
             }
-        }
-
-        if (!getIsEmpty() && getNumSides(move.getIndex()) == 0) {
-            moveValid = false;
         }
 
         return moveValid;
@@ -119,19 +111,22 @@ public class Board {
         }
 
         int tilePoints = tile.getPoints(); // number of points inherent to the tile itself
-        int fieldPoints = spaces[id].getScoreMultiplier(); // points of field that tile is placed on
-        int sidePoints = getNumSides(id);      // points acquired by number of adjacent sides
-        if (sidePoints == 0) {
-            sidePoints = 1;
+        // Bonus for the field the tile is on.
+        int fieldBonus = spaces[id].getScoreMultiplier();
+        // Bonus acquired by number of adjacent sides
+        int sideBonus = getNumAdjacentTiles(id);
+        if (sideBonus == 0) {
+            // 0 adjacent tiles will still get you normal points.
+            sideBonus = 1;
         }
-        int movePoints = tilePoints * fieldPoints * sidePoints;
+        int movePoints = tilePoints * fieldBonus * sideBonus;
 
 
+        // Actually make the move.
         spaces[id].placeTile(tile);
 
+        // If the board was empty, it for sure isn't now.
         isEmpty = false;
-
-        // Notes: Points of move = points of tile * points of field * number of matching sides.
 
         return movePoints;
     }
@@ -152,89 +147,29 @@ public class Board {
     }
 
     /**
-     * method to convert an index representation of a board field to a
-     * coordinate representation of the form (r,c)
-     *
-     * @param index Index value to be translated to coordinates
-     * @return The points scored with this move.
-     */
+     * @param id - id of the field
+     *           <p>
+     *           Function that returns the number of adjacent tiles.
+     **/
 
-    public ArrayList<Integer> indexToCoordinates(int index) throws IndexException {
-
-        ArrayList<Integer> result = new ArrayList<Integer>();
-        int r;
-        int c;
-
-        if (index <= 36 && index >= 0) {
-
-            r = ((int) Math.floor((int) Math.sqrt((double) index)));
-            c = (index - (((int) Math.pow(r, 2)) + r));
-
-            result.add(r);
-            result.add(c);
-
-            return result;
-
-        } else {
-
-            throw new IndexException(index);
-        }
-
-    }
-
-    public int coordinatesToIndex(int r, int c) {
-        int index = (r + ((int) Math.pow(r, 2)) + c);
-        return index;
+    public int getNumAdjacentTiles(int id) {
+        // TODO: implement.
+        return 1;
     }
 
     /**
-     * @param id - id of the field
-     *           <p>
-     *           Function that returns the number of sides of
-     *           sides where there is another Tile adjacent to it
-     **/
-
-    public int getNumSides(int id) {
-        ArrayList coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
-
-        try {
-            coordinates = indexToCoordinates(id);
-        } catch (IndexException e) {
-            e.printStackTrace();
-        }
-
-        int r = (int) coordinates.get(0);
-        int c = (int) coordinates.get(1);
-
-        int sides = 0;
-
-        boolean hasBottom = false;
-
-        // Checking bottom
-
-        if ((r + c) % 2 == 0) {
-            hasBottom = true;
-        }
-
-
-        // Checking right neighbor
-
-        if ((c + 1) <= r) {
-            if (hasTile(coordinatesToIndex(r, c + 1))) {
-                sides += 1;
-            }
-        }
-
-        return sides;
-    }
-
-    public boolean colorsValid(int id, Tile tile) {
-
-        /**
+     * Checks whether the chosen move would violate any adjacency rules.
+     * - The move should border at least 1 tile.
+     * - All sides should match colors.
+     *
+     * @param move The move to evaluate.
+     * @return True if the move respects adjacency rules.
+     */
+    public boolean adjacencyValid(Move move) {
+        /*
+         *  right neighbor ->  non existent if c + 1 > r
          *
-         *  right neighbor ->  non existant if c + 1 > r
-         *
-         *  left neighbor -> non existant if c - 1 < -r
+         *  left neighbor -> non existent if c - 1 < -r
          *
          *  Top neighbour exists -> (when r + c is uneven)
          *
@@ -246,97 +181,8 @@ public class Board {
          *
          *
          **/
-
-        ArrayList<Integer> coordinates = null;  //  !!! Initialized to null to prevent: "x might have not been initialized error in intellij"
-
-        Tile rightAdjacent;
-        Tile leftAdjacent;
-        Tile bottomAdjacent;
-        Tile topAdjacent;
-
-        boolean rightMatch;
-        boolean leftMatch;
-        boolean topMatch;
-        boolean bottomMatch;
-
-        try {
-            coordinates = indexToCoordinates(id);
-        } catch (IndexException e) {
-            e.printStackTrace();
-        }
-
-        int r = (int) coordinates.get(0);
-        int c = (int) coordinates.get(1);
-
-
-        boolean hasBottom = false;
-
-        // Checking bottom
-
-        if ((r + c) % 2 == 0) {
-            hasBottom = true;
-        }
-
-
-        // Checking right neighbor
-
-        if ((c + 1) <= r) {
-            if (hasTile(coordinatesToIndex(r, c + 1))) {
-                rightAdjacent = getTile(coordinatesToIndex(r, c + 1));
-                rightMatch = tile.getClockwise2().isValidNextTo(rightAdjacent.getClockwise2());
-            } else {
-                rightMatch = true;
-            }
-        } else {
-
-            rightMatch = true;
-        }
-
-        // Checking left neighbor
-
-        if ((c - 1) >= (-r)) {
-            if (hasTile(coordinatesToIndex(r, c - 1))) {
-                leftAdjacent = getTile(coordinatesToIndex(r, c - 1));
-                leftMatch = tile.getClockwise1().isValidNextTo(leftAdjacent.getClockwise1());
-            } else {
-                leftMatch = true;
-
-            }
-        } else {
-
-            leftMatch = true;
-
-        }
-        if (hasBottom) {
-            // Check for bottom neighbor
-            if (hasTile(coordinatesToIndex(r + 1, c))) {
-                bottomAdjacent = getTile(coordinatesToIndex(r + 1, c));
-                bottomMatch = tile.getFlatSide().isValidNextTo(bottomAdjacent.getFlatSide());
-                topMatch = true;
-            } else {
-                bottomMatch = true;
-                topMatch = true;
-
-            }
-
-        } else {
-            // Check for top neighbor
-            if (hasTile(coordinatesToIndex(r - 1, c))) {
-                topAdjacent = getTile(coordinatesToIndex(r - 1, c));
-                topMatch = tile.getFlatSide().isValidNextTo(topAdjacent.getFlatSide());
-                bottomMatch = true;
-            } else {
-                bottomMatch = true;
-                topMatch = true;
-            }
-
-        }
-
-        if (!leftMatch || !rightMatch || !bottomMatch || !topMatch) {
-            return false;
-        } else {
-            return true;
-        }
+        // TODO: implement.
+        return true;
     }
 }
 

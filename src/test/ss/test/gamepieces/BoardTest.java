@@ -4,9 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardTest {
@@ -116,7 +113,7 @@ class BoardTest {
         assertTrue(board.isMoveValid(new Move(tile, 8)));
         assertTrue(board.isMoveValid(new Move(tile, 24)));
 
-        // Other moves validity is already tested in the `makeMove()` test.
+        // Other moves validity's are already tested in the `makeMove()` test.
     }
 
     @Test
@@ -192,27 +189,4 @@ class BoardTest {
 
         assertFalse(board.getIsEmpty());
     }
-
-    @Test
-    void indexToCoordinates() throws IndexException {
-
-        List a1 = new ArrayList<Integer>();
-        a1.add(3);
-        a1.add(1);
-
-        List a2 = new ArrayList<Integer>();
-        a2.add(4);
-        a2.add(-2);
-
-
-        // Testing the bound exception of input
-        assertThrows(IndexException.class, () -> board.indexToCoordinates(37));
-        assertThrows(IndexException.class, () -> board.indexToCoordinates(-3));
-
-        assertEquals(a1, board.indexToCoordinates(13));
-        assertEquals(a2, board.indexToCoordinates(18));
-
-    }
-
-
 }
