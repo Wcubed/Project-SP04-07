@@ -21,6 +21,7 @@ public class GameModel extends Observable {
         TURN_ADVANCES,
         TURN_ADVANCES_OUR_TURN,
         MOVE_DECISION_PROGRESS,
+        INVALID_MOVE_ATTEMPTED,
     }
 
     private Board board;
@@ -211,7 +212,7 @@ public class GameModel extends Observable {
             // Try the selections again.
             currentState = State.MAKE_MOVE_DECIDE_TILE;
             setChanged();
-            notifyObservers(Change.MOVE_DECISION_PROGRESS);
+            notifyObservers(Change.INVALID_MOVE_ATTEMPTED);
         }
     }
 }

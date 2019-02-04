@@ -55,12 +55,15 @@ public class ClientController {
 
                     if (!model.getBoard().isMoveValid(move)) {
                         // Whoops, that is not valid.
-                        throw new InvalidNumberException();
+                        model.invalidMoveAttempted();
                     }
                     // If we reached this without exceptions, we can send the move.
 
                     peer.sendMoveMessage(move);
                     break;
+                default:
+                    // We were not expecting a number here.
+                    throw new InvalidNumberException();
             }
         }
     }

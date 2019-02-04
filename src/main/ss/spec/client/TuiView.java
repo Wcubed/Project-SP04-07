@@ -209,6 +209,9 @@ public class TuiView implements SpecView {
                         break;
                 }
                 break;
+            case INVALID_MOVE_ATTEMPTED:
+                promptTileChoiceAfterInvalidMove(model);
+                break;
         }
     }
 
@@ -258,6 +261,24 @@ public class TuiView implements SpecView {
         prompt.append(boardAsString(model.getBoard()));
         prompt.append("\n");
         prompt.append("It is your turn!\n");
+
+        prompt.append(tileListAsString(model.getLocalPlayer().getTiles()));
+
+        prompt.append("Which tile would you like to place? ");
+        prompt.append("[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n");
+
+        lastPrompt = prompt.toString();
+        printPrompt();
+    }
+
+    private void promptTileChoiceAfterInvalidMove(GameModel model) {
+        // TODO: there is probably a better way to do these prompts.
+        //  As a lot of stuff is the same every time...
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append(boardAsString(model.getBoard()));
+        prompt.append("\n");
+        prompt.append("Sorry but that move is invalid, please try again...\n");
 
         prompt.append(tileListAsString(model.getLocalPlayer().getTiles()));
 
