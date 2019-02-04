@@ -48,8 +48,81 @@ public class BoardCoordinates {
         }
     }
 
+    /**
+     * @return The coordinates of the flat side neighbour. Or `null` if there is no such thing.
+     */
+    public BoardCoordinates getFlatNeighbourCoordinates() {
+        BoardCoordinates result = null;
+
+        if (flatSideIsFacingDown()) {
+            // See if we have a bottom neighbour.
+            if (row >= 0 && row <= 4) {
+                result = new BoardCoordinates(row + 1, column);
+            }
+        } else {
+            // See if we have a top neighbour.
+            if (row >= 1 && row <= 5) {
+                result = new BoardCoordinates(row - 1, column);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @return The coordinates of the clockwise side neighbour.
+     * Or `null` if there is no such thing.
+     */
+    public BoardCoordinates getClockwiseNeighbourCoordinates() {
+        BoardCoordinates result = null;
+
+        if (flatSideIsFacingDown()) {
+            // See if we have a left neighbour.
+
+            if (column > -row) {
+                result = new BoardCoordinates(row, column - 1);
+            }
+        } else {
+            // See if we have a right neighbour.
+            if (column < row) {
+                result = new BoardCoordinates(row, column + 1);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * @return The coordinates of the counterclockwise side neighbour.
+     * Or `null` if there is no such thing.
+     */
+    public BoardCoordinates getCounterclockwiseNeighbourCoordinates() {
+        BoardCoordinates result = null;
+
+        if (flatSideIsFacingDown()) {
+            // See if we have a right neighbour.
+            if (column < row) {
+                result = new BoardCoordinates(row, column + 1);
+            }
+        } else {
+            // See if we have a left neighbour.
+            if (column > -row) {
+                result = new BoardCoordinates(row, column - 1);
+            }
+        }
+
+        return result;
+    }
+
+    public boolean flatSideIsFacingDown() {
+        return (row + column) % 2 == 0;
+    }
+
     @Override
     public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
         if (other.getClass() != BoardCoordinates.class) {
             return false;
         }

@@ -166,21 +166,7 @@ public class Board {
      * @return True if the move respects adjacency rules.
      */
     public boolean adjacencyValid(Move move) {
-        /*
-         *  right neighbor ->  non existent if c + 1 > r
-         *
-         *  left neighbor -> non existent if c - 1 < -r
-         *
-         *  Top neighbour exists -> (when r + c is uneven)
-         *
-         *  Bottom neighbour ->(if r + c is even)
-         *
-         *  THERE IS EITHER A BOTTOM OR A TOP NEIGHBOR
-         *
-         *  SEE PDF for other used relations
-         *
-         *
-         **/
+
         // TODO: implement.
         return true;
     }
