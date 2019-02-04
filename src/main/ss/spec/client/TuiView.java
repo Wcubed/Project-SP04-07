@@ -186,8 +186,16 @@ public class TuiView implements SpecView {
 
         switch (change) {
             case TURN_ADVANCES:
-                // TODO: Do something different when it's our turn.
                 promptTurnAdvances(model);
+                break;
+            case TURN_ADVANCES_OUR_TURN:
+                // It's the start of our turn now.
+                if (model.getState().equals(GameModel.State.MAKE_MOVE_DECIDE_TILE)) {
+                    promptTileChoice(model);
+                } else {
+                    promptSkipChoice(model);
+                }
+                break;
         }
     }
 
@@ -227,6 +235,22 @@ public class TuiView implements SpecView {
 
         lastPrompt = prompt.toString();
         printPrompt();
+    }
+
+    public void promptTileChoice(GameModel model) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append(boardAsString(model.getBoard()));
+
+        prompt.append("\n");
+
+        prompt.append("It is your turn!");
+
+        // TODO: implement tile coice.
+    }
+
+    public void promptSkipChoice(GameModel model) {
+        // TODO: implement skipping or replace.
     }
 
     private String boardAsString(Board board) {

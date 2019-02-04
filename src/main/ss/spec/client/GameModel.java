@@ -9,12 +9,17 @@ public class GameModel extends Observable {
 
     public enum State {
         WAITING_FOR_TURN,
-        MAKE_MOVE,
-        DECIDE_SKIP
+        MAKE_MOVE_DECIDE_TILE,
+        MAKE_MOVE_DECIDE_BOARD_SPACE,
+        MAKE_MOVE_DECIDE_ORIENTATION,
+        DECIDE_SKIP,
+        DECIDE_REPLACE_TILE,
     }
 
     public enum Change {
         TURN_ADVANCES,
+        TURN_ADVANCES_OUR_TURN,
+        MOVE_DECISION_PROGRESS,
     }
 
     private Board board;
@@ -24,6 +29,8 @@ public class GameModel extends Observable {
     private HashMap<String, Player> players;
     private ArrayList<String> turnOrder;
     private Player currentTurnPlayer;
+
+    private State currentState;
 
     public GameModel(List<Player> players, Player localPlayer, List<String> turnOrder) {
         // Todo: Decide whether the `players` list includes the localPlayer or not.
@@ -37,6 +44,9 @@ public class GameModel extends Observable {
         this.turnOrder = new ArrayList<>(turnOrder);
 
         this.board = new Board();
+
+        // We start off waiting for our turn.
+        currentState = State.WAITING_FOR_TURN;
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -61,6 +71,10 @@ public class GameModel extends Observable {
         return currentTurnPlayer;
     }
 
+    public State getState() {
+        return currentState;
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     public void setTurn(String playerName) throws NoSuchPlayerException {
@@ -71,8 +85,16 @@ public class GameModel extends Observable {
         currentTurnPlayer = players.get(playerName);
 
         setChanged();
-        notifyObservers(Change.TURN_ADVANCES);
 
+        if (currentTurnPlayer.equals(localPlayer)) {
+            // Hey! It's our turn now.
+            currentState = State.MAKE_MOVE_DECIDE_TILE;
+            notifyObservers(Change.TURN_ADVANCES_OUR_TURN);
+        } else {
+            // Someone else's turn.
+            currentState = State.WAITING_FOR_TURN;
+            notifyObservers(Change.TURN_ADVANCES);
+        }
     }
 
     public void setPlayerHand(String playerName, List<Tile> hand) throws NoSuchPlayerException {
