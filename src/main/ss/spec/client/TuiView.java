@@ -1,8 +1,6 @@
 package ss.spec.client;
 
-import ss.spec.gamepieces.Board;
-import ss.spec.gamepieces.NoTileException;
-import ss.spec.gamepieces.Tile;
+import ss.spec.gamepieces.*;
 
 import java.io.*;
 import java.util.*;
@@ -270,7 +268,7 @@ public class TuiView implements SpecView {
         prompt.append("\n");
         prompt.append("It is your turn!\n");
 
-        prompt.append(tileListAsString(model.getLocalPlayer().getTiles()));
+        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
 
         prompt.append("Which tile would you like to place? ");
         prompt.append("[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n");
@@ -288,7 +286,7 @@ public class TuiView implements SpecView {
         prompt.append("\n");
         prompt.append("Sorry but that move is invalid, please try again...\n");
 
-        prompt.append(tileListAsString(model.getLocalPlayer().getTiles()));
+        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
 
         prompt.append("Which tile would you like to place? ");
         prompt.append("[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n");
@@ -306,7 +304,7 @@ public class TuiView implements SpecView {
         List<Tile> tile = new ArrayList<>();
         tile.add(model.getSelectedTile());
 
-        prompt.append(tileListAsString(tile));
+        prompt.append(tileListAsString(tile, true));
 
         prompt.append("Where do you want to place your tile? ");
         prompt.append("[0-" + (Board.BOARD_SIZE - 1) + "]\n");
@@ -328,8 +326,15 @@ public class TuiView implements SpecView {
         orientations.add(model.getSelectedTile().rotate120());
         orientations.add(model.getSelectedTile().rotate240());
 
+        boolean flatSideDown = false;
+        try {
+            flatSideDown = BoardCoordinates.fromIndex(model.getSelectedBoardSpace()).flatSideIsFacingDown();
+        } catch (IndexException e) {
+            // This doesn't change anything.
+        }
+
         // TODO: Maybe display them upside-down if the selected board space is oriented that way?
-        prompt.append(tileListAsString(orientations));
+        prompt.append(tileListAsString(orientations, flatSideDown));
 
         prompt.append("In which orientation do you want to place the tile? ");
         prompt.append("[0-3]\n");
@@ -369,7 +374,7 @@ public class TuiView implements SpecView {
         return SpectrangleBoardPrinter.getBoardString(values, flat, cw, ccw);
     }
 
-    private String tileListAsString(List<Tile> tiles) {
+    private String tileListAsString(List<Tile> tiles, boolean flatSideDown) {
         ArrayList<StringBuilder> lines = new ArrayList<>();
 
         for (int i = 0; i < 6; i++) {
@@ -377,15 +382,29 @@ public class TuiView implements SpecView {
         }
 
         for (Tile tile : tiles) {
-            lines.get(0).append("     ^     ");
-            lines.get(1).append("    / \\    ");
-            lines.get(2).append("   /   \\   ");
-            lines.get(3).append(String.format("  /%c %1d %c\\  ",
-                    tile.getClockwise1().encode(),
-                    tile.getPoints(),
-                    tile.getClockwise2().encode()));
-            lines.get(4).append(String.format(" /   %c   \\ ", tile.getFlatSide().encode()));
-            lines.get(5).append("/---------\\");
+
+            if (flatSideDown) {
+                lines.get(0).append("     ^     ");
+                lines.get(1).append("    / \\    ");
+                lines.get(2).append("   /   \\   ");
+                lines.get(3).append(String.format("  /%c %1d %c\\  ",
+                        tile.getClockwise1().encode(),
+                        tile.getPoints(),
+                        tile.getClockwise2().encode()));
+                lines.get(4).append(String.format(" /   %c   \\ ", tile.getFlatSide().encode()));
+                lines.get(5).append("/---------\\");
+            } else {
+                lines.get(0).append("\\---------/");
+                lines.get(1).append(" \\       / ");
+                lines.get(2).append(String.format("  \\%c %1d %c/  ",
+                        tile.getClockwise1().encode(),
+                        tile.getPoints(),
+                        tile.getClockwise2().encode()));
+                lines.get(3).append(String.format("   \\ %c /   ", tile.getFlatSide().encode()));
+                lines.get(4).append("    \\ /    ");
+                lines.get(5).append("     v     ");
+            }
+
         }
 
         StringBuilder output = new StringBuilder();
