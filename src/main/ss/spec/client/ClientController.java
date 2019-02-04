@@ -1,5 +1,6 @@
 package ss.spec.client;
 
+import ss.spec.gamepieces.Move;
 import ss.spec.gamepieces.Tile;
 import ss.spec.networking.Connection;
 
@@ -36,7 +37,29 @@ public class ClientController {
         this.view.promptGameRequest();
     }
 
-    public boolean canRequestGame() {
+    public void userInputNumber(int number) throws InvalidNumberException {
+        if (canRequestGame()) {
+            requestGame(number);
+        } else {
+            switch (model.getState()) {
+                case MAKE_MOVE_DECIDE_TILE:
+                    model.decideTile(number);
+                    break;
+                case MAKE_MOVE_DECIDE_BOARD_SPACE:
+                    model.decideBoardSpace(number);
+                    break;
+                case MAKE_MOVE_DECIDE_ORIENTATION:
+                    model.decideOrientation(number);
+
+                    // If we reached this without exceptions, we can send the move.
+                    peer.sendMoveMessage(
+                            new Move(model.getSelectedTile(), model.getSelectedBoardSpace()));
+                    break;
+            }
+        }
+    }
+
+    private boolean canRequestGame() {
         // If we have no game model, we can go and request a game.
         return this.model == null;
     }
@@ -104,7 +127,7 @@ public class ClientController {
 
     // ---------------------------------------------------------------------------------------------
 
-    public void requestGame(int numPlayers) throws InvalidNumberException {
+    private void requestGame(int numPlayers) throws InvalidNumberException {
         if (numPlayers < 2 || numPlayers > 4) {
             throw new InvalidNumberException();
         }

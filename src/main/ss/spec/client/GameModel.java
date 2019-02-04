@@ -12,6 +12,7 @@ public class GameModel extends Observable {
         MAKE_MOVE_DECIDE_TILE,
         MAKE_MOVE_DECIDE_BOARD_SPACE,
         MAKE_MOVE_DECIDE_ORIENTATION,
+        WAITING_FOR_MOVE_VALIDITY,
         DECIDE_SKIP,
         DECIDE_REPLACE_TILE,
     }
@@ -32,6 +33,13 @@ public class GameModel extends Observable {
 
     private State currentState;
 
+    // Variable to remember which tile the player selected.
+    // To either make a move with, or to replace.
+    private Tile selectedTile;
+
+    // Variable to remember which board space the player selected to make a move on.
+    private int selectedBoardSpace;
+
     public GameModel(List<Player> players, Player localPlayer, List<String> turnOrder) {
         // Todo: Decide whether the `players` list includes the localPlayer or not.
         this.players = new HashMap<>();
@@ -44,6 +52,9 @@ public class GameModel extends Observable {
         this.turnOrder = new ArrayList<>(turnOrder);
 
         this.board = new Board();
+
+        selectedTile = null;
+        selectedBoardSpace = -1;
 
         // We start off waiting for our turn.
         currentState = State.WAITING_FOR_TURN;
@@ -75,6 +86,24 @@ public class GameModel extends Observable {
         return currentState;
     }
 
+    /**
+     * Only valid in certain states.
+     *
+     * @return The tile selected by the player.
+     */
+    public Tile getSelectedTile() {
+        return selectedTile;
+    }
+
+    /**
+     * Only valid in certain states.
+     *
+     * @return The board space id selected by the player.
+     */
+    public int getSelectedBoardSpace() {
+        return selectedBoardSpace;
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     public void setTurn(String playerName) throws NoSuchPlayerException {
@@ -88,6 +117,11 @@ public class GameModel extends Observable {
 
         if (currentTurnPlayer.equals(localPlayer)) {
             // Hey! It's our turn now.
+
+            // Clear out the selections.
+            selectedTile = null;
+            selectedBoardSpace = -1;
+
             currentState = State.MAKE_MOVE_DECIDE_TILE;
             notifyObservers(Change.TURN_ADVANCES_OUR_TURN);
         } else {
@@ -102,6 +136,68 @@ public class GameModel extends Observable {
             players.get(playerName).overrideTiles(hand);
         } else {
             throw new NoSuchPlayerException();
+        }
+    }
+
+    /**
+     * Attempt to decide a tile to use from the hand.
+     * If successful, the model will continue to the MAKE_MOVE_DECIDE_BOARD_SPACE state.
+     *
+     * @param tileNumber The tile to select from the hand.
+     */
+    public void decideTile(int tileNumber) throws InvalidNumberException {
+        if (tileNumber >= 0 && tileNumber < localPlayer.getTiles().size()) {
+            selectedTile = localPlayer.getTiles().get(tileNumber);
+            currentState = State.MAKE_MOVE_DECIDE_BOARD_SPACE;
+
+            setChanged();
+            notifyObservers(Change.MOVE_DECISION_PROGRESS);
+        } else {
+            // Whoops, that tile does not exist.
+            selectedTile = null;
+            currentState = State.MAKE_MOVE_DECIDE_TILE;
+
+            throw new InvalidNumberException();
+        }
+    }
+
+    public void decideBoardSpace(int spaceId) throws InvalidNumberException {
+        if (spaceId >= 0 && spaceId < Board.BOARD_SIZE) {
+            selectedBoardSpace = spaceId;
+            currentState = State.MAKE_MOVE_DECIDE_ORIENTATION;
+
+            setChanged();
+            notifyObservers(Change.MOVE_DECISION_PROGRESS);
+        } else {
+            // Whoops, that tile does not exist.
+            selectedBoardSpace = -1;
+            currentState = State.MAKE_MOVE_DECIDE_BOARD_SPACE;
+
+            throw new InvalidNumberException();
+        }
+    }
+
+    public void decideOrientation(int orientationNumber) throws InvalidNumberException {
+        if (orientationNumber >= 0 && orientationNumber < 3) {
+            switch (orientationNumber) {
+                case 0:
+                    // It's already at orientation 0.
+                    break;
+                case 1:
+                    selectedTile = selectedTile.rotate120();
+                    break;
+                case 2:
+                    selectedTile = selectedTile.rotate240();
+            }
+
+            currentState = State.WAITING_FOR_MOVE_VALIDITY;
+
+            setChanged();
+            notifyObservers(Change.MOVE_DECISION_PROGRESS);
+        } else {
+            // Whoops, only 0-2 are okay.
+            currentState = State.MAKE_MOVE_DECIDE_ORIENTATION;
+            throw new InvalidNumberException();
         }
     }
 }

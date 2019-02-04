@@ -67,15 +67,14 @@ public class TuiView implements SpecView {
             try {
                 int number = Integer.decode(word);
 
-                if (controller.canRequestGame()) {
-                    controller.requestGame(number);
-                }
+                // Let the controller decide what to do with the number.
+                controller.userInputNumber(number);
 
                 return;
             } catch (NumberFormatException e) {
                 // Input is not a number, continue to check for commands.
             } catch (InvalidNumberException e) {
-                // Whoops, that was not a valid number.
+                // Whoops, that was not a valid number!
                 // Show the player the prompt again.
                 printPrompt();
                 return;
@@ -196,6 +195,20 @@ public class TuiView implements SpecView {
                     promptSkipChoice(model);
                 }
                 break;
+            case MOVE_DECISION_PROGRESS:
+                // We are in the process of planning a move.
+                switch (model.getState()) {
+                    case MAKE_MOVE_DECIDE_TILE:
+                        promptTileChoice(model);
+                        break;
+                    case MAKE_MOVE_DECIDE_BOARD_SPACE:
+                        promptBoardSpaceChoice(model);
+                        break;
+                    case MAKE_MOVE_DECIDE_ORIENTATION:
+                        promptTileOrientationChoice(model);
+                        break;
+                }
+                break;
         }
     }
 
@@ -243,15 +256,56 @@ public class TuiView implements SpecView {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append(boardAsString(model.getBoard()));
-
         prompt.append("\n");
-
         prompt.append("It is your turn!\n");
 
         prompt.append(tileListAsString(model.getLocalPlayer().getTiles()));
 
         prompt.append("Which tile would you like to place? ");
-        prompt.append("[" + 0 + "-" + model.getLocalPlayer().getTiles().size() + "]\n");
+        prompt.append("[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n");
+
+        lastPrompt = prompt.toString();
+        printPrompt();
+    }
+
+    private void promptBoardSpaceChoice(GameModel model) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append(boardAsString(model.getBoard()));
+        prompt.append("\n");
+
+        List<Tile> tile = new ArrayList<>();
+        tile.add(model.getSelectedTile());
+
+        prompt.append(tileListAsString(tile));
+
+        prompt.append("Where do you want to place your tile? ");
+        prompt.append("[0-" + (Board.BOARD_SIZE - 1) + "]\n");
+
+        // TODO: Allow for CANCEL!
+
+        lastPrompt = prompt.toString();
+        printPrompt();
+    }
+
+    private void promptTileOrientationChoice(GameModel model) {
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append(boardAsString(model.getBoard()));
+        prompt.append("\n");
+
+        List<Tile> orientations = new ArrayList<>();
+        orientations.add(model.getSelectedTile());
+        orientations.add(model.getSelectedTile().rotate120());
+        orientations.add(model.getSelectedTile().rotate240());
+
+        // TODO: Maybe display them upside-down if the selected board space is oriented that way?
+        prompt.append(tileListAsString(orientations));
+
+        prompt.append("In which orientation do you want to place the tile? ");
+        prompt.append("[0-3]\n");
+
+        // TODO: Allow for CANCEL!
 
         lastPrompt = prompt.toString();
         printPrompt();
