@@ -249,8 +249,14 @@ public class TuiView implements SpecView {
         prompt.append(model.getCurrentTurnPlayer().getName());
         prompt.append(".\n");
 
-        // TODO: show turn order?
-        // TODO: Show current score!
+        prompt.append("The turn order, and current points are:\n");
+        for (String name : model.getTurnOrder()) {
+            prompt.append(name);
+            prompt.append(" ");
+            prompt.append(model.getPlayers().get(name).getScore());
+            prompt.append(" -> ");
+        }
+        prompt.append("new round.");
 
         lastPrompt = prompt.toString();
         printPrompt();
