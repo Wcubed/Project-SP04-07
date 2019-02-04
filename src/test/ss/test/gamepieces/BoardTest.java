@@ -16,7 +16,7 @@ class BoardTest {
     }
 
     @Test
-    void bonusSpaces() {
+    void bonusSpaces() throws IndexException {
         assertEquals(2, board.getSpace(10).getScoreMultiplier());
         assertEquals(2, board.getSpace(14).getScoreMultiplier());
         assertEquals(2, board.getSpace(30).getScoreMultiplier());
@@ -49,9 +49,9 @@ class BoardTest {
     }
 
     @Test
-    void getBoardSpace() {
-        assertNull(board.getSpace(-10));
-        assertNull(board.getSpace(Board.BOARD_SIZE));
+    void getBoardSpace() throws IndexException {
+        assertThrows(IndexException.class, () -> board.getSpace(-10));
+        assertThrows(IndexException.class, () -> board.getSpace(Board.BOARD_SIZE));
 
         assertEquals(0, board.getSpace(0).getId());
         assertEquals(12, board.getSpace(12).getId());
@@ -61,11 +61,11 @@ class BoardTest {
 
     @Test
     void getTile() {
-        assertNull(board.getTile(-10));
-        assertNull(board.getTile(Board.BOARD_SIZE));
+        assertThrows(NoTileException.class, () -> board.getTile(-10));
+        assertThrows(NoTileException.class, () -> board.getTile(Board.BOARD_SIZE));
 
-        // We have not placed a tile yet, so even a valid id should return null.
-        assertNull(board.getTile(1));
+        // We have not placed a tile yet, so even a valid id should throw exceptions.
+        assertThrows(NoTileException.class, () -> board.getTile(1));
 
         // TODO: make moves, and check that the tiles have been placed.
     }
@@ -113,11 +113,21 @@ class BoardTest {
         assertTrue(board.isMoveValid(new Move(tile, 8)));
         assertTrue(board.isMoveValid(new Move(tile, 24)));
 
-        // Other moves validity's are already tested in the `makeMove()` test.
+        // Place the tile.
+        board.placeTileDontCheckValidity(new Move(tile, 5));
+
+        // Placing the second tile somewhere non-adjacent is invalid.
+        assertFalse(board.isMoveValid(new Move(tile2, 22)));
+        assertFalse(board.isMoveValid(new Move(tile2, 7)));
+
+        // Try to place the other tile next to the first one.
+        assertTrue(board.isMoveValid(new Move(tile2, 1)));
+        assertTrue(board.isMoveValid(new Move(tile2, 4)));
+        assertFalse(board.isMoveValid(new Move(tile2, 6)));
     }
 
     @Test
-    void makeMove() throws InvalidMoveException {
+    void makeMove() throws InvalidMoveException, NoTileException {
         Tile tile = new Tile(Color.BLUE, Color.PURPLE, Color.GREEN, 4);
 
 
@@ -160,15 +170,16 @@ class BoardTest {
         assertEquals(8, board.makeMove(new Move(tileCorrectCwColor, 13)));
         assertEquals(tileCorrectCwColor, board.getTile(13));
 
-        // A few more correct moves.
+        // Another correct move.
         assertEquals(1, board.makeMove(
                 new Move(new Tile(Color.YELLOW, Color.GREEN, Color.RED, 1), 7)));
-        assertEquals(5, board.makeMove(
-                new Move(new Tile(Color.YELLOW, Color.GREEN, Color.RED, 5), 4)));
+        // Double points for the bonus space.
+        assertEquals(12, board.makeMove(
+                new Move(new Tile(Color.PURPLE, Color.YELLOW, Color.RED, 6), 14)));
 
         // Tile matching on 2 sides should have double points.
         assertEquals(10, board.makeMove(
-                new Move(new Tile(Color.YELLOW, Color.GREEN, Color.BLUE, 5), 8)));
+                new Move(new Tile(Color.PURPLE, Color.GREEN, Color.BLUE, 5), 8)));
 
         // Joker is valid next to other colors.
         // We are placing it next to a green side here (space 14).
@@ -188,5 +199,30 @@ class BoardTest {
         board.makeMove(new Move(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 3), 4));
 
         assertFalse(board.getIsEmpty());
+    }
+
+    @Test
+    void getNumberOfAdjacentTiles() {
+        assertEquals(0, board.getNumAdjacentTiles(6));
+
+        board.placeTileDontCheckValidity(new Move(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 3), 11));
+        assertEquals(1, board.getNumAdjacentTiles(10));
+
+        board.placeTileDontCheckValidity(new Move(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 3), 4));
+        assertEquals(2, board.getNumAdjacentTiles(10));
+
+        board.placeTileDontCheckValidity(new Move(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 3), 9));
+        assertEquals(3, board.getNumAdjacentTiles(10));
+
+        assertEquals(0, board.getNumAdjacentTiles(0));
+    }
+
+    @Test
+    void adjacencyValid() {
+        // Placing without adjacent tiles is invalid.
+        assertFalse(board.adjacencyValid(new Move(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 3), 11)));
+
+        board.placeTileDontCheckValidity(new Move(new Tile(Color.RED, Color.PURPLE, Color.BLUE, 3), 11));
+        assertTrue(board.adjacencyValid(new Move(new Tile(Color.RED, Color.GREEN, Color.YELLOW, 2), 19)));
     }
 }

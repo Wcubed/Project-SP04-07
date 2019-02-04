@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 import ss.spec.gamepieces.BoardCoordinates;
 import ss.spec.gamepieces.IndexException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BoardCoordinatesTest {
 
@@ -33,7 +34,7 @@ class BoardCoordinatesTest {
     }
 
     @Test
-    void getFlatNeighbourCoordinates() {
+    void getFlatNeighbourCoordinates() throws IndexException {
         assertEquals(new BoardCoordinates(0, 0),
                 new BoardCoordinates(1, 0).getFlatNeighbourCoordinates());
         assertEquals(new BoardCoordinates(3, 2),
@@ -42,11 +43,12 @@ class BoardCoordinatesTest {
                 new BoardCoordinates(4, -2).getFlatNeighbourCoordinates());
 
 
-        assertNull(new BoardCoordinates(5, -5).getFlatNeighbourCoordinates());
+        assertThrows(IndexException.class,
+                () -> new BoardCoordinates(5, -5).getFlatNeighbourCoordinates());
     }
 
     @Test
-    void getClockwiseNeighbourCoordinates() {
+    void getClockwiseNeighbourCoordinates() throws IndexException {
         assertEquals(new BoardCoordinates(1, 1),
                 new BoardCoordinates(1, 0).getClockwiseNeighbourCoordinates());
         assertEquals(new BoardCoordinates(2, 1),
@@ -55,11 +57,12 @@ class BoardCoordinatesTest {
                 new BoardCoordinates(4, -2).getClockwiseNeighbourCoordinates());
 
 
-        assertNull(new BoardCoordinates(4, -4).getClockwiseNeighbourCoordinates());
+        assertThrows(IndexException.class,
+                () -> new BoardCoordinates(4, -4).getClockwiseNeighbourCoordinates());
     }
 
     @Test
-    void getCounterclockwiseNeighbourCoordinates() {
+    void getCounterclockwiseNeighbourCoordinates() throws IndexException {
         assertEquals(new BoardCoordinates(1, -1),
                 new BoardCoordinates(1, 0).getCounterclockwiseNeighbourCoordinates());
         assertEquals(new BoardCoordinates(2, -1),
@@ -68,6 +71,7 @@ class BoardCoordinatesTest {
                 new BoardCoordinates(4, -2).getCounterclockwiseNeighbourCoordinates());
 
 
-        assertNull(new BoardCoordinates(2, 2).getCounterclockwiseNeighbourCoordinates());
+        assertThrows(IndexException.class,
+                () -> new BoardCoordinates(2, 2).getCounterclockwiseNeighbourCoordinates());
     }
 }

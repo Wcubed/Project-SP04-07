@@ -33,19 +33,19 @@ public class Board {
         isEmpty = true;
     }
 
-    public BoardSpace getSpace(int id) {
+    public BoardSpace getSpace(int id) throws IndexException {
         if (isIdValid(id)) {
             return spaces[id];
         } else {
-            return null;
+            throw new IndexException();
         }
     }
 
-    public Tile getTile(int id) {
-        if (isIdValid(id)) {
+    public Tile getTile(int id) throws NoTileException {
+        if (hasTile(id)) {
             return spaces[id].getTile();
         } else {
-            return null;
+            throw new NoTileException();
         }
     }
 
@@ -79,15 +79,19 @@ public class Board {
     public boolean isMoveValid(Move move) {
         boolean moveValid = false;
 
-        if (isIdValid(move.getIndex()) && move.getTile() != null) {
-            if (getIsEmpty()) {
-                // First move cannot be placed on bonus tiles.
-                moveValid = !getSpace(move.getIndex()).isBonusSpace();
-            } else {
-                // Space should be empty.
-                // The adjacency rules should be respected.
-                moveValid = !hasTile(move.getIndex()) &&
-                        adjacencyValid(move);
+        if (move.getTile() != null) {
+            try {
+                if (getIsEmpty()) {
+                    // First move cannot be placed on bonus tiles.
+                    moveValid = !getSpace(move.getIndex()).isBonusSpace();
+                } else {
+                    // Space should be empty.
+                    // The adjacency rules should be respected.
+                    moveValid = !hasTile(move.getIndex()) &&
+                            adjacencyValid(move);
+                }
+            } catch (IndexException e) {
+                // Move invalid.
             }
         }
 
@@ -144,17 +148,50 @@ public class Board {
         }
 
         spaces[move.getIndex()].placeTile(move.getTile());
+
+        isEmpty = false;
     }
 
     /**
+     * Returns the number of adjacent tiles.
+     *
      * @param id - id of the field
-     *           <p>
-     *           Function that returns the number of adjacent tiles.
-     **/
-
+     */
     public int getNumAdjacentTiles(int id) {
-        // TODO: implement.
-        return 1;
+        int number = 0;
+
+        try {
+            BoardCoordinates coords = BoardCoordinates.fromIndex(id);
+
+            try {
+                if (hasTile(coords.getFlatNeighbourCoordinates().asIndex())) {
+                    number += 1;
+                }
+            } catch (IndexException e) {
+                // We expected this, don't do anything.
+            }
+
+            try {
+                if (hasTile(coords.getClockwiseNeighbourCoordinates().asIndex())) {
+                    number += 1;
+                }
+            } catch (IndexException e) {
+                // We expected this, don't do anything.
+            }
+
+            try {
+                if (hasTile(coords.getCounterclockwiseNeighbourCoordinates().asIndex())) {
+                    number += 1;
+                }
+            } catch (IndexException e) {
+                // We expected this, don't do anything.
+            }
+
+        } catch (IndexException e) {
+            return 0;
+        }
+
+        return number;
     }
 
     /**
@@ -166,9 +203,56 @@ public class Board {
      * @return True if the move respects adjacency rules.
      */
     public boolean adjacencyValid(Move move) {
+        if (move == null) {
+            return false;
+        }
 
-        // TODO: implement.
-        return true;
+        if (getNumAdjacentTiles(move.getIndex()) <= 0) {
+            // No adjacent tiles, by definition invalid.
+            return false;
+        }
+
+        BoardCoordinates coords;
+        try {
+            coords = BoardCoordinates.fromIndex(move.getIndex());
+        } catch (IndexException e) {
+            return false;
+        }
+
+        boolean valid = true;
+
+        try {
+            // Check our flat side with the neighbouring flat side.
+            if (!move.getTile().getFlatSide().isValidNextTo(
+                    getTile(coords.getFlatNeighbourCoordinates().asIndex()).getFlatSide())) {
+                valid = false;
+            }
+        } catch (IndexException | NoTileException e) {
+            // We expected this, don't do anything.
+        }
+
+        try {
+            // Check our clockwise side with the neighbouring clockwise side.
+            if (!move.getTile().getClockwise1().isValidNextTo(
+                    getTile(coords.getClockwiseNeighbourCoordinates().asIndex()).getClockwise1())) {
+                valid = false;
+            }
+        } catch (IndexException | NoTileException e) {
+            // We expected this, don't do anything.
+        }
+
+        try {
+            // Check our counterclockwise side with the neighbouring counterclockwise side.
+            if (!move.getTile().getClockwise2().isValidNextTo(
+                    getTile(coords.getCounterclockwiseNeighbourCoordinates()
+                            .asIndex()).getClockwise2())) {
+                valid = false;
+            }
+        } catch (IndexException | NoTileException e) {
+            // We expected this, don't do anything.
+        }
+
+        return valid;
     }
 }
 

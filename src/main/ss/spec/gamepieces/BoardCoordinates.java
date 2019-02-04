@@ -34,7 +34,7 @@ public class BoardCoordinates {
 
         } else {
 
-            throw new IndexException(index);
+            throw new IndexException();
         }
     }
 
@@ -44,14 +44,14 @@ public class BoardCoordinates {
         if (index >= 0 && index < Board.BOARD_SIZE) {
             return index;
         } else {
-            throw new IndexException(index);
+            throw new IndexException();
         }
     }
 
     /**
-     * @return The coordinates of the flat side neighbour. Or `null` if there is no such thing.
+     * @return The coordinates of the flat side neighbour.
      */
-    public BoardCoordinates getFlatNeighbourCoordinates() {
+    public BoardCoordinates getFlatNeighbourCoordinates() throws IndexException {
         BoardCoordinates result = null;
 
         if (flatSideIsFacingDown()) {
@@ -66,14 +66,17 @@ public class BoardCoordinates {
             }
         }
 
+        if (result == null) {
+            throw new IndexException();
+        }
+
         return result;
     }
 
     /**
      * @return The coordinates of the clockwise side neighbour.
-     * Or `null` if there is no such thing.
      */
-    public BoardCoordinates getClockwiseNeighbourCoordinates() {
+    public BoardCoordinates getClockwiseNeighbourCoordinates() throws IndexException {
         BoardCoordinates result = null;
 
         if (flatSideIsFacingDown()) {
@@ -89,14 +92,17 @@ public class BoardCoordinates {
             }
         }
 
+        if (result == null) {
+            throw new IndexException();
+        }
+
         return result;
     }
 
     /**
      * @return The coordinates of the counterclockwise side neighbour.
-     * Or `null` if there is no such thing.
      */
-    public BoardCoordinates getCounterclockwiseNeighbourCoordinates() {
+    public BoardCoordinates getCounterclockwiseNeighbourCoordinates() throws IndexException {
         BoardCoordinates result = null;
 
         if (flatSideIsFacingDown()) {
@@ -109,6 +115,10 @@ public class BoardCoordinates {
             if (column > -row) {
                 result = new BoardCoordinates(row, column - 1);
             }
+        }
+
+        if (result == null) {
+            throw new IndexException();
         }
 
         return result;

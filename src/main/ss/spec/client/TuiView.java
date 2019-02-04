@@ -1,6 +1,7 @@
 package ss.spec.client;
 
 import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.NoTileException;
 import ss.spec.gamepieces.Tile;
 
 import java.io.*;
@@ -350,14 +351,14 @@ public class TuiView implements SpecView {
         List<Character> ccw = new ArrayList<>();
 
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
-            Tile tile = board.getTile(i);
+            try {
+                Tile tile = board.getTile(i);
 
-            if (tile != null) {
                 values.add(tile.getPoints());
                 flat.add(tile.getFlatSide().encode());
                 cw.add(tile.getClockwise1().encode());
                 ccw.add(tile.getClockwise2().encode());
-            } else {
+            } catch (NoTileException e) {
                 values.add(null);
                 flat.add(null);
                 cw.add(null);
