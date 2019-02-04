@@ -58,7 +58,7 @@ public class ServerPeer extends AbstractPeer {
                         // Which tiles players have...
                         break;
                     case "move":
-                        // TODO: parse move message.
+                        parseMoveMessage(scanner);
                         break;
                     case "game":
                         // TODO: parse game finished message.
@@ -83,6 +83,49 @@ public class ServerPeer extends AbstractPeer {
                 sendInvalidCommandError(e);
             }
         }
+    }
+
+    private void parseMoveMessage(Scanner message) throws InvalidCommandException {
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Move message has no name.");
+        }
+
+        String name = message.next();
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Move message has no tile.");
+        }
+
+        Tile tile;
+        try {
+            tile = Tile.decode(message.next());
+        } catch (DecodeException e) {
+            throw new InvalidCommandException("Move message has malformed tile.", e);
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Move message has no index.");
+        }
+
+        int index;
+        try {
+            index = Integer.decode(message.next());
+        } catch (NumberFormatException e) {
+            throw new InvalidCommandException("Move message has malformed index.", e);
+        }
+
+        if (!message.hasNext()) {
+            throw new InvalidCommandException("Move message has no points.");
+        }
+
+        int points;
+        try {
+            points = Integer.decode(message.next());
+        } catch (NumberFormatException e) {
+            throw new InvalidCommandException("Move message has malformed points.", e);
+        }
+
+        controller.processMove(name, new Move(tile, index), points);
     }
 
     private void parseChatMessage(Scanner message) {

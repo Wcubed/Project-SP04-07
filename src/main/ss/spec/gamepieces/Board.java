@@ -137,6 +137,21 @@ public class Board {
     }
 
     /**
+     * Places a tile on a board space, without checking for validity of the move and
+     * without calculating the score.
+     * Will fail silently when given a move with invalid index, or a move without tile.
+     *
+     * @param move The move to make.
+     */
+    public void placeTileDontCheckValidity(Move move) {
+        if (!Board.isIdValid(move.getIndex()) || move.getTile() == null) {
+            return; // Silently fail.
+        }
+
+        spaces[move.getIndex()].placeTile(move.getTile());
+    }
+
+    /**
      * method to convert an index representation of a board field to a
      * coordinate representation of the form (r,c)
      *

@@ -118,6 +118,12 @@ public class ClientController {
         model.setPlayerHand(playerName, hand);
     }
 
+    public void processMove(String name, Move move, int points) {
+        // Don't check if the move is valid.
+        // If the server says the move is made, then the move is made.
+        model.processMove(name, move, points);
+    }
+
     public void setTurn(String playerName) throws NoSuchPlayerException {
         model.setTurn(playerName);
     }

@@ -250,6 +250,7 @@ public class TuiView implements SpecView {
         prompt.append(".\n");
 
         // TODO: show turn order?
+        // TODO: Show current score!
 
         lastPrompt = prompt.toString();
         printPrompt();

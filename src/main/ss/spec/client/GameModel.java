@@ -1,6 +1,7 @@
 package ss.spec.client;
 
 import ss.spec.gamepieces.Board;
+import ss.spec.gamepieces.Move;
 import ss.spec.gamepieces.Tile;
 
 import java.util.*;
@@ -22,6 +23,7 @@ public class GameModel extends Observable {
         TURN_ADVANCES_OUR_TURN,
         MOVE_DECISION_PROGRESS,
         INVALID_MOVE_ATTEMPTED,
+        MOVE_MADE,
     }
 
     private Board board;
@@ -138,6 +140,23 @@ public class GameModel extends Observable {
         } else {
             throw new NoSuchPlayerException();
         }
+    }
+
+    public void processMove(String name, Move move, int points) {
+        board.placeTileDontCheckValidity(move);
+
+        if (players.containsKey(name)) {
+            players.get(name).addPoints(points);
+        }
+
+        if (name.equals(localPlayer.getName()) &&
+                currentState.equals(State.WAITING_FOR_MOVE_VALIDITY)) {
+            // Oooh, that was our move!
+            currentState = State.WAITING_FOR_TURN;
+        }
+
+        setChanged();
+        notifyObservers(Change.MOVE_MADE);
     }
 
     /**
