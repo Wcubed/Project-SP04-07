@@ -11,7 +11,16 @@ import ss.spec.networking.InvalidCommandException;
 import java.util.*;
 
 public class ClientPeer extends AbstractPeer {
-
+	//@ invariant getName() != null;
+	//@ invariant getState() != null;
+	/*@ invariant getState().equals(State.LOBBY_START_WAITING_FOR_PLAYERS) &&
+	              getRequestedPlayerAmount() <= 2 &&
+	              getRequestedPlayerAmount() >= 2;
+      @*/
+	/*@ invariant getState().equals(State.GAME_VERIFY_MOVE) &&
+                  getProposedMove() != null;
+      @*/
+ 
     /**
      * Enum to denote the current state the client is in.
      * The first word indicates who we are waiting for to further the state.
@@ -62,6 +71,10 @@ public class ClientPeer extends AbstractPeer {
      */
     private Tile proposedReplaceTile;
 
+    //@ requires connection != null;
+    //@ ensures isPeerConnected() == !connection.isDead();
+    //@ ensures getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE);
+    // TODO: something with the chat here.
     public ClientPeer(Connection connection, boolean verbose) {
         super(connection, verbose);
 
@@ -73,23 +86,37 @@ public class ClientPeer extends AbstractPeer {
         requestedPlayerAmount = 0;
     }
 
+    //@ requires connection != null;
+    //@ ensures isPeerConnected() == !connection.isDead();
+    //@ ensures getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE);
+    // TODO: copy the other stuff from the 1st constructor.
     public ClientPeer(Connection connection) {
         this(connection, false);
     }
 
-
+    /*@ ensures \result == null && 
+                getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE);
+      @ ensures \result != null &&
+                !getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE);
+      @*/
+    //@ pure
     public String getName() {
         return name;
     }
 
+    //@ pure
     public State getState() {
         return state;
     }
 
+    //@ requires getState().equals(State.LOBBY_START_WAITING_FOR_PLAYERS);
+    //@ pure
     public int getRequestedPlayerAmount() {
         return requestedPlayerAmount;
     }
 
+    //@ requires getState().equals(State.GAME_VERIFY_MOVE);
+    //@ pure
     public Move getProposedMove() {
         return proposedMove;
     }
@@ -99,10 +126,15 @@ public class ClientPeer extends AbstractPeer {
      *
      * @return true if the peer wants to skip, false if they want to replace.
      */
+    //@ requires getState().equals(State.GAME_VERIFY_SKIP);
+    //@ ensures \result == (getProposedReplaceTile() == null);
+    //@ pure
     public boolean wantsToSkip() {
         return proposedReplaceTile == null;
     }
 
+    //@ requires getState().equals(State.GAME_VERIFY_SKIP);
+    //@ pure
     public Tile getProposedReplaceTile() {
         return proposedReplaceTile;
     }
@@ -173,10 +205,18 @@ public class ClientPeer extends AbstractPeer {
      *
      * @param message A scanner over the message that needs parsing.
      */
+    /*@ signals (InvalidCommandException e)
+                !\old(getState()).equals(State.PEER_AWAITING_CONNECT_MESSAGE) ||
+                !message.hasNext();
+      @ ensures \old(getState()).equals(State.PEER_AWAITING_CONNECT_MESSAGE) &&
+                message.hasNext() &&
+                getState().equals(State.LOBBY_VERIFY_NAME) &&
+                getName() != null;
+      @*/
     private void parseConnectMessage(Scanner message)
             throws InvalidCommandException {
 
-        if (getState() != State.PEER_AWAITING_CONNECT_MESSAGE) {
+        if (!getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE)) {
             throw new InvalidCommandException("Not expecting a connect message.");
         }
 
@@ -205,6 +245,17 @@ public class ClientPeer extends AbstractPeer {
     }
 
 
+    /*@ signals (InvalidCommandException e)
+	    		!\old(getState()).equals(State.PEER_AWAITING_GAME_REQUEST) ||
+	    		!message.hasNext();
+	  @ requires message != null;
+	  @*/
+    /**
+     * Can't @ensure anything in the JML because that requires calls to message.nextInt(),
+     * which is not a pure method.
+     * @param message
+     * @throws InvalidCommandException
+     */
     private void parseRequestMessage(Scanner message) throws InvalidCommandException {
         if (getState() != State.PEER_AWAITING_GAME_REQUEST) {
             throw new InvalidCommandException("Not expecting a game request.");
@@ -231,6 +282,17 @@ public class ClientPeer extends AbstractPeer {
         }
     }
 
+    /*@ signals (InvalidCommandException e)
+		        !\old(getState()).equals(State.PEER_DECIDE_MOVE) ||
+		        !message.hasNext();
+     @ requires message != null;
+	 @*/
+	/**
+	* Can't @ensure anything in the JML because that requires calls to message.next(),
+	* which is not a pure method.
+	* @param message
+	* @throws InvalidCommandException
+	*/
     private void parseMoveMessage(Scanner message) throws InvalidCommandException {
         if (getState() != State.PEER_DECIDE_MOVE) {
             throw new InvalidCommandException("Client is not allowed to make a move.");
@@ -273,6 +335,10 @@ public class ClientPeer extends AbstractPeer {
         state = State.GAME_VERIFY_MOVE;
     }
 
+    /*@ signals (InvalidCommandException e)
+			    !\old(getState()).equals(State.PEER_DECIDE_SKIP);
+      @ ensures getState().equals(State.GAME_VERIFY_SKIP);
+	  @*/
     private void parseSkipMessage(Scanner message) throws InvalidCommandException {
         if (getState() != State.PEER_DECIDE_SKIP) {
             throw new InvalidCommandException("Not expecting a skip message.");
@@ -283,6 +349,17 @@ public class ClientPeer extends AbstractPeer {
         state = State.GAME_VERIFY_SKIP;
     }
 
+    /*@ signals (InvalidCommandException e)
+				!\old(getState()).equals(State.PEER_DECIDE_SKIP) ||
+		        !message.hasNext();
+	  @ requires message != null;
+	  @*/
+	/**
+	* Can't @ensure anything in the JML because that requires calls to message.nextInt(),
+	* which is not a pure method.
+	* @param message
+	* @throws InvalidCommandException
+	*/
     private void parseExchangeMessage(Scanner message) throws InvalidCommandException {
         if (getState() != State.PEER_DECIDE_SKIP) {
             throw new InvalidCommandException("Not expecting an exchange message.");
@@ -304,6 +381,13 @@ public class ClientPeer extends AbstractPeer {
         state = State.GAME_VERIFY_SKIP;
     }
 
+    //@ requires message != null;
+    /**
+     * Cannot ensure anything about `getNextChatMessage()` for that is not pure.
+     * After calling this method with a valid message,
+     * `getNextChatMessage()` will return a valid string.
+     * @param message
+     */
     private void parseChatMessage(Scanner message) {
         if (message.hasNextLine()) {
             // Add the chat message to the message queue.
@@ -316,6 +400,10 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the Lobby to signal to the client that the chosen name is valid.
      */
+    /*@ 
+	  @ ensures \old(getState()).equals(State.LOBBY_VERIFY_NAME) &&
+	            getState().equals(State.PEER_AWAITING_GAME_REQUEST);
+	  @*/
     public void acceptName() {
         if (getState() == State.LOBBY_VERIFY_NAME) {
             state = State.PEER_AWAITING_GAME_REQUEST;
@@ -328,6 +416,11 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the Lobby to signal to the client that the chosen name is invalid.
      */
+    /*@ 
+	  @ ensures \old(getState()).equals(State.LOBBY_VERIFY_NAME) &&
+	            getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE) &&
+	            getName() == null;
+	  @*/
     public void rejectName() {
         if (getState() == State.LOBBY_VERIFY_NAME) {
             state = State.PEER_AWAITING_CONNECT_MESSAGE;
@@ -342,6 +435,7 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the Lobby to signal we are waiting for more players.
      */
+    //@ ensures getState().equals(State.LOBBY_WAITING_FOR_PLAYERS);
     void signalWaitingForPlayers(List<String> names) {
         sendWaitingMessage(names);
         state = State.LOBBY_WAITING_FOR_PLAYERS;
@@ -351,6 +445,7 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the game to signal we are now waiting for our turn.
      */
+    //@ ensures getState().equals(State.GAME_AWAITING_TURN);
     void awaitTurn() {
         state = State.GAME_AWAITING_TURN;
     }
@@ -358,10 +453,12 @@ public class ClientPeer extends AbstractPeer {
     /**
      * Called by the game to let us know we are waiting for the client to send a move message.
      */
+    //@ ensures getState().equals(State.PEER_DECIDE_MOVE);
     public void clientDecideMove() {
         state = State.PEER_DECIDE_MOVE;
     }
 
+    //@ ensures getState().equals(State.PEER_DECIDE_SKIP);
     public void clientDecideSkip() {
         state = State.PEER_DECIDE_SKIP;
     }
@@ -370,10 +467,12 @@ public class ClientPeer extends AbstractPeer {
      * Called when the client returns from a game to the lobby.
      * The peer can now sent a new request for a game.
      */
+    //@ ensures getState().equals(State.PEER_AWAITING_GAME_REQUEST);
     void returningToLobby() {
         state = State.PEER_AWAITING_GAME_REQUEST;
     }
 
+    //@ ensures getState().equals(State.PEER_DECIDE_MOVE);
     public void invalidMove() {
         clientDecideMove();
         sendInvalidMoveError();

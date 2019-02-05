@@ -12,6 +12,9 @@ public abstract class AbstractPeer implements Runnable {
 
     private final boolean verbose;
 
+    //@ requires connection != null;
+    //@ ensures isPeerConnected() == !connection.isDead();
+    //@ ensures verbosePrinting() == verbose;
     protected AbstractPeer(Connection connection, boolean verbose) {
         this.connection = connection;
 
@@ -20,14 +23,17 @@ public abstract class AbstractPeer implements Runnable {
         this.verbose = verbose;
     }
 
+    //@ pure
     public boolean isPeerConnected() {
         return peerConnected;
     }
 
+    //@ pure
     protected boolean verbosePrinting() {
         return verbose;
     }
 
+    //@ ensures !isPeerConnected();
     public void disconnect() {
         connection.killConnection();
         peerConnected = false;
@@ -62,6 +68,8 @@ public abstract class AbstractPeer implements Runnable {
      *
      * @param message The message to send.
      */
+    //@ requires message != null;
+    //@ ensures !\old(isPeerConnected()) && !isPeerConnected();
     public void sendMessage(String message) {
         if (peerConnected) {
             try {

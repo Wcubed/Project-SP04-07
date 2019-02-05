@@ -9,6 +9,7 @@ public interface Connection {
      *
      * @return True when the connection is guaranteed to be dead.
      */
+	//@ pure
     boolean isDead();
 
     /**
