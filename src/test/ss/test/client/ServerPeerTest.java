@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ServerPeerTest {
 
-    ServerPeer peer;
-    MockConnection connection;
+    private ServerPeer peer;
+    private MockConnection connection;
 
     @BeforeEach
     void setUp() {

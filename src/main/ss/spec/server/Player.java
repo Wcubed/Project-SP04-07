@@ -4,7 +4,7 @@ import ss.spec.Player.AbstractPlayer;
 
 public class Player extends AbstractPlayer {
 
-    private ClientPeer peer;
+    private final ClientPeer peer;
 
     public Player(ClientPeer peer) {
         super(peer.getName());

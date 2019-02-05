@@ -7,18 +7,18 @@ import java.util.*;
 
 public class TuiView implements SpecView {
 
-    private ClientController controller;
+    private final ClientController controller;
 
-    private BufferedReader in;
-    private BufferedWriter out;
+    private final BufferedReader in;
+    private final BufferedWriter out;
 
     private boolean running;
 
     private String lastPrompt;
 
-    private boolean serverSupportsChat;
-    private LinkedList<String> chatHistory;
-    private int maxChatHistory;
+    private final boolean serverSupportsChat;
+    private final LinkedList<String> chatHistory;
+    private final int maxChatHistory;
 
     public TuiView(ClientController controller, Reader in, Writer out, boolean serverSupportsChat) {
         this.controller = controller;
@@ -55,7 +55,7 @@ public class TuiView implements SpecView {
         }
     }
 
-    public void handleTerminalCommand(String command) {
+    private void handleTerminalCommand(String command) {
         Scanner scanner = new Scanner(command);
 
         if (scanner.hasNext()) {

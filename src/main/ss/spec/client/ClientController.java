@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class ClientController {
-    private String name;
-    private boolean serverSupportsChat;
+    private final String name;
+    private final boolean serverSupportsChat;
 
-    private SpecView view;
+    private final SpecView view;
     private GameModel model;
 
-    private ServerPeer peer;
+    private final ServerPeer peer;
 
     public ClientController(String name, Connection connection, boolean serverSupportsChat) {
         this.name = name;

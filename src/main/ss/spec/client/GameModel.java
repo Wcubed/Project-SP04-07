@@ -28,12 +28,12 @@ public class GameModel extends Observable {
         PLAYER_SKIPPED,
     }
 
-    private Board board;
+    private final Board board;
 
-    private Player localPlayer;
+    private final Player localPlayer;
 
-    private HashMap<String, Player> players;
-    private ArrayList<String> turnOrder;
+    private final HashMap<String, Player> players;
+    private final ArrayList<String> turnOrder;
     private Player currentTurnPlayer;
 
     private State currentState;

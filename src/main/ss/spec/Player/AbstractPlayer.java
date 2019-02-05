@@ -9,12 +9,12 @@ public abstract class AbstractPlayer {
 
     public static final int MAX_HAND_SIZE = 4;
 
-    private String name;
+    private final String name;
     private int score;
     private ArrayList<Tile> tiles;
 
 
-    public AbstractPlayer(String name) {
+    protected AbstractPlayer(String name) {
         this.name = name;
         score = 0;
         tiles = new ArrayList<>();

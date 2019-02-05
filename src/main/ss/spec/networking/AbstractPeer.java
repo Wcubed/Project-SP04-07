@@ -6,11 +6,11 @@ public abstract class AbstractPeer implements Runnable {
     public static final String INVALID_NAME_ERROR_MESSAGE = "invalidName";
     public static final String INVALID_MOVE_ERROR_MESSAGE = "invalidMove";
 
-    private Connection connection;
+    private final Connection connection;
 
     private boolean peerConnected;
 
-    private boolean verbose;
+    private final boolean verbose;
 
     protected AbstractPeer(Connection connection, boolean verbose) {
         this.connection = connection;
@@ -24,7 +24,7 @@ public abstract class AbstractPeer implements Runnable {
         return peerConnected;
     }
 
-    public boolean verbosePrinting() {
+    protected boolean verbosePrinting() {
         return verbose;
     }
 

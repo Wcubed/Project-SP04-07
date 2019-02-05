@@ -16,16 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GameTest {
 
     private Game game;
-    private Board board;
-    private MockTileBag tileBag;
 
-    private ClientPeer player1Alice;
     private MockConnection con1Alice;
-    private ClientPeer player2Bob;
     private MockConnection con2Bob;
-    private ClientPeer player3Clarice;
     private MockConnection con3Clarice;
-    private ClientPeer player4Diane;
     private MockConnection con4Diane;
 
     @BeforeEach
@@ -35,10 +29,10 @@ class GameTest {
         con3Clarice = new MockConnection();
         con4Diane = new MockConnection();
 
-        player1Alice = new ClientPeer(con1Alice);
-        player2Bob = new ClientPeer(con2Bob);
-        player3Clarice = new ClientPeer(con3Clarice);
-        player4Diane = new ClientPeer(con4Diane);
+        ClientPeer player1Alice = new ClientPeer(con1Alice);
+        ClientPeer player2Bob = new ClientPeer(con2Bob);
+        ClientPeer player3Clarice = new ClientPeer(con3Clarice);
+        ClientPeer player4Diane = new ClientPeer(con4Diane);
 
         player1Alice.handleReceivedMessage("connect Alice");
         player2Bob.handleReceivedMessage("connect Bob");
@@ -51,8 +45,8 @@ class GameTest {
         players.add(player3Clarice);
         players.add(player4Diane);
 
-        board = new Board();
-        tileBag = new MockTileBag();
+        Board board = new Board();
+        MockTileBag tileBag = new MockTileBag();
 
         game = new Game(players, board, tileBag);
 

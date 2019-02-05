@@ -12,11 +12,11 @@ public class Game implements Runnable {
 
     private boolean gameOver;
 
-    private ArrayList<Player> players;
-    private Board board;
-    private TileBag bag;
+    private final ArrayList<Player> players;
+    private final Board board;
+    private final TileBag bag;
 
-    private ArrayList<String> turnOrder;
+    private final ArrayList<String> turnOrder;
     private int currentTurnPlayer;
 
     /**
@@ -63,7 +63,7 @@ public class Game implements Runnable {
         while (!isGameOver()) {
             doSingleGameThreadIteration();
 
-            // TODO: Tweak sleeping for final application, maybe even remove it?
+            // Sleep a while, we don't need sub-millisecond responses on this game.
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {

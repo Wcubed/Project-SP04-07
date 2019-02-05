@@ -1,4 +1,4 @@
 package ss.spec.client;
 
-public class NoSuchPlayerException extends Exception {
+class NoSuchPlayerException extends Exception {
 }

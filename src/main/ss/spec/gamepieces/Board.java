@@ -6,7 +6,7 @@ public class Board {
 
     public static final int BOARD_SIZE = 36;
 
-    private BoardSpace[] spaces;
+    private final BoardSpace[] spaces;
     private boolean isEmpty;
 
     public Board() {

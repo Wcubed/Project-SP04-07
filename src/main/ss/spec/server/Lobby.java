@@ -25,26 +25,26 @@ public class Lobby implements Runnable {
      * These are clients that might not have a name yet.
      * And they have not yet requested a game.
      */
-    private ArrayList<ClientPeer> waitingClients;
+    private final ArrayList<ClientPeer> waitingClients;
 
     /**
      * Clients waiting for a game with a specific amount of players.
      */
-    private ArrayList<ClientPeer> waitingTwoPlayerGame;
-    private ArrayList<ClientPeer> waitingThreePlayerGame;
-    private ArrayList<ClientPeer> waitingFourPlayerGame;
+    private final ArrayList<ClientPeer> waitingTwoPlayerGame;
+    private final ArrayList<ClientPeer> waitingThreePlayerGame;
+    private final ArrayList<ClientPeer> waitingFourPlayerGame;
 
     /**
      * Running games.
      */
-    private ArrayList<Game> games;
+    private final ArrayList<Game> games;
 
 
     /**
      * List of names that are already in use on this server.
      * Duplicate names are not allowed.
      */
-    private HashSet<String> usedNames;
+    private final HashSet<String> usedNames;
 
 
     public Lobby() {
@@ -126,7 +126,6 @@ public class Lobby implements Runnable {
         while (!stopLobbyThread) {
             doSingleLobbyIteration();
 
-            // TODO: Tweak sleeping for final application, maybe even remove it.
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {

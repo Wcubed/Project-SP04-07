@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class RandomTileBag implements TileBag {
 
-    private ArrayList<Tile> tiles;
-    private Random random;
+    private final ArrayList<Tile> tiles;
+    private final Random random;
 
     public RandomTileBag() {
         tiles = new ArrayList<>();

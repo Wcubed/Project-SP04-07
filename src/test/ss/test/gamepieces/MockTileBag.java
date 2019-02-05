@@ -12,7 +12,7 @@ import java.util.LinkedList;
  */
 public class MockTileBag implements TileBag {
 
-    private LinkedList<Tile> tiles;
+    private final LinkedList<Tile> tiles;
 
     public MockTileBag() {
         tiles = new LinkedList<>();

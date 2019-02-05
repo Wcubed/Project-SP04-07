@@ -11,8 +11,8 @@ import java.util.*;
 
 public class ServerPeer extends AbstractPeer {
 
-    private ClientController controller;
-    private boolean serverSupportsChat;
+    private final ClientController controller;
+    private final boolean serverSupportsChat;
 
     public ServerPeer(
             ClientController controller, Connection connection, boolean serverSupportsChat) {

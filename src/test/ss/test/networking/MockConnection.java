@@ -8,8 +8,8 @@ import java.util.LinkedList;
 public class MockConnection implements Connection {
 
     private boolean connectionDead;
-    private LinkedList<String> testMessages;
-    private LinkedList<String> sentMessages;
+    private final LinkedList<String> testMessages;
+    private final LinkedList<String> sentMessages;
 
     public MockConnection() {
         connectionDead = false;

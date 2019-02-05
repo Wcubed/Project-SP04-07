@@ -1,7 +1,8 @@
 package ss.spec.gamepieces;
 
 public class BoardCoordinates {
-    private int row, column;
+    private final int row;
+    private final int column;
 
     public BoardCoordinates(int row, int column) {
         this.row = row;

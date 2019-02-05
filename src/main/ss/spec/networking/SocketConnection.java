@@ -5,7 +5,7 @@ import java.net.Socket;
 
 public class SocketConnection implements Connection {
 
-    private Socket socket;
+    private final Socket socket;
 
     private BufferedReader in;
     private BufferedWriter out;

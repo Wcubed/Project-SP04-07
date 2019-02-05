@@ -2,8 +2,8 @@ package ss.spec.gamepieces;
 
 public class Move {
 
-    private Tile tile;
-    private int index;
+    private final Tile tile;
+    private final int index;
 
     public Move(Tile tile, int index) {
         this.tile = tile;

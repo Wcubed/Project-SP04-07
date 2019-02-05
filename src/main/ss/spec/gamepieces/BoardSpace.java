@@ -2,8 +2,8 @@ package ss.spec.gamepieces;
 
 public class BoardSpace {
 
-    private int id;
-    private int scoreMultiplier;
+    private final int id;
+    private final int scoreMultiplier;
     private Tile tile;
 
     public BoardSpace(int id, int scoreMultiplier) {

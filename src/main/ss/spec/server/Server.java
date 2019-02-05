@@ -14,8 +14,7 @@ public class Server {
     // Protocol dictates port 4000.
     private static final int PORT = 4000;
 
-    private ServerSocket serverSocket;
-    private Lobby lobby;
+    private final Lobby lobby;
 
     public Server() {
         lobby = new Lobby();
@@ -23,6 +22,7 @@ public class Server {
 
     public void start() {
         // try to open a server socket;
+        ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {

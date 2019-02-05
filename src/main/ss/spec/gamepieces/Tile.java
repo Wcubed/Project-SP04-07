@@ -27,11 +27,11 @@ import ss.spec.networking.DecodeException;
  */
 
 public class Tile {
-    private Color flatSide;
-    private Color clockwise1;
-    private Color clockwise2;
+    private final Color flatSide;
+    private final Color clockwise1;
+    private final Color clockwise2;
 
-    private int points;
+    private final int points;
 
     public Tile(Color flatSide, Color clockwise1, Color clockwise2, int points) {
         this.flatSide = flatSide;

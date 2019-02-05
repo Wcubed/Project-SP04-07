@@ -43,7 +43,7 @@ public class ClientPeer extends AbstractPeer {
     private String name;
 
     private boolean supportsChat;
-    private LinkedList<String> chatMessages;
+    private final LinkedList<String> chatMessages;
 
     private int requestedPlayerAmount;
 
