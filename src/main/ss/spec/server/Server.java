@@ -15,6 +15,8 @@ public class Server {
     //   post-
     //  conditions and class invariants (JML specifications must type-check with OpenJML).
 
+    // TODO: mention in raport which classes were JML specified and why you chose those classes.
+
     // TODO: Extensive documentation should be
     //  provided for the three most complex self-defined classes in the server application.
     //  as determined by the Weighted methods per class metric.

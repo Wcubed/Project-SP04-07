@@ -10,9 +10,16 @@ public class GameModel extends Observable {
 	//@ invariant getPlayers().containsValue(getCurrentTurnPlayer());
 	//@ invariant getPlayers().containsValue(getLocalPlayer());
 	//@ invariant getPlayers().size() == getTurnOrder().size();
-	//@ invariant (\forall Player player; getPlayers().containsValue(player); getTurnOrder().contains(player.getName()));
-	//@ invariant (\forall String name; getPlayers().containsKey(name); getTurnOrder().contains(name));
-	//@ invariant (\forall String name; getPlayers().containsKey(name); getPlayers().get(name).getName().equals(name));
+	/*@ invariant 
+	    (\forall Player player; getPlayers().containsValue(player);
+	    getTurnOrder().contains(player.getName()));
+	  @ invariant 
+	    (\forall String name; getPlayers().containsKey(name);
+	    getTurnOrder().contains(name));
+	  @ invariant 
+	    (\forall String name; getPlayers().containsKey(name);
+	    getPlayers().get(name).getName().equals(name));
+	  @*/
 	//@ invariant getBoard() != null;
 	//@ invariant getLocalPlayer() != null;
 	//@ invariant getTurnOrder() != null;
@@ -64,11 +71,15 @@ public class GameModel extends Observable {
      * @param turnOrder   The order in which the players have their turns.
      */
     //@ requires players.contains(localPlayer);
-    //@ requires (\forall Player player; players.contains(player); turnOrder.contains(player.getName()));
+    /*@ requires (\forall Player player; players.contains(player);
+                 turnOrder.contains(player.getName()));
+      @*/
     //@ requires players.size() == turnOrder.size();
     //@ ensures getLocalPlayer().equals(localPlayer);
     //@ ensures getTurnOrder().equals(turnOrder);
-    //@ ensures (\forall Player player; players.contains(player); getPlayers().containsValue(player));
+    /*@ ensures (\forall Player player; players.contains(player);
+                getPlayers().containsValue(player));
+      @*/
     //@ ensures getTurnOrder().size() == getPlayers().size();
     //@ ensures getState().equals(State.WAITING_FOR_TURN);
     public GameModel(List<Player> players, Player localPlayer, List<String> turnOrder) {
@@ -102,7 +113,9 @@ public class GameModel extends Observable {
         return localPlayer;
     }
 
-    //@ ensures (\forall String name; \result.containsKey(name); \result.get(name).getName().equals(name));
+    /*@ ensures (\forall String name; \result.containsKey(name);
+                \result.get(name).getName().equals(name));
+     @*/
     //@ pure
     public Map<String, Player> getPlayers() {
         return players;
