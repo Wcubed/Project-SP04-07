@@ -57,6 +57,7 @@ public class Game implements Runnable {
 
     /**
      * Call when the game ends for some reason.
+     * This will also stop any thread that is running the `run()` method, on the next iteration.
      * Afterwards `isGameOver()` will return true.
      */
     //@ ensures isGameOver() == true;
@@ -67,6 +68,7 @@ public class Game implements Runnable {
     /**
      * @return The list of participating players.
      */
+    //@ pure
     public List<Player> getPlayers() {
         return players;
     }
