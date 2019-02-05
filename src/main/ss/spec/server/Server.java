@@ -16,13 +16,15 @@ public class Server {
     //  conditions and class invariants (JML specifications must type-check with OpenJML).
 
     // TODO: mention in raport which classes were JML specified and why you chose those classes.
-	//   Client -> GameModel. I think because of the interesting invariants?
-	//   AbstractPeer and ClientPeer -> because Game and lobby are self-sufficient black boxes and are therefore not specifyable in a meaningfull way.
-	//   pick one other one.
+    //   Client -> GameModel. I think because of the interesting invariants?
+    //   AbstractPeer and ClientPeer -> because Game and lobby are self-sufficient black boxes
+    //   and are therefore not specifyable in a meaningfull way.
+    //   pick one other one.
 
     // TODO: Extensive documentation should be
     //  provided for the three most complex self-defined classes in the server application.
     //  as determined by the Weighted methods per class metric.
+    // According to the metrics that is Lobby, ClientPeer and Game.
 
     // TODO: There should be a README file with information about installation and starting the
     //  game, indicating for

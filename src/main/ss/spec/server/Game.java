@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Responsible for the whole lifecycle of a Spectrangle Game.
+ * The game starts when the `run()` method is called, and ends when the method finishes.
+ */
 public class Game implements Runnable {
 
     private boolean gameOver;
@@ -21,6 +24,7 @@ public class Game implements Runnable {
 
     /**
      * Instantiates the Game class with the given players, board and TileBag.
+     * The tile bag may be empty, as `addAllStartingTiles()` will be called on it during game setup.
      *
      * @param players The participating players, order doesn't matter.
      * @param board   The board to play on.
@@ -41,23 +45,39 @@ public class Game implements Runnable {
         this.turnOrder = new ArrayList<>();
     }
 
+    /**
+     * If the game has ended in some way, this will return true.
+     *
+     * @return True if the game is over.
+     */
     //@ pure
     public boolean isGameOver() {
         return gameOver;
     }
 
+    /**
+     * Call when the game ends for some reason.
+     * Afterwards `isGameOver()` will return true.
+     */
     //@ ensures isGameOver() == true;
     public void gameIsNowOver() {
         gameOver = true;
     }
 
     /**
-     * @return The list of players.
+     * @return The list of participating players.
      */
     public List<Player> getPlayers() {
         return players;
     }
 
+    /**
+     * Run method that will run a complete game from start to end.
+     * First sets up the game, and then calls `doSingleGameThreadIteration()` until the game
+     * is over.
+     * Sleeps for a small time between iterations, because we can afford to be a few milliseconds
+     * late with updates. This is no FPS after all. And it keeps the processor usage reasonable.
+     */
     @Override
     public void run() {
         setUpGame();
@@ -65,7 +85,6 @@ public class Game implements Runnable {
         while (!isGameOver()) {
             doSingleGameThreadIteration();
 
-            // Sleep a while, we don't need sub-millisecond responses on this game.
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -108,6 +127,24 @@ public class Game implements Runnable {
     }
 
 
+    /**
+     * Call this method to do a single iteration of the game loop.
+     * Normally called continuously by the `run()` function to further the game progress,
+     * but can also be called separately if a more granular approach is needed.
+     * <p>
+     * A single iteration does the following:
+     * <ul>
+     * <li>Check if all the clients are still connected.
+     * If a client disconnects the game is over.</li>
+     * <li>Update the player who's turn it is, by notifying the client that it can make a turn,
+     * or has to skip.</li>
+     * <li>It then verifies the move requested by the player, and if it is valid, the move and its
+     * score will be propagated to all other clients.</li>
+     * <li>Distribute incoming chat messages over the players.</li>
+     * <li>Lastly it checks if any player has a move left. If not, the game is over.</li>
+     * </ul>
+     * If the game ends, the clients are notified of this.
+     */
     public void doSingleGameThreadIteration() {
         for (Player player : players) {
             ClientPeer peer = player.getPeer();

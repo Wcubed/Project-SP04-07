@@ -310,7 +310,7 @@ public class Lobby implements Runnable {
     }
 
     /**
-     * Call after a client has disconnected, make it's name available again.
+     * Call after a client has disconnected, this will make it's name available again.
      */
     private void freeUpClientName(ClientPeer client) {
         String name = client.getName();
