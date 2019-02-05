@@ -39,6 +39,9 @@ cp -a "doc" "${zipDir}/doc"
 echo "Copying lib."
 cp -a "lib" "${zipDir}/lib"
 
+echo "Copying artifacts (the complied application)."
+cp -a "out/artifacts" "${zipDir}/artifacts"
+
 # ----------
 
 echo "Zipping package."
