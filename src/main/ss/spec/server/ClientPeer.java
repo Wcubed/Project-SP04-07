@@ -386,9 +386,9 @@ public class ClientPeer extends AbstractPeer {
         sendMessage("welcome chat");
     }
 
-    public void sendChatMessage(String name, String message) {
+    public void sendChatMessage(String playerName, String message) {
         if (supportsChat) {
-            sendMessage("chat " + name + " " + message);
+            sendMessage("chat " + playerName + " " + message);
         }
     }
 

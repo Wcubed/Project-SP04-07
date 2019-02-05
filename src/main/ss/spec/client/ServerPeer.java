@@ -306,7 +306,7 @@ public class ServerPeer extends AbstractPeer {
             throw new InvalidCommandException("Malformed leaderboard message");
         }
 
-        Map<String, Integer> leaderboard = new HashMap<String, Integer>();
+        Map<String, Integer> leaderboard = new HashMap<>();
 
         while (message.hasNext()) {
             String name = message.next();

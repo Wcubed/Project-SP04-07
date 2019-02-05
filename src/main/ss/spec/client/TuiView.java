@@ -292,34 +292,26 @@ public class TuiView implements SpecView {
     }
 
     public void promptTileChoice(GameModel model) {
-        StringBuilder prompt = new StringBuilder();
 
-        prompt.append(boardAsString(model.getBoard()));
-        prompt.append("\n");
-        prompt.append("It is your turn!\n");
-
-        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
-
-        prompt.append("Which tile would you like to place? ");
-        prompt.append("[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n");
-
-        lastPrompt = prompt.toString();
+        String prompt = boardAsString(model.getBoard()) +
+                "\n" +
+                "It is your turn!\n" +
+                tileListAsString(model.getLocalPlayer().getTiles(), true) +
+                "Which tile would you like to place? " +
+                "[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n";
+        lastPrompt = prompt;
         printPrompt();
     }
 
     private void promptTileChoiceAfterInvalidMove(GameModel model) {
-        StringBuilder prompt = new StringBuilder();
 
-        prompt.append(boardAsString(model.getBoard()));
-        prompt.append("\n");
-        prompt.append("Sorry but that move is invalid, please try again...\n");
-
-        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
-
-        prompt.append("Which tile would you like to place? ");
-        prompt.append("[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n");
-
-        lastPrompt = prompt.toString();
+        String prompt = boardAsString(model.getBoard()) +
+                "\n" +
+                "Sorry but that move is invalid, please try again...\n" +
+                tileListAsString(model.getLocalPlayer().getTiles(), true) +
+                "Which tile would you like to place? " +
+                "[0-" + (model.getLocalPlayer().getTiles().size() - 1) + "]\n";
+        lastPrompt = prompt;
         printPrompt();
     }
 
@@ -356,7 +348,8 @@ public class TuiView implements SpecView {
 
         boolean flatSideDown = false;
         try {
-            flatSideDown = BoardCoordinates.fromIndex(model.getSelectedBoardSpace()).flatSideIsFacingDown();
+            flatSideDown = BoardCoordinates.fromIndex(
+                    model.getSelectedBoardSpace()).flatSideIsFacingDown();
         } catch (IndexException e) {
             // This doesn't change anything.
         }
@@ -373,38 +366,30 @@ public class TuiView implements SpecView {
     }
 
     public void promptSkipChoice(GameModel model) {
-        StringBuilder prompt = new StringBuilder();
 
-        prompt.append(boardAsString(model.getBoard()));
-        prompt.append("\n");
-
-        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
-
-        prompt.append("There are no possible moves!\n");
-        prompt.append("You can either skip [0], or replace one of the tiles in you hand ");
-        prompt.append("[1-");
-        prompt.append(model.getLocalPlayer().getTiles().size());
-        prompt.append("].\n");
-
-        lastPrompt = prompt.toString();
+        String prompt = boardAsString(model.getBoard()) +
+                "\n" +
+                tileListAsString(model.getLocalPlayer().getTiles(), true) +
+                "There are no possible moves!\n" +
+                "You can either skip [0], or replace one of the tiles in you hand " +
+                "[1-" +
+                model.getLocalPlayer().getTiles().size() +
+                "].\n";
+        lastPrompt = prompt;
         printPrompt();
     }
 
     private void promptSkipChoiceAfterInvalidMove(GameModel model) {
-        StringBuilder prompt = new StringBuilder();
 
-        prompt.append(boardAsString(model.getBoard()));
-        prompt.append("\n");
-
-        prompt.append(tileListAsString(model.getLocalPlayer().getTiles(), true));
-
-        prompt.append("Sorry, but you don't have that tile in your hand.\n");
-        prompt.append("You can either skip [0], or replace one of the tiles in you hand ");
-        prompt.append("[1-");
-        prompt.append(model.getLocalPlayer().getTiles().size());
-        prompt.append("].\n");
-
-        lastPrompt = prompt.toString();
+        String prompt = boardAsString(model.getBoard()) +
+                "\n" +
+                tileListAsString(model.getLocalPlayer().getTiles(), true) +
+                "Sorry, but you don't have that tile in your hand.\n" +
+                "You can either skip [0], or replace one of the tiles in you hand " +
+                "[1-" +
+                model.getLocalPlayer().getTiles().size() +
+                "].\n";
+        lastPrompt = prompt;
         printPrompt();
     }
 

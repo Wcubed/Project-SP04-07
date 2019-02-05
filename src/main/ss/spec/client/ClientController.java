@@ -70,6 +70,7 @@ public class ClientController {
                     } else {
                         peer.sendExchangeMessage(model.getSelectedTile());
                     }
+                    break;
                 default:
                     // We were not expecting a number here.
                     throw new InvalidNumberException();
@@ -101,11 +102,11 @@ public class ClientController {
         ArrayList<Player> players = new ArrayList<>();
         Player localPlayer = null;
 
-        for (String name : turnOrder) {
-            Player player = new Player(name);
+        for (String playerName : turnOrder) {
+            Player player = new Player(playerName);
             players.add(player);
 
-            if (name.equals(this.name)) {
+            if (playerName.equals(this.name)) {
                 // This is us :)
                 localPlayer = player;
             }
@@ -127,10 +128,10 @@ public class ClientController {
         model.setPlayerHand(playerName, hand);
     }
 
-    public void processMove(String name, Move move, int points) {
+    public void processMove(String playerName, Move move, int points) {
         // Don't check if the move is valid.
         // If the server says the move is made, then the move is made.
-        model.processMove(name, move, points);
+        model.processMove(playerName, move, points);
     }
 
     public void setTurn(String playerName) throws NoSuchPlayerException {
