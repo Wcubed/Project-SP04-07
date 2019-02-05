@@ -4,3 +4,6 @@ doc/
 .idea/uiDesigner.xml
 codemr/
 packaged/
+.classpath
+.joblock
+.project

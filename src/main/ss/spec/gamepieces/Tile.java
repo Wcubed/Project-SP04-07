@@ -53,6 +53,7 @@ public class Tile {
     /**
      * Returns a copy of the tile that is rotated 120 degrees clockwise.
      */
+    //@ pure
     public Tile rotate120() {
         return new Tile(clockwise2, flatSide, clockwise1, points);
     }
@@ -61,6 +62,7 @@ public class Tile {
      * Returns a copy of the tile that is rotated 240 degrees clockwise.
      * (the equivalent of rotating 120 degrees counterclockwise.)
      */
+    //@ pure
     public Tile rotate240() {
         return new Tile(clockwise1, clockwise2, flatSide, points);
     }

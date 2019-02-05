@@ -41,10 +41,12 @@ public class Game implements Runnable {
         this.turnOrder = new ArrayList<>();
     }
 
+    //@ pure
     public boolean isGameOver() {
         return gameOver;
     }
 
+    //@ ensures isGameOver() == true;
     public void gameIsNowOver() {
         gameOver = true;
     }
@@ -297,6 +299,8 @@ public class Game implements Runnable {
         currentTurnPlayer = 0;
     }
 
+    //@ ensures \result != null;
+    //@ pure
     private String getCurrentTurnPlayerName() {
         return turnOrder.get(currentTurnPlayer);
     }
@@ -341,6 +345,7 @@ public class Game implements Runnable {
      *
      * @param playerName The player who's turn it is.
      */
+    //@ requires playerName != null;
     private void sendTileAndTurnAnnouncement(String playerName) {
         StringBuilder message = new StringBuilder();
 
@@ -436,6 +441,7 @@ public class Game implements Runnable {
      *
      * @param playerName The name of the player who disconnected.
      */
+    //@ ensures isGameOver() == true;
     private void stopGamePlayerDisconnected(String playerName) {
         System.out.println("Connection to client \'" + playerName + "\' lost during a game.");
 
@@ -452,6 +458,7 @@ public class Game implements Runnable {
      * Stops the game because there are no moves left.
      * This is the normal way a game stops.
      */
+    //@ ensures isGameOver() == true;
     private void stopGameNoMovesLeft() {
         // Subtract all the tiles left in a players hand from the player's scores.
         for (Player player : players) {

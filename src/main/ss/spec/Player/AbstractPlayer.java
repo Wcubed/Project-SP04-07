@@ -21,10 +21,12 @@ public abstract class AbstractPlayer {
     }
 
 
+    //@ pure
     public int getScore() {
         return score;
     }
 
+    //@ pure
     public List<Tile> getTiles() {
         return tiles;
     }
@@ -33,6 +35,7 @@ public abstract class AbstractPlayer {
         tiles = new ArrayList<>(newTiles);
     }
 
+    //@ pure
     public String getName() {
         return name;
     }
@@ -62,6 +65,7 @@ public abstract class AbstractPlayer {
      * @param tile The tile to check.
      * @return true when the player has the tile, false otherwise.
      */
+    //@ pure
     public boolean hasTileInHand(Tile tile) {
         boolean result = false;
 

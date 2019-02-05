@@ -7,6 +7,17 @@ import ss.spec.gamepieces.Tile;
 import java.util.*;
 
 public class GameModel extends Observable {
+	//@ invariant getPlayers().containsValue(getCurrentTurnPlayer());
+	//@ invariant getPlayers().containsValue(getLocalPlayer());
+	//@ invariant getPlayers().size() == getTurnOrder().size();
+	//@ invariant (\forall Player player; getPlayers().containsValue(player); getTurnOrder().contains(player.getName()));
+	//@ invariant (\forall String name; getPlayers().containsKey(name); getTurnOrder().contains(name));
+	//@ invariant (\forall String name; getPlayers().containsKey(name); getPlayers().get(name).getName().equals(name));
+	//@ invariant getBoard() != null;
+	//@ invariant getLocalPlayer() != null;
+	//@ invariant getTurnOrder() != null;
+	//@ invariant getCurrentTurnPlayer() != null;
+	//@ invariant getState() != null;
 
     public enum State {
         WAITING_FOR_TURN,
@@ -52,6 +63,14 @@ public class GameModel extends Observable {
      * @param localPlayer This is our local player, or `us`.
      * @param turnOrder   The order in which the players have their turns.
      */
+    //@ requires players.contains(localPlayer);
+    //@ requires (\forall Player player; players.contains(player); turnOrder.contains(player.getName()));
+    //@ requires players.size() == turnOrder.size();
+    //@ ensures getLocalPlayer().equals(localPlayer);
+    //@ ensures getTurnOrder().equals(turnOrder);
+    //@ ensures (\forall Player player; players.contains(player); getPlayers().containsValue(player));
+    //@ ensures getTurnOrder().size() == getPlayers().size();
+    //@ ensures getState().equals(State.WAITING_FOR_TURN);
     public GameModel(List<Player> players, Player localPlayer, List<String> turnOrder) {
         this.players = new HashMap<>();
 
@@ -73,26 +92,34 @@ public class GameModel extends Observable {
 
     // ---------------------------------------------------------------------------------------------
 
+    //@ pure
     public Board getBoard() {
         return board;
     }
 
+    //@ pure
     public Player getLocalPlayer() {
         return localPlayer;
     }
 
+    //@ ensures (\forall String name; \result.containsKey(name); \result.get(name).getName().equals(name));
+    //@ pure
     public Map<String, Player> getPlayers() {
         return players;
     }
 
+    //@ pure
     public List<String> getTurnOrder() {
         return turnOrder;
     }
 
+    //@ ensures getPlayers().containsValue(\result);
+    //@ pure
     public Player getCurrentTurnPlayer() {
         return currentTurnPlayer;
     }
 
+    //@ pure
     public State getState() {
         return currentState;
     }
@@ -102,6 +129,17 @@ public class GameModel extends Observable {
      *
      * @return The tile selected by the player.
      */
+    /*@ requires getState() == State.MAKE_MOVE_DECIDE_BOARD_SPACE ||
+                 getState() == State.MAKE_MOVE_DECIDE_ORIENTATION ||
+                 getState() == State.WAITING_FOR_MOVE_VALIDITY ||
+                 getState() == State.WAITING_FOR_SKIP_REPLACE_VALIDITY;
+     */
+    /*@ ensures (getState() == State.MAKE_MOVE_DECIDE_BOARD_SPACE ||
+                getState() == State.MAKE_MOVE_DECIDE_ORIENTATION ||
+                getState() == State.WAITING_FOR_MOVE_VALIDITY) &&
+                \result != null;
+      */
+    //@ pure
     public Tile getSelectedTile() {
         return selectedTile;
     }
@@ -111,12 +149,26 @@ public class GameModel extends Observable {
      *
      * @return The board space id selected by the player.
      */
+    /*@ requires getState() == State.MAKE_MOVE_DECIDE_BOARD_SPACE ||
+    		     getState() == State.MAKE_MOVE_DECIDE_ORIENTATION ||
+                 getState() == State.WAITING_FOR_MOVE_VALIDITY;
+     */
+    //@ ensures \result >= 0 && \result < Board.BOARD_SIZE;
+    //@ pure
     public int getSelectedBoardSpace() {
         return selectedBoardSpace;
     }
 
     // ---------------------------------------------------------------------------------------------
 
+    //@ signals (NoSuchPlayerException e) !getPlayers().containsKey(playerName);
+    //@ ensures getCurrentTurnPlayer().equals(getPlayers().get(playerName));
+    /*@ ensures getCurrentTurnPlayer().equals(getLocalPlayer()) &&
+                getState().equals(State.MAKE_MOVE_DECIDE_TILE);
+      @*/
+    /*@ ensures !getCurrentTurnPlayer().equals(getLocalPlayer()) &&
+                getState().equals(State.WAITING_FOR_TURN);
+      @*/
     public void setTurn(String playerName) throws NoSuchPlayerException {
         if (!players.containsKey(playerName)) {
             throw new NoSuchPlayerException();
@@ -142,6 +194,14 @@ public class GameModel extends Observable {
         }
     }
 
+    //@ signals (NoSuchPlayerException e) !getPlayers().containsKey(playerName);
+    //@ ensures getCurrentTurnPlayer().equals(getPlayers().get(playerName));
+    /*@ ensures getCurrentTurnPlayer().equals(getLocalPlayer()) &&
+                getState().equals(State.DECIDE_SKIP_OR_REPLACE);
+      @*/
+    /*@ ensures !getCurrentTurnPlayer().equals(getLocalPlayer()) &&
+                getState().equals(State.WAITING_FOR_TURN);
+      @*/
     public void setTurnSkip(String playerName) throws NoSuchPlayerException {
         if (!players.containsKey(playerName)) {
             throw new NoSuchPlayerException();
@@ -165,6 +225,13 @@ public class GameModel extends Observable {
         }
     }
 
+    //@ signals (NoSuchPlayerException e) !getPlayers().containsKey(playerName);
+    //@ requires playerName != null && hand != null;
+    /*@ ensures (\forall Tile tile;
+                         getPlayers().get(playerName).getTiles().contains(tile);
+                         hand.contains(tile));
+     @*/
+    //@ ensures getPlayers().get(playerName).getTiles().size() == hand.size();
     public void setPlayerHand(String playerName, List<Tile> hand) throws NoSuchPlayerException {
         if (players.containsKey(playerName)) {
             players.get(playerName).overrideTiles(hand);
@@ -173,6 +240,16 @@ public class GameModel extends Observable {
         }
     }
 
+    //@ requires name != null;
+    //@ requires move != null;
+    /*@ ensures getPlayers().containsKey(name) && 
+                \old(getPlayers().get(name).getScore()) + points == 
+                getPlayers().get(name).getScore();
+     @*/
+    /*@ ensures !getCurrentTurnPlayer().equals(getLocalPlayer()) &&
+                \old(getState()).equals(State.WAITING_FOR_MOVE_VALIDITY) &&
+                getState().equals(State.WAITING_FOR_TURN);
+      @*/
     public void processMove(String name, Move move, int points) {
         board.placeTileDontCheckValidity(move);
 
@@ -190,6 +267,17 @@ public class GameModel extends Observable {
         notifyObservers(Change.MOVE_MADE);
     }
 
+    //@ requires name != null;
+    //@ requires replacedTile != null;
+    //@ requires replacingTile != null;
+    /*@ ensures getPlayers().containsKey(name) ==>
+                getPlayers().get(name).hasTileInHand(replacedTile) == false &&
+                getPlayers().get(name).hasTileInHand(replacingTile);
+      @*/
+    /*@ ensures name.equals(getLocalPlayer().getName()) &&
+                \old(getState()).equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY) &&
+                getState().equals(State.WAITING_FOR_TURN);
+      @*/
     public void replaceTile(String name, Tile replacedTile, Tile replacingTile) {
         if (players.containsKey(name)) {
             players.get(name).removeTile(replacedTile);
@@ -198,7 +286,7 @@ public class GameModel extends Observable {
 
         if (name.equals(localPlayer.getName()) &&
                 currentState.equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY)) {
-            // That was our tile being replaced. Move is ove.
+            // That was our tile being replaced. Move is over.
             currentState = State.WAITING_FOR_TURN;
         }
 
@@ -206,6 +294,11 @@ public class GameModel extends Observable {
         notifyObservers(Change.TILE_REPLACED);
     }
 
+    //@ requires playerName != null;
+    /*@ ensures playerName.equals(getLocalPlayer().getName()) &&
+                \old(getState()).equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY) &&
+                getState().equals(State.WAITING_FOR_TURN);
+      @*/
     public void playerSkipped(String playerName) {
         if (playerName.equals(localPlayer.getName()) &&
                 currentState.equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY)) {
@@ -217,6 +310,21 @@ public class GameModel extends Observable {
         notifyObservers(Change.PLAYER_SKIPPED);
     }
 
+    /*@ signals (InvalidNumberException e) 
+     			tileNumber < 0 || tileNumber > getLocalPlayer().getTiles().size();
+      @*/
+    /*@ ensures tileNumber == 0 && 
+                getState().equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY) &&
+                getSelectedTile() == null;
+      @*/
+    /*@ ensures tileNumber > 0 && tileNumber <= getLocalPlayer().getTiles().size() &&
+                getState().equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY) &&
+                getSelectedTile() == getLocalPlayer().getTiles().get(tileNumber - 1);
+      @*/
+    /*@ ensures tileNumber < 0 && tileNumber > getLocalPlayer().getTiles().size() &&
+                getState().equals(State.DECIDE_SKIP_OR_REPLACE) &&
+                getSelectedTile() == null;
+      @*/
     public void decideSkipOrReplace(int tileNumber) throws InvalidNumberException {
         if (tileNumber == 0) {
             // Skipping
@@ -247,6 +355,17 @@ public class GameModel extends Observable {
      *
      * @param tileNumber The tile to select from the hand.
      */
+    /*@ signals (InvalidNumberException e) 
+		tileNumber < 0 || tileNumber >= getLocalPlayer().getTiles().size();
+	@*/
+	/*@ ensures tileNumber >= 0 && tileNumber < getLocalPlayer().getTiles().size() &&
+	    	    getState().equals(State.MAKE_MOVE_DECIDE_BOARD_SPACE) &&
+	    	    getSelectedTile() == getLocalPlayer().getTiles().get(tileNumber);
+	@*/
+	/*@ ensures tileNumber < 0 && tileNumber >= getLocalPlayer().getTiles().size() &&
+	    	    getState().equals(State.MAKE_MOVE_DECIDE_TILE) &&
+	    	    getSelectedTile() == null;
+	@*/
     public void decideTile(int tileNumber) throws InvalidNumberException {
         if (tileNumber >= 0 && tileNumber < localPlayer.getTiles().size()) {
             selectedTile = localPlayer.getTiles().get(tileNumber);
@@ -263,6 +382,17 @@ public class GameModel extends Observable {
         }
     }
 
+    /*@ signals (InvalidNumberException e) 
+				spaceId < 0 || spaceId >= Board.BOARD_SIZE;
+	@*/
+	/*@ ensures spaceId >= 0 && spaceId < Board.BOARD_SIZE &&
+	    	    getState().equals(State.MAKE_MOVE_DECIDE_BOARD_SPACE) &&
+	    	    getSelectedBoardSpace() == spaceId;
+	@*/
+	/*@ ensures spaceId < 0 && spaceId >= Board.BOARD_SIZE &&
+	    	    getState().equals(State.MAKE_MOVE_DECIDE_BOARD_SPACE) &&
+	    	    getSelectedBoardSpace() == -1;
+	@*/
     public void decideBoardSpace(int spaceId) throws InvalidNumberException {
         if (spaceId >= 0 && spaceId < Board.BOARD_SIZE) {
             selectedBoardSpace = spaceId;
@@ -279,6 +409,21 @@ public class GameModel extends Observable {
         }
     }
 
+    /*@ signals (InvalidNumberException e) 
+				orientationNumber < 0 || orientationNumber >= 3;
+	@*/
+	/*@ ensures getState().equals(State.WAITING_FOR_MOVE_VALIDITY) && 
+	    	    ((orientationNumber == 0 && getSelectedTile() == 
+	    	        \old(getSelectedTile()) ||
+	    	    (orientationNumber == 1 && getSelectedTile() == 
+	    	        \old(getSelectedTile()).rotate120()) ||
+	    	    (orientationNumber == 1 && getSelectedTile() == 
+	    	        \old(getSelectedTile()).rotate240())));
+	@*/
+	/*@ ensures orientationNumber < 0 && orientationNumber >= 3 &&
+			    getState().equals(State.MAKE_MOVE_DECIDE_ORIENTATION) &&
+			    getSelectedTile() == \old(getSelectedTile());
+	@*/
     public void decideOrientation(int orientationNumber) throws InvalidNumberException {
         if (orientationNumber >= 0 && orientationNumber < 3) {
             switch (orientationNumber) {
@@ -303,6 +448,11 @@ public class GameModel extends Observable {
         }
     }
 
+    /*@ ensures \old(getState()).equals(State.WAITING_FOR_MOVE_VALIDITY) &&
+                getState().equals(State.MAKE_MOVE_DECIDE_TILE);
+        ensures \old(getState()).equals(State.WAITING_FOR_SKIP_REPLACE_VALIDITY) &&
+                getState().equals(State.DECIDE_SKIP_OR_REPLACE);
+     @*/
     public void invalidMoveAttempted() {
         // Whoops, that move was invalid.
         if (currentState.equals(State.WAITING_FOR_MOVE_VALIDITY)) {
