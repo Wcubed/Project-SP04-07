@@ -16,7 +16,7 @@ public class ServerPeer extends AbstractPeer {
 
     public ServerPeer(
             ClientController controller, Connection connection, boolean serverSupportsChat) {
-        super(connection);
+        super(connection, false);
 
         this.controller = controller;
         this.serverSupportsChat = serverSupportsChat;
@@ -69,11 +69,10 @@ public class ServerPeer extends AbstractPeer {
                         System.out.println("Uh oh! It looks like we sent an invalid command!");
                         break;
                     default:
-                        // TODO: Invalid command or something?
-                        System.out.println("Server says: " + message);
+                        throw new InvalidCommandException("We don't know what to do with: \'" +
+                                message + "\'");
                 }
             } catch (InvalidCommandException e) {
-                // TODO: propperly send this to the TUI view.
                 System.out.println("Received invalid command: \'" + e.getMessage() + "\'.");
                 sendInvalidCommandError(e);
             }

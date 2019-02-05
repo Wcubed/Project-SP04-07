@@ -45,8 +45,14 @@ public class GameModel extends Observable {
     // Variable to remember which board space the player selected to make a move on.
     private int selectedBoardSpace;
 
+    /**
+     * Constructs a new GameModel, do this when the server signals the start of a new game.
+     *
+     * @param players     The participating players, includes the localPlayer.
+     * @param localPlayer This is our local player, or `us`.
+     * @param turnOrder   The order in which the players have their turns.
+     */
     public GameModel(List<Player> players, Player localPlayer, List<String> turnOrder) {
-        // Todo: Decide whether the `players` list includes the localPlayer or not.
         this.players = new HashMap<>();
 
         for (Player player : players) {

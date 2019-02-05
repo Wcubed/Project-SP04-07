@@ -10,14 +10,22 @@ public abstract class AbstractPeer implements Runnable {
 
     private boolean peerConnected;
 
-    protected AbstractPeer(Connection connection) {
+    private boolean verbose;
+
+    protected AbstractPeer(Connection connection, boolean verbose) {
         this.connection = connection;
 
         peerConnected = !connection.isDead();
+
+        this.verbose = verbose;
     }
 
     public boolean isPeerConnected() {
         return peerConnected;
+    }
+
+    public boolean verbosePrinting() {
+        return verbose;
     }
 
     public void disconnect() {
@@ -38,12 +46,8 @@ public abstract class AbstractPeer implements Runnable {
                 // Connection dead.
                 // Thread can stop now.
                 peerConnected = false;
-
-                // TODO: proper logging.
             }
         }
-
-        // TODO: Nice logging.
         System.out.println("Peer disconnected...");
     }
 
@@ -59,9 +63,11 @@ public abstract class AbstractPeer implements Runnable {
      * @param message The message to send.
      */
     public void sendMessage(String message) {
-        // TODO: Allow for verbose sending? According to the requirements, you have to have it...
         if (peerConnected) {
             try {
+                if (verbosePrinting()) {
+                    System.out.println("Sending: \'" + message + "\'.");
+                }
                 connection.sendMessage(message);
             } catch (DeadConnectionException e) {
                 peerConnected = false;
@@ -70,8 +76,8 @@ public abstract class AbstractPeer implements Runnable {
     }
 
     public void sendInvalidCommandError(InvalidCommandException e) {
-        // TODO: send the message along with the error?
-        //   This has to be added to the protocol in that case.
+        // Would be nice to send the message included in the exception.
+        // But the protocol does not allow for that.
         sendMessage(INVALID_COMMAND_ERROR_MESSAGE);
     }
 }

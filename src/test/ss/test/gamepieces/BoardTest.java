@@ -66,8 +66,6 @@ class BoardTest {
 
         // We have not placed a tile yet, so even a valid id should throw exceptions.
         assertThrows(NoTileException.class, () -> board.getTile(1));
-
-        // TODO: make moves, and check that the tiles have been placed.
     }
 
     @Test
@@ -77,8 +75,6 @@ class BoardTest {
 
         assertFalse(board.hasTile(1));
         assertFalse(board.hasTile(13));
-
-        // TODO: make moves, and check that the tiles have been placed.
     }
 
 
@@ -185,11 +181,6 @@ class BoardTest {
         // We are placing it next to a green side here (space 14).
         assertEquals(1, board.makeMove(
                 new Move(new Tile(Color.WHITE, Color.WHITE, Color.WHITE, 1), 15)));
-
-        // TODO: Check for a tile matching on 3 sides.
-
-
-        // TODO: Maybe split this into multiple tests?
     }
 
     @Test

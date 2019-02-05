@@ -76,12 +76,7 @@ public class SocketConnection implements Connection {
             out.newLine();
             out.flush();
         } catch (IOException e) {
-            // TODO: Do we need this stack trace, or can we simply assume that when the write fails,
-            //  the connection is dead?
-            // e.printStackTrace();
-
             // Going to assume the connection is dead.
-            // TODO: Is this assumption correct?
             killConnection();
             throw new DeadConnectionException();
         }
@@ -104,12 +99,7 @@ public class SocketConnection implements Connection {
                 throw new DeadConnectionException();
             }
         } catch (IOException e) {
-            // TODO: Do we need this stack trace, or can we simply assume that when the read
-            //  fails, the connection is dead?
-            // e.printStackTrace();
-
             // Going to assume the connection is dead.
-            // TODO: Is this assumption correct?
             killConnection();
             throw new DeadConnectionException();
         }

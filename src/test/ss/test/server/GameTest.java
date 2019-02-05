@@ -128,7 +128,4 @@ class GameTest {
         assertTrue(messageDiane.contains("Diane"));
         assertTrue(messageDiane.contains("turn"));
     }
-
-    // TODO: Test more game stuff.
-    // TODO: Test game end.
 }

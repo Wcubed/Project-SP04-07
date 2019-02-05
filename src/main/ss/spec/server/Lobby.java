@@ -12,9 +12,7 @@ import java.util.ListIterator;
 public class Lobby implements Runnable {
 
     // This object is just there to synchronize on.
-    // TODO: There might be a better way than using an object.
     private final Object newClientSyncObject = new Object();
-    // TODO: Do we need volatile here?
     private volatile boolean hasNewClient;
     private ClientPeer newClient;
 
@@ -167,7 +165,6 @@ public class Lobby implements Runnable {
                 }
             } else {
                 // Connection lost, client will be removed from list.
-                // TODO: Nice logging.
                 System.out.println("Connection to client \'" + client.getName() + "\' lost.");
 
                 // Remove the clients name from the list of used names.
@@ -195,7 +192,6 @@ public class Lobby implements Runnable {
 
             if (!client.isPeerConnected()) {
                 // Connection lost, client will be removed from list.
-                // TODO: Nice logging.
                 System.out.println("Connection to client \'" + client.getName() + "\' lost.");
 
                 // Remove the clients name from the list of used names.
@@ -258,7 +254,6 @@ public class Lobby implements Runnable {
      */
     private void putClientInChosenWaitingList(ClientPeer client,
                                               ListIterator<ClientPeer> clientIter) {
-        // TODO: can we do this in such a way that we don't need the ListIterator?
 
         switch (client.getRequestedPlayerAmount()) {
             case 2:
@@ -278,7 +273,6 @@ public class Lobby implements Runnable {
                 break;
             default:
                 // This should not actually be able to happen.
-                // TODO: logging.
                 System.out.println("Client " +
                         client.getName() +
                         " managed to request a weird amount of players: " +
@@ -322,7 +316,6 @@ public class Lobby implements Runnable {
     private void freeUpClientName(ClientPeer client) {
         String name = client.getName();
 
-        //TODO: is the check for null necessary here?
         if (name != null) {
             usedNames.remove(name);
         }

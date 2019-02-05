@@ -10,7 +10,6 @@ public class SpectrangleBoardPrinter {
     private static List<Integer> bonuses = Arrays.asList(1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 4, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 3, 1);
 
     /**
-     * //TODO: This explanation is no longer correct. (It had a few faults to begin with, but now the code changed).
      * Method to print a board of Spectrangle, given the properties of the pieces that reside on it.
      * <p>
      * The arguments to this method together represent the current state of the board. You will need to generate
@@ -39,10 +38,10 @@ public class SpectrangleBoardPrinter {
      * @param flat   The letters of the vertical colors of all fields on the board. This should be a List of exactly
      *               36 items. If the field has no piece on it, the value is 'null', and if it does have a piece
      *               on it, the value is a character representing the color of the top or bottom side of the piece.
-     * @param cw     The letters of the vertical colors of all fields on the board. This should be a List of exactly
+     * @param cw     The letters of the clockwise colors of all fields on the board. This should be a List of exactly
      *               36 items. If the field has no piece on it, the value is 'null', and if it does have a piece
      *               on it, the value is a character representing the color of the left side of the piece.
-     * @param ccw    The letters of the vertical colors of all fields on the board. This should be a List of exactly
+     * @param ccw    The letters of the counterclockwise colors of all fields on the board. This should be a List of exactly
      *               36 items. If the field has no piece on it, the value is 'null', and if it does have a piece
      *               on it, the value is a character representing the color of the right side of the piece.
      * @return A string representing the state of the board as given.

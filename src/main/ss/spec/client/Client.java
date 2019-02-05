@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 public class Client {
 
+    // Protocol dictates port 4000.
     private static final int PORT = 4000;
 
     // TODO: The following requirements are optional for lone wolfs:
@@ -19,12 +20,6 @@ public class Client {
     //       Metrics report.
     //       Coverage test for complex server classes.
     //       Telnet test.
-
-    // TODO: you should be able to enter the port and ip through command line.
-    //       Is in the requirements. As with the server, the protocoll states port 4000...
-    //       So how to fix that?
-
-    // TODO: AI. (Optional for single person groups)
 
     // TODO: Hint functionality.
 
@@ -34,8 +29,6 @@ public class Client {
     //       be handed in.
 
     // TODO: Does there need to be javadoc? and for which classes?
-
-    // TODO: Implement chat extension? The system is designed to easily allow it.
 
 
     public static void main(String[] args) {

@@ -70,8 +70,6 @@ public class Game implements Runnable {
                 e.printStackTrace();
             }
         }
-
-        // TODO: cleanup?
     }
 
     /**
@@ -206,7 +204,6 @@ public class Game implements Runnable {
                     default:
                         // This is a weird state to be in. Shouldn't happen.
                         // Awaiting turn is a save state, so put them in that.
-                        // TODO: logging.
                         peer.awaitTurn();
                 }
             }
@@ -250,7 +247,7 @@ public class Game implements Runnable {
             try {
                 player.addTileToHand(bag.takeTile());
             } catch (EmptyTileBagException e) {
-                // TODO: this should never happen? But what to do if it does...
+                // This should not be possible.
                 e.printStackTrace();
             }
         }
@@ -289,7 +286,7 @@ public class Game implements Runnable {
                         try {
                             tiles.add(bag.takeTile());
                         } catch (EmptyTileBagException e) {
-                            // TODO: this should never happen? But what to do if it does...
+                            // This should not be possible.
                             e.printStackTrace();
                         }
                     }

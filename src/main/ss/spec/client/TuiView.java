@@ -48,10 +48,8 @@ public class TuiView implements SpecView {
                     running = false;
                 }
             } catch (IOException e) {
-                // TODO: print nice message.
-                e.printStackTrace();
-
                 // No input anymore.
+                // Stop the thread.
                 running = false;
             }
         }
@@ -191,10 +189,10 @@ public class TuiView implements SpecView {
     public void closeView() {
         running = false;
 
-        // TODO: would very much like to stop the tui input thread here.
-        //       But trying to close the `in` buffer that it is stuck reading on does not work.
-        //       Instead of throwing an exception on the other thread, as expected, it deadlocks.
-        //       This also happens when trying to close the underlying `System.in`.
+        // would very much like to stop the tui input thread here.
+        // But trying to close the `in` buffer that it is stuck reading on does not work.
+        // Instead of throwing an exception on the other thread, as expected, it deadlocks.
+        // This also happens when trying to close the underlying `System.in`.
     }
 
     @Override
@@ -310,8 +308,6 @@ public class TuiView implements SpecView {
     }
 
     private void promptTileChoiceAfterInvalidMove(GameModel model) {
-        // TODO: there is probably a better way to do these prompts.
-        //  As a lot of stuff is the same every time...
         StringBuilder prompt = new StringBuilder();
 
         prompt.append(boardAsString(model.getBoard()));
@@ -341,7 +337,7 @@ public class TuiView implements SpecView {
         prompt.append("Where do you want to place your tile? ");
         prompt.append("[0-" + (Board.BOARD_SIZE - 1) + "]\n");
 
-        // TODO: Allow for CANCEL!
+        // It would be nice to allow the player to cancel the choice.
 
         lastPrompt = prompt.toString();
         printPrompt();
@@ -365,13 +361,12 @@ public class TuiView implements SpecView {
             // This doesn't change anything.
         }
 
-        // TODO: Maybe display them upside-down if the selected board space is oriented that way?
         prompt.append(tileListAsString(orientations, flatSideDown));
 
         prompt.append("In which orientation do you want to place the tile? ");
         prompt.append("[0-2]\n");
 
-        // TODO: Allow for CANCEL!
+        // It would be nice to allow the player to cancel the choice.
 
         lastPrompt = prompt.toString();
         printPrompt();

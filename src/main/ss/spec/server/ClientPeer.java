@@ -51,21 +51,19 @@ public class ClientPeer extends AbstractPeer {
 
     /**
      * The move the peer wants to make.
-     * TODO: there is probably a better way to do this:
      * Is only valid when getState() == ClientPeer.State.GAME_VERIFY_MOVE.
      */
     private Move proposedMove;
 
     /**
      * The tile we propose to replace.
-     * TODO: there is probably a better way to do this:
      * `null` if we want to skip.
      * Is only valid when getState() == ClientPeer.State.GAME_VERIFY_SKIP.
      */
     private Tile proposedReplaceTile;
 
-    public ClientPeer(Connection connection) {
-        super(connection);
+    public ClientPeer(Connection connection, boolean verbose) {
+        super(connection, verbose);
 
         name = null;
         this.supportsChat = false;
@@ -73,6 +71,10 @@ public class ClientPeer extends AbstractPeer {
 
         state = State.PEER_AWAITING_CONNECT_MESSAGE;
         requestedPlayerAmount = 0;
+    }
+
+    public ClientPeer(Connection connection) {
+        this(connection, false);
     }
 
 
@@ -120,8 +122,9 @@ public class ClientPeer extends AbstractPeer {
 
     @Override
     public void handleReceivedMessage(String message) {
-        // TODO: Nice printing of received messages.
-        System.out.println("Client \'" + name + "\' sent: \'" + message + "\'");
+        if (verbosePrinting()) {
+            System.out.println("Client \'" + name + "\' sent: \'" + message + "\'");
+        }
 
         Scanner scanner = new Scanner(message);
 
@@ -153,11 +156,9 @@ public class ClientPeer extends AbstractPeer {
                         break;
                     default:
                         // We don't know this command.
-                        // TODO: logging.
                         throw new InvalidCommandException("Unknown command: " + command + ".");
                 }
             } catch (InvalidCommandException e) {
-                // TODO: logging
                 System.out.println("Invalid command: \'" + e.getMessage() + "\'.");
                 sendInvalidCommandError(e);
             }
@@ -181,7 +182,6 @@ public class ClientPeer extends AbstractPeer {
 
         if (!message.hasNext()) {
             // Whoops, `connect` message with no name.
-            // TODO: Proper logging.
             throw new InvalidCommandException("Connect message does not have a name.");
         }
 
@@ -192,7 +192,6 @@ public class ClientPeer extends AbstractPeer {
         // We cannot check for spaces in the name, because a space means we start
         // with the list of extensions.
 
-        // TODO: Proper logging.
         System.out.println("Client connected with name: " + newName);
 
         this.name = newName;
@@ -324,7 +323,6 @@ public class ClientPeer extends AbstractPeer {
             // Let the client know everything is ok.
             sendWelcomeMessage();
         }
-        // TODO: Do we want to signal an inconsistent state?
     }
 
     /**
@@ -339,7 +337,6 @@ public class ClientPeer extends AbstractPeer {
             // Let the client know that this name is not acceptable.
             sendInvalidNameError();
         }
-        // TODO: Do we want to signal an inconsistent state?
     }
 
     /**
@@ -348,7 +345,6 @@ public class ClientPeer extends AbstractPeer {
     void signalWaitingForPlayers(List<String> names) {
         sendWaitingMessage(names);
         state = State.LOBBY_WAITING_FOR_PLAYERS;
-        // TODO: Do we want to signal an inconsistent state?
     }
 
 

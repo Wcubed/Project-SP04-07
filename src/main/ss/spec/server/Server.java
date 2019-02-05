@@ -11,6 +11,7 @@ public class Server {
 
     // TODO: Some classes in the server need JML. See module guide for which ones and how.
 
+    // Protocol dictates port 4000.
     private static final int PORT = 4000;
 
     private ServerSocket serverSocket;
@@ -21,12 +22,6 @@ public class Server {
     }
 
     public void start() {
-        // TODO: it is apparently a requirement that we be able to manually enter a port.
-        //       but the protocoll states that we always use port 4000. So how to fix that?
-
-        // TODO: Apparently all communication messages have to be written to std::out.
-        //       Again, that's in the requirements. Can we do that in a nice way?
-
         // try to open a server socket;
         try {
             serverSocket = new ServerSocket(PORT);
@@ -49,7 +44,7 @@ public class Server {
                 clientSocket = serverSocket.accept();
 
                 SocketConnection connection = new SocketConnection(clientSocket);
-                ClientPeer newClient = new ClientPeer(connection);
+                ClientPeer newClient = new ClientPeer(connection, true);
 
                 System.out.println("New client connected!");
 
@@ -60,8 +55,9 @@ public class Server {
                 lobby.addNewClient(newClient);
 
             } catch (IOException e) {
-                // TODO: Nice error handling.
-                e.printStackTrace();
+                System.out.println(
+                        "Something went wrong while trying to accept a clients connection: \'" +
+                                e.getMessage() + "\'.");
             }
         }
     }
