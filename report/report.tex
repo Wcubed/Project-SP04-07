@@ -86,14 +86,14 @@ urlcolor=blue
     \end{figure}
 
     The client is designed using the Model-View-Controller pattern.
-    As visible in figure~\ref{fig:clientDiagram}, the classes are named according to their role.
+    As visible in~\autoref{fig:clientDiagram}, the classes are named according to their role.
     The ClientController fulfills the Controller role, the GameModel is the model,
     and the TuiView is a view that uses the terminal to communicate with the user.
 
     The GameModel only exists when there is a game ongoing.
     Outside of a game, the GameModel reference points to `null`.
 
-    Also laid out in figure~\ref{fig:clientDiagram} are the two threads that the client uses during runtime.
+    Also laid out in~\autoref{fig:clientDiagram} are the two threads that the client uses during runtime.
     The Network thread is responsible for receiving and parsing the messages received from the server.
     When a valid message is received, it calls the appropriate method on the ClientController.
     The controller then either updates the model, or directly calls a method on the view.
@@ -121,11 +121,13 @@ urlcolor=blue
     For example, if the GameModel notifies the view that the player should select a tile to place, the view will
     update it's prompt to reflect that.
 
+    The GameModel contains several self-defined classes, some of which are shared with the server.
+    A diagram of the GameModel and the classes it contains as fields, can be seen in~\autoref{fig:modelDiagram}.
+    The use and funcionality of these classes will be further elaborated in~\autoref{sec:Descriptions}
+
     % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
 
     % ------------------------------------------------------------------------------------------------------------------
-
-    \subsubsection{The Model}
 
     \begin{figure}[ht]
         \begin{center}
@@ -160,6 +162,7 @@ urlcolor=blue
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsection{Class descriptions}
+    \label{sec:Descriptions}
 
     % TODO: For each self-defined class:
     %– The responsibilities of the class in the system. I.e., which functional requirements does it im-
