@@ -1,6 +1,4 @@
-package ss.spec.Player;
-
-import ss.spec.gamepieces.Tile;
+package ss.spec.gamepieces;
 
 import java.util.ArrayList;
 import java.util.List;

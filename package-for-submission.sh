@@ -27,9 +27,6 @@ cp "README.md" "${zipDir}/README.md"
 echo "Copying protocol."
 cp "Network protocol v1_4.pdf" "${zipDir}/Network protocol v1_4.pdf"
 
-echo "Copying images."
-cp -a "images" "${zipDir}/images"
-
 echo "Copying src."
 cp -a "src" "${zipDir}/src"
 

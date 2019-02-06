@@ -1,6 +1,6 @@
 package ss.spec.client;
 
-import ss.spec.Player.AbstractPlayer;
+import ss.spec.gamepieces.AbstractPlayer;
 
 public class Player extends AbstractPlayer {
 

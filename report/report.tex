@@ -66,27 +66,183 @@ urlcolor=blue
 
     \newpage
 
-    % TODO: Use the minmal requirements minus the ones not needed for single persons, to see what needs to go here.
 
     \section{Design}
 
-    % TODO: use the diagrams from the time we designed the application. Adjust them so they fit the current state.
+    % ------------------------------------------------------------------------------------------------------------------
 
-    % TODO: Design
+    \subsection{Client and MVC}
+
+    \begin{figure}[t]
+        \begin{center}
+            \includegraphics[width=\textwidth]{Client.png}
+            \caption{Diagram depicting how the client functions.
+            Red blocks are separate threads.}
+            \label{fig:clientDiagram}
+        \end{center}
+    \end{figure}
+
+    % TODO Document the use of the Model-View-Controller pattern: which classes and packages play the
+    %      roles of model, view and controller?
+
+    % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsubsection{The Model}
+
+    % TODO A class diagram of the contents of the package holding your model classes (according to the
+    %Model-View-Controller pattern). The class diagram should show all public methods and fields,
+    %fields with a type that is contained in the class diagram should be represented as association
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsection{Server}
+
+    \begin{figure}[t]
+        \begin{center}
+            \includegraphics[width=\textwidth]{Server.png}
+            \caption{Diagram depicting how the server functions.
+            Red blocks are separate threads.}
+            \label{fig:serverDiagram}
+        \end{center}
+    \end{figure}
+
+    % TODO: For each functional requirements of the server application, the report should contain a discussion
+    %how it is implemented and in which class(es).
+
+    % TODO: mention chat.
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsection{Class descriptions}
+
+    % TODO: For each self-defined class:
+    %– The responsibilities of the class in the system. I.e., which functional requirements does it im-
+    %plement? If applicable, which rule(s) does it implement? Which role does it play in the imple-
+    %mentation of the Model-View-Controller or Observer pattern (if any)?
+    %– For all classes that it refers to (i.e., as a field type, super type, argument type, local variable type
+    %or by calling its constructor) you should describe the purpose of using this class.
+
+    % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsubsection{Game pieces}
+
+    % TODO intro.
+
+    \paragraph{Abstract: AbstractPlayer}
+
+    \paragraph{Board}
+
+    \paragraph{BoardCoordinates}
+
+    \paragraph{BoardSpace}
+
+    \paragraph{Move}
+
+
+    \paragraph{Tile}
+
+    \paragraph{Enum: Color}
+
+    \paragraph{Interface: TileBag}
+
+    \paragraph{RandomTileBag}
+
+
+    \paragraph{EmptyTileBagException}
+
+    \paragraph{IndexException}
+
+    \paragraph{InvalidMoveException}
+
+    \paragraph{NoTileException}
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsubsection{Networking}
+
+    \paragraph{Abstract: AbstractPeer}
+
+    \paragraph{Interface: Connection}
+
+    \paragraph{SocketConnection}
+
+    \paragraph{DeadConnectionException}
+
+    \paragraph{DecodeException}
+
+    \paragraph{InvalidCommandException}
+
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsubsection{Client classes}
+
+    \paragraph{Client}
+
+    \paragraph{ClientController}
+
+    \paragraph{GameModel}
+
+    \paragraph{Player}
+
+    \paragraph{ServerPeer}
+
+    \paragraph{Interface: SpecView}
+
+    \paragraph{TuiView}
+
+    \paragraph{SpectrangleBoardPrinter}
+
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsubsection{Server classes}
+
+    % TODO: For each of the three most complex server classes:
+    %– Which precautions must be taken to fulfill the preconditions in the contract of the class.
+
+    \paragraph{Server}
+
+    \paragraph{Lobby}
+
+    \paragraph{Game}
+
+    \paragraph{Player}
+    % TODO how does this one differ from the client player.
+
+    \paragraph{ClientPeer}
+
+    % ------------------------------------------------------------------------------------------------------------------
 
     \section{Test Report}
     % TODO: Test report
 
-    \subsection{Unit Tests}
-    % TODO Unit tests. Some of these are not really Unit tests. More function or integration tests?
+    % TODO optonal: Unit tests. Some of these are not really Unit tests. More function or integration tests?
     %                  You have a nice reference that explains how each test is called in your QOWnnotes thing.
 
-    \subsection{System Tests}
-    % TODO: System Tests.
+    % TODO optional: A report of the unit tests for each of the three most complex server classes:
+    %– Besides the class under test, which other self-defined classes are executed during each test.
+    %– The expected results for each test together with an explanation of the expected result (e.g., refer
+    %to the game rules or functional requirements), as well as the actual result when running the test.
+    %– A discussion of the test coverage of the class under test. Explain whether you consider the
+    %reached level of coverage high or low. For those parts of the code that are not covered, you
+    %should also discuss why they are not covered (e.g., why was it difficult to write tests that cover
+    %them).
+
+    % ------------------------------------------------------------------------------------------------------------------
 
     \section{Planning}
 
-    % TODO: planning
+    % TODO: A reflection on your planning and self-management during the project:
+    %– How was your planning influenced by your experiences with the planning and time writing
+    %during the Design project?
+    %– How much did your planning correspond to the actual progress during the project weeks?
+    %– What changes did you make to your planning?
+    %– What did you learn from this experience for your next (project) planning?
 
 
 \end{document}
