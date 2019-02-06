@@ -72,8 +72,26 @@ public class Board {
      * @return true if the player can make a move, false otherwise.
      */
     public boolean hasValidMoves(List<Tile> playerTiles) {
-        // TODO: implement this.
-        return true;
+        boolean result = false;
+
+        for (Tile tile : playerTiles) {
+            Tile rotated1 = tile.rotate120();
+            Tile rotated2 = tile.rotate240();
+            for (int id = 0; id < BOARD_SIZE; id++) {
+                if (isMoveValid(new Move(tile, id)) ||
+                        isMoveValid(new Move(rotated1, id)) ||
+                        isMoveValid(new Move(rotated2, id))) {
+                    // The player has at least 1 possible move.
+                    result = true;
+                    break;
+                }
+            }
+            if (result) {
+                break;
+            }
+        }
+
+        return result;
     }
 
     public boolean isMoveValid(Move move) {

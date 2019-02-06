@@ -335,12 +335,26 @@ urlcolor=blue
     These classes are exclusive to the client.
 
     \paragraph{Client}
+    The main starting method of the client.
+    The main method first asks which server address the user wants to connect with.
+    Once the connection is established, it asks the user for a name, which it verifies with the server.
+    When the name is valid it creates a ClientController with the created Connection and Name, it also passes along
+    whether the server supports the chat extension or not.
+
+    It then starts the view thread of the controller, and calls the run method of the ServerPeer.
+    When the run method returns, the program closes.
 
     \paragraph{ClientController}
+
 
     \paragraph{GameModel}
 
     \paragraph{Player}
+    This class inherits from the AbstractPlayer class.
+    It does not provide any additional functionality.
+    Originally the idea was that both the server and client player classes added extra functionality to the
+    AbstractPlayer.
+    As it stands, the AbstractPlayer could simply become the Player, and the server Player could inherit from that.
 
     \paragraph{ServerPeer}
 
