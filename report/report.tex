@@ -217,16 +217,24 @@ urlcolor=blue
 
 
     \paragraph{EmptyTileBagException}
+    This exception get's thrown by a TileBag when takeTile is called when the bag is empty.
 
     \paragraph{IndexException}
+    This get's thrown by methods of Board and BoardCoordinates, either when a function is called with invalid
+    coordinates, or when a function that returns coordinates can't return valid ones.
 
     \paragraph{InvalidMoveException}
+    Thrown by the Boards makeMove method when the move is not a valid one.
 
     \paragraph{NoTileException}
+    Thrown by the Boards getTile method when the space at the given id does not have a tile.
 
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsubsection{Networking}
+
+    All the shared classes related to the network communication.
+    Both the client and the server have their own implementation of the AbstactPeer.
 
     \paragraph{Abstract: AbstractPeer}
 
@@ -235,10 +243,15 @@ urlcolor=blue
     \paragraph{SocketConnection}
 
     \paragraph{DeadConnectionException}
+    Thrown by Connections when a readMessage or sendMessage is attempted, and the connection is broken.
 
     \paragraph{DecodeException}
+    Thrown by Color and Tile when the message passed to their decode methods fails to parse.
 
     \paragraph{InvalidCommandException}
+    Thrown by the message parsing methods of the ServerPeer and ClientPeer classes.
+    Indicates that the message given does not translate to a valid command.
+    Usually leads to this error being printed, and an `invalidCommand' message being sent over the Connection.
 
 
     % ------------------------------------------------------------------------------------------------------------------
@@ -282,7 +295,7 @@ urlcolor=blue
 
     % ------------------------------------------------------------------------------------------------------------------
 
-    \section{Test Report}
+    \section{Testing}
     % TODO: Test report
 
     % TODO optonal: Unit tests. Some of these are not really Unit tests. More function or integration tests?
@@ -296,6 +309,15 @@ urlcolor=blue
     %reached level of coverage high or low. For those parts of the code that are not covered, you
     %should also discuss why they are not covered (e.g., why was it difficult to write tests that cover
     %them).
+
+    % ------------------------------------------------------------------------------------------------------------------
+
+    \subsection{Test classes}
+    \label{subsec:testClasses}
+
+    \paragraph{MockTileBag}
+
+    \paragraph{MockConnection}
 
     % ------------------------------------------------------------------------------------------------------------------
 
