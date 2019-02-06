@@ -208,6 +208,7 @@ urlcolor=blue
     \paragraph{Board}
     Represents the triangular game board used in Spectrangle.
     It's built around an array of 36 BoardSpaces, which it instantiates with the bonus values as described in the rules.
+
     It provides methods to check whether a given Move is valid, as well as a method which actually makes the move
     and calculates the score of the move.
     There is also a method which will determine whether a given hand of Tiles would allow a player to make a move,
@@ -217,6 +218,7 @@ urlcolor=blue
     A container of a column and a row number, that represent a specific space on the Board.
     Its purpose is to calculate which board spaces are next to each other, as this is almost
     impossible using only an index.
+
     This can be converted to and from a board index, and provides methods that return the coordinates of
     the requested neighbouring space.
     It is only used by the Board, for the purpose of these neighbour calculations.
@@ -233,6 +235,7 @@ urlcolor=blue
     \paragraph{Tile}
     A representation of the triangular tiles used in the game.
     It has three Colors, one for the `flat' side, one for the side clockwise of that, and one for the remaining side.
+
     Encoding it in this way allows one to check if two tiles are valid next to each other by checking the same side,
     so instead of having to check the `left' side of tile 1 and the `right' side of tile 2, one can simply check
     the `clockwise` side of both.
@@ -257,8 +260,9 @@ urlcolor=blue
     \paragraph{RandomTileBag}
     This class implements the TileBag interface.
     Represents the bag of Tiles that is used in a Spectrangle game.
-    It includes a method that fills the bag with all the starting tiles as described in the rules of the game.
-    It's implementation of the takeTile method returns a random tile from the bag.
+
+    It includes a method that fills the bag with all the starting Tiles as described in the rules of the game.
+    It's implementation of the takeTile method returns a random Tile from the bag.
 
     \paragraph{EmptyTileBagException}
     This exception get's thrown by a TileBag when takeTile is called when the bag is empty.
@@ -281,16 +285,38 @@ urlcolor=blue
     Both the client and the server have their own implementation of the AbstactPeer.
 
     \paragraph{Abstract: AbstractPeer}
-    % TODO:
+    This abstract class is inherited by the ClientPeer and the ServerPeer.
+    It provides common functionality needed by both sides of the network protocol.
+
+    Keeps track of the Connection to the server or client, and implements the Runnable interface.
+    Passing the class to a Thread will have that thread listen for messages comming in via the connection.
+    When a message is received, the abstract method handleReceivedMessage is called.
+    This method is implemented by the ClientPeer and ServerPeer, to provide the needed message parsing functionality.
+
+    Also provides a method to send messages over the Connection, as well as a ``verbose'' option, which will make it
+    print out every message that get's sent through it.
+    The verbose option is used by the server, but not by the client.
 
     \paragraph{Interface: Connection}
-    % TODO:
+    Interface that represents the ways in which the ServerPeer and ClientPeer classes can interact with a connection to
+    another program.
+    Is implemented by the SocketConnection, as well as the MockConnection, which is the test variant.
+
+    Provides methods read messages from the connection, as well as send messages.
+    Also provides a method to check if the connection is still alive, as well as a method to
+    cleanly kill the connection.
+
+    This interface is used instead of immediately calling methods of SocketConnection, to make it possible to use
+    a non-internet version of the connection for unit testing purposes.
 
     \paragraph{SocketConnection}
-    % TODO:
+    Implements the Connection interface.
+    On construction it takes a connected Socket, which it uses to send and receive messages.
+    It monitors the underlying socket, and when the socket closed the function isDead will return true.
+
 
     \paragraph{DeadConnectionException}
-    Thrown by Connections when a readMessage or sendMessage is attempted, and the connection is broken.
+    Thrown by Connections when a readMessage or sendMessage is attempted, and the underlying connection is broken.
 
     \paragraph{DecodeException}
     Thrown by Color and Tile when the message passed to their decode methods fails to parse.
@@ -298,6 +324,7 @@ urlcolor=blue
     \paragraph{InvalidCommandException}
     Thrown by the message parsing methods of the ServerPeer and ClientPeer classes.
     Indicates that the message given does not translate to a valid command.
+
     Usually leads to this error being printed, and an `invalidCommand' message being sent over the Connection.
 
 
