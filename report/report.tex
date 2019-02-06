@@ -181,6 +181,8 @@ urlcolor=blue
     \subsection{Class descriptions}
     \label{subsec:Descriptions}
 
+    % TODO intro.
+
     % TODO: For each self-defined class:
     %– The responsibilities of the class in the system. I.e., which functional requirements does it im-
     %plement? If applicable, which rule(s) does it implement? Which role does it play in the imple-
@@ -194,7 +196,7 @@ urlcolor=blue
 
     \subsubsection{Game pieces}
 
-    % TODO intro.
+    All the shared classes that are related to a game of Spectrangle.
 
     \paragraph{Abstract: AbstractPlayer}
 
@@ -258,6 +260,8 @@ urlcolor=blue
 
     \subsubsection{Client classes}
 
+    These classes are exclusive to the client.
+
     \paragraph{Client}
 
     \paragraph{ClientController}
@@ -273,11 +277,28 @@ urlcolor=blue
     \paragraph{TuiView}
 
     \paragraph{SpectrangleBoardPrinter}
+    Helper class to convert a spectrangle board into an understandable string that can be printed onto the TUI .
+
+    The getBoardString method requires 4 lists of exactly 36 elements to function properly.
+
+    \paragraph{GameStartedWithoutUsException}
+    Thrown by the ClientController when the ServerPeer calls the startGame method, but the
+    players listed in that game do not include this client.
+
+    \paragraph{InvalidNumberException}
+    Thrown by the ClientController when the view calls a method that requires the user to input a number, and
+    the given number is not within the expected range.
+
+    \paragraph{NoSuchPlayerException}
+    Thrown by the ClientController and the GameModel when the ServerPeer calls a method that requires a player name,
+    but there is no player with that name participating in the game.
 
 
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsubsection{Server classes}
+
+    These classes are exclusive to the server.
 
     % TODO: For each of the three most complex server classes:
     %– Which precautions must be taken to fulfill the preconditions in the contract of the class.
@@ -296,6 +317,7 @@ urlcolor=blue
     % ------------------------------------------------------------------------------------------------------------------
 
     \section{Testing}
+    \label{sec:testing}
     % TODO: Test report
 
     % TODO optonal: Unit tests. Some of these are not really Unit tests. More function or integration tests?
@@ -309,6 +331,8 @@ urlcolor=blue
     %reached level of coverage high or low. For those parts of the code that are not covered, you
     %should also discuss why they are not covered (e.g., why was it difficult to write tests that cover
     %them).
+
+    % TODO: SYSTEM tests.
 
     % ------------------------------------------------------------------------------------------------------------------
 
