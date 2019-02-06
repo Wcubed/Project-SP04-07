@@ -10,7 +10,6 @@ top=25mm,
 bottom=25mm
 }
 
-% TODO: Do I want 1 or 2 columns?
 \usepackage{multicol}
 
 \usepackage{graphicx}
@@ -132,11 +131,10 @@ urlcolor=blue
     The functionality and storage formats used by these classes
     will be further elaborated in~\autoref{subsec:Descriptions}.
 
-    % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
-
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsection{Server}
+    \label{subsec:serverDesign}
 
     \begin{figure}[ht]
         \begin{center}
@@ -181,15 +179,6 @@ urlcolor=blue
 
     \subsection{Class descriptions}
     \label{subsec:Descriptions}
-
-    % TODO: For each self-defined class:
-    %– The responsibilities of the class in the system. I.e., which functional requirements does it im-
-    %plement? If applicable, which rule(s) does it implement? Which role does it play in the imple-
-    %mentation of the Model-View-Controller or Observer pattern (if any)?
-    %– For all classes that it refers to (i.e., as a field type, super type, argument type, local variable type
-    %or by calling its constructor) you should describe the purpose of using this class.
-
-    % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
 
     % ------------------------------------------------------------------------------------------------------------------
 
@@ -342,18 +331,39 @@ urlcolor=blue
     When the name is valid it creates a ClientController with the created Connection and Name, it also passes along
     whether the server supports the chat extension or not.
 
-    It then starts the view thread of the controller, and calls the run method of the ServerPeer.
+    It then has the controller start it's View thread, and calls the run method of the ServerPeer.
     When the run method returns, the program closes.
 
     \paragraph{ClientController}
     This is the Controller in the MVC pattern.
-    % todo:
+    It is what keeps the client together.
+    Has a reference to the SpecView, the GameModel and the ServerPeer of this client.
+
+    It first handles the requesting of a game, by first being called by the SpecView for the request, and then by the
+    ServerPeer for the confirmation.
+
+    There is only a GameModel while a game is running.
+    A new GameModel is created when the ServerPeer calls the startGame method with the turn order of that game.
+    After the game is over, it removes the GameModel and allows the user to request a new game.
 
     \paragraph{GameModel}
     This is the Model in the MVC pattern, as wel as the Observable for the Observer pattern.
+    It keeps track of the current state of the game as well as any ongoing player choices,
+    as updated by the ClientController.
 
-    GameModel.Status and GameModel.change.
-    % todo:
+    Includes variables for a game Board, map of player names and Players, a turn order list,
+    which player's turn it is, and which of the players belongs to the user of this client.
+
+    It has a child enum called Status, which encodes what this client's current status is in this game.
+    This is most of the time WAITING\_FOR\_TURN, but also keeps track of how far the user is in the move decision
+    process.
+
+    The other child enum is called Change, which is used when signaling an update to it's Observers, so that they
+    know what kind of update this is.
+
+    Handles and checks the transitions between the various States.
+    On nearer inspection, this should probably be the responsibility of the ClientController.
+    As it stands this class has maybe too much functionality compared to it's data to be a true Model.
 
     This class includes JML specifications.
 
@@ -365,8 +375,15 @@ urlcolor=blue
     As it stands, the AbstractPlayer could simply become the Player, and the server Player could inherit from that.
 
     \paragraph{ServerPeer}
-    % todo:
+    This class inherits from the AbstractPlayer.
+    This is where the network thread from~\autoref{subsec:clientAndMVC} is implemented.
 
+    Has a reference to the ClientController, and is used by the controller to send messages to the server.
+
+    Continuously listens for messages on the Connection.
+    When a message arrives it tries to parse it as one of the messages specified in the protocol.
+    If a message parses, the appropriate method on the ClientController get's called.
+    If it does not parse, an `invalidCommand' message is sent over the connection.
 
 
     \paragraph{Interface: SpecView}
@@ -424,17 +441,47 @@ urlcolor=blue
 
     These classes are exclusive to the server.
 
-    % TODO: For each of the three most complex server classes:
-    %– Which precautions must be taken to fulfill the preconditions in the contract of the class.
-
     \paragraph{Server}
-    % todo:
+    The main method of the server.
+    It opens up a ServerSocket on the port specified in the protocol.
+    After that it creates a Lobby instance and starts it's Thread as specified in~\autoref{subsec:serverDesign}.
+
+    Continually listens on the ServerSocket for new connections.
+    When a new client connects, the server creates a new ClientPeer instance along with the required SocketConnection.
+    After starting a thread with the new ClientPeer's run method, it hands the client over to the Lobby.
 
     \paragraph{Lobby}
-    % todo:
+    The Lobby is what keeps the server together, as described in~\ref{subsec:serverDesign}.
+
+    It includes a waiting list for ClientPeers that have yet to request a game.
+    As well as lists for clients waiting for 2, 3 and 4 player games.
+    When a list has enough players in it, it starts a new Game with these players.
+
+    The Games are also kept in a list, and if a Game signals that it's over, all the clients that are still connected
+    are returned to the main waiting list.
+
+    New clients are received via the addNewClient method, which utilizes a synchronization Object to ensure that
+    either a new client is added, or the Lobby is processing this client, but not both at the same time.
+
 
     \paragraph{Game}
-    % todo:
+    Handles the complete lifetime of a Spectrangle Game.
+
+    Has everything needed for running a game: a list of Players, along with the turnOrder, a Board and TileBag.
+
+    After it's run method is called it sets up the game by filling up the TileBag with the starting tiles, and
+    deciding the turn order by drawing and comparing the scores.
+
+    From then on it asks the player who's turn it is to make a move, or skip or replace a Tile.
+    If the move is valid, it makes the move on the Board and notifies the Players.
+    If the move is invalid, the player is told this and can try another time.
+
+    The Game thread also distributes the chat messages sent by the Players, so that all the Players receive them.
+
+    When there is no Player left who can make a move, the game ends, the leaderboard is sent
+    and a flag is set so that the Lobby can clean up.
+    When a Player disconnects before the game is over, the game ends as well, but in this case no leaderboard is sent.
+
 
     \paragraph{Player}
     This class inherits from the AbstractPlayer.
@@ -442,29 +489,65 @@ urlcolor=blue
     This way all the player related information is in a single class during a game.
 
     \paragraph{ClientPeer}
-    % todo:
+    This class inherits from AbstractPeer.
+    It is responsible for keeping track of the remote client's state,
+    as well as pass on messages to and from the client.
 
-    ClientPeer.State
+    It uses a child enum called State to track the current state of the remote client.
+    The options in the enum are prepended with either LOBBY, GAME or PEER, to indicate who is responsible for the
+    next change in state.
+    Because only one entity is responsible for state changes at a time, there should be no race conditions.
+    Along with the enum are several private variables that indicate actions the remote client wants to take.
+    These include the number of requested players for the next game, the proposed Move they want to make in a Game,
+    and the Tile they propose to replace.
+
+    Each of the action variables are only valid when the ClientPeer is in the corresponding State.
+
+    Continuously listens for messages on the Connection.
+    When a message arrives it tries to parse it as one of the messages specified in the protocol.
+    If a message parses, it edits the corresponding action variables to signal to either the Lobby or the Game that
+    this client would like to do something.
+    If it does not parse, an `invalidCommand' message is sent over the connection.
+
+    Also includes a list of chat messages that this client has sent since they were last collected by the Game or Lobby
+    thread.
+
+    This class includes JML specifications.
 
     % ------------------------------------------------------------------------------------------------------------------
 
     \section{Testing}
     \label{sec:testing}
-    % TODO: Test report
 
-    % TODO optonal: Unit tests. Some of these are not really Unit tests. More function or integration tests?
-    %                  You have a nice reference that explains how each test is called in your QOWnnotes thing.
+    While unit tests are not required for a single-person ``group'', the fact that the group would have one person was
+    only know quite late.
+    As such, several unit tests are included in the folder ``src/test/''.
+    Far from everything is tested, and if this was piece of software that should go into production, I would find it
+    sorely lacking in test coverage.
+    However, this is not production code,
+    and more importantly there is a hard deadline on the project, so the coverage stayed as it was.
 
-    % TODO optional: A report of the unit tests for each of the three most complex server classes:
-    %– Besides the class under test, which other self-defined classes are executed during each test.
-    %– The expected results for each test together with an explanation of the expected result (e.g., refer
-    %to the game rules or functional requirements), as well as the actual result when running the test.
-    %– A discussion of the test coverage of the class under test. Explain whether you consider the
-    %reached level of coverage high or low. For those parts of the code that are not covered, you
-    %should also discuss why they are not covered (e.g., why was it difficult to write tests that cover
-    %them).
 
-    % TODO: SYSTEM tests.
+    \subsection{System Tests}
+
+    The whole system has been tested by spinning up several clients, and connecting them to a single server.
+
+    Then the following actions were preformed:
+
+    \begin{itemize}
+        \item Attempts were made to claim the same name multiple times.
+        \item Game requests were tested with each player amount.
+        \item Chat messages were sent, both in the main waiting list,
+        as well as in the game waiting lists and during games.
+        To see if the chat would only go to the other players in that situation.
+        \item The start of a game was played with 2, 3, and 4 players.
+        \item A full game was played with 2 players.
+    \end{itemize}
+
+    In every situation the programs responded as expected.
+
+    One can easily run these tests by using the pre-packaged jar files included with the source.
+
 
     % ------------------------------------------------------------------------------------------------------------------
 
