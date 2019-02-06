@@ -173,7 +173,7 @@ urlcolor=blue
     and have to wait for each other.
     The Game enforces the rules, and keeps track of the tile bag, the Board, turn order, scores and other game
     related things.
-    Details on how these are stored can be forund in~\autoref{subsec:Descriptions}
+    Details on how these are stored can be found in~\autoref{subsec:Descriptions}
     When a game finishes, the Lobby takes back the clients and puts them back into the waiting list.
 
     % ------------------------------------------------------------------------------------------------------------------
@@ -199,31 +199,73 @@ urlcolor=blue
     All the shared classes that are related to a game of Spectrangle.
 
     \paragraph{Abstract: AbstractPlayer}
+    This abstract class is inherited by both the client's and the server's Player class.
+    It keeps a list of all the Tiles a player has in their hand, along with the player's name
+    and their current score.
+    It also provides a method to subtract all the remaining tiles from the player's score, which get's used at the end
+    of a Game.
 
     \paragraph{Board}
+    Represents the triangular game board used in Spectrangle.
+    It's built around an array of 36 BoardSpaces, which it instantiates with the bonus values as described in the rules.
+    It provides methods to check whether a given Move is valid, as well as a method which actually makes the move
+    and calculates the score of the move.
+    There is also a method which will determine whether a given hand of Tiles would allow a player to make a move,
+    which is used by the server in determining whether a player needs to skip or not.
 
     \paragraph{BoardCoordinates}
+    A container of a column and a row number, that represent a specific space on the Board.
+    Its purpose is to calculate which board spaces are next to each other, as this is almost
+    impossible using only an index.
+    This can be converted to and from a board index, and provides methods that return the coordinates of
+    the requested neighbouring space.
+    It is only used by the Board, for the purpose of these neighbour calculations.
 
     \paragraph{BoardSpace}
+    Represents a spot on the game Board.
+    This is used to store whether this space is a bonus space, along with the Tile that is on it.
 
     \paragraph{Move}
-
+    Represents a move that can be made on a Spectrangle Board.
+    Basically a wrapper around a Tile and a number that specifies a board index.
+    This is a lot easier to pass around than two separate objects.
 
     \paragraph{Tile}
+    A representation of the triangular tiles used in the game.
+    It has three Colors, one for the `flat' side, one for the side clockwise of that, and one for the remaining side.
+    Encoding it in this way allows one to check if two tiles are valid next to each other by checking the same side,
+    so instead of having to check the `left' side of tile 1 and the `right' side of tile 2, one can simply check
+    the `clockwise` side of both.
+
+    Provides two methods for turning the tile, 120 degrees or 240 degrees, that return a new tile that is rotated
+    the specified amount.
+    The equals method checks for equality and equal same orientation.
+    The isEquivalent method will regard rotated tiles as being equivalent.
+    It also provides methods to convert to and from the string representation specified in the network protocol.
 
     \paragraph{Enum: Color}
+    This enum encodes the colors that a side of a tile can have.
+    Provides a method to check whether two colors are valid when placed next to each other.
+    It has methods to convert a Color to and from the letters used in the network protocol.
 
     \paragraph{Interface: TileBag}
+    Interface that specifies the possible interactions with a bag of Tiles.
+    This is implemented by the RandomTileBag, as well as the MockTileBag that is used during testing.
+    Ease of testing is also immediately why this interface exists, as a Game class that only accepts random
+    tile bags is really hard to test in a deterministic way.
 
     \paragraph{RandomTileBag}
-
+    This class implements the TileBag interface.
+    Represents the bag of Tiles that is used in a Spectrangle game.
+    It includes a method that fills the bag with all the starting tiles as described in the rules of the game.
+    It's implementation of the takeTile method returns a random tile from the bag.
 
     \paragraph{EmptyTileBagException}
     This exception get's thrown by a TileBag when takeTile is called when the bag is empty.
 
     \paragraph{IndexException}
-    This get's thrown by methods of Board and BoardCoordinates, either when a function is called with invalid
-    coordinates, or when a function that returns coordinates can't return valid ones.
+    This get's thrown by methods of Board and BoardCoordinates, either when a method is called with invalid
+    coordinates, or when a method that returns coordinates can't return valid ones.
 
     \paragraph{InvalidMoveException}
     Thrown by the Boards makeMove method when the move is not a valid one.
@@ -239,10 +281,13 @@ urlcolor=blue
     Both the client and the server have their own implementation of the AbstactPeer.
 
     \paragraph{Abstract: AbstractPeer}
+    % TODO:
 
     \paragraph{Interface: Connection}
+    % TODO:
 
     \paragraph{SocketConnection}
+    % TODO:
 
     \paragraph{DeadConnectionException}
     Thrown by Connections when a readMessage or sendMessage is attempted, and the connection is broken.
