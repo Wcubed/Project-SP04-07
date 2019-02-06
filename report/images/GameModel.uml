@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ss.spec.client.GameModel</OriginalElement>
+  <nodes>
+    <node x="465.1121428571428" y="1445.0">ss.spec.client.GameModel</node>
+    <node x="233.08380952380958" y="0.0">ss.spec.gamepieces.Color</node>
+    <node x="0.0" y="1000.0">ss.spec.gamepieces.Board</node>
+    <node x="13.666666666666742" y="714.0">ss.spec.gamepieces.BoardSpace</node>
+    <node x="292.66666666666674" y="678.0">ss.spec.gamepieces.AbstractPlayer</node>
+    <node x="665.6666666666667" y="1073.0">ss.spec.client.GameModel.State</node>
+    <node x="373.7792857142857" y="1145.0">ss.spec.client.Player</node>
+    <node x="1301.6666666666665" y="1073.0">ss.spec.client.GameModel.Change</node>
+    <node x="998.6666666666669" y="1060.5">java.util.Observable</node>
+    <node x="240.08380952380958" y="298.0">ss.spec.gamepieces.Tile</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ss.spec.client.GameModel.State" target="ss.spec.client.GameModel">
+      <point x="104.33333333333323" y="99.5" />
+      <point x="926.5" y="1385.0" />
+      <point x="735.3121428571428" y="1385.0" />
+      <point x="77.20000000000005" y="-256.0" />
+    </edge>
+    <edge source="ss.spec.gamepieces.Board" target="ss.spec.gamepieces.Tile">
+      <point x="126.75" y="-172.5" />
+      <point x="295.75" y="975.0" />
+      <point x="257.16666666666674" y="975.0" />
+      <point x="257.16666666666674" y="658.0" />
+      <point x="331.8695238095239" y="658.0" />
+      <point x="-36.714285714285666" y="160.0" />
+    </edge>
+    <edge source="ss.spec.client.Player" target="ss.spec.gamepieces.AbstractPlayer">
+      <point x="-41.5" y="-27.5" />
+      <point x="415.2792857142857" y="975.0" />
+      <point x="377.91666666666674" y="975.0" />
+      <point x="-85.25" y="136.0" />
+    </edge>
+    <edge source="ss.spec.client.GameModel.Change" target="ss.spec.client.GameModel">
+      <point x="61.0" y="99.5" />
+      <point x="1484.6666666666665" y="1425.0" />
+      <point x="838.2454761904762" y="1425.0" />
+      <point x="180.13333333333333" y="-256.0" />
+    </edge>
+    <edge source="ss.spec.client.GameModel" target="ss.spec.client.Player">
+      <point x="-102.93333333333328" y="-256.0" />
+      <point x="555.1788095238096" y="1395.0" />
+      <point x="401.4459523809524" y="1395.0" />
+      <point x="-55.333333333333314" y="27.5" />
+    </edge>
+    <edge source="ss.spec.gamepieces.AbstractPlayer" target="ss.spec.gamepieces.Tile">
+      <point x="85.24999999999994" y="-136.0" />
+      <point x="548.4166666666667" y="658.0" />
+      <point x="405.29809523809536" y="658.0" />
+      <point x="36.71428571428578" y="160.0" />
+    </edge>
+    <edge source="ss.spec.client.GameModel" target="ss.spec.client.GameModel.Change">
+      <point x="154.39999999999998" y="-256.0" />
+      <point x="812.5121428571429" y="1415.0" />
+      <point x="1362.6666666666665" y="1415.0" />
+      <point x="-61.0" y="99.5" />
+    </edge>
+    <edge source="ss.spec.client.GameModel" target="ss.spec.gamepieces.Tile">
+      <point x="0.0" y="-256.0" />
+      <point x="658.1121428571428" y="1425.0" />
+      <point x="655.1666666666667" y="1425.0" />
+      <point x="655.1666666666667" y="638.0" />
+      <point x="478.7266666666667" y="638.0" />
+      <point x="110.14285714285711" y="160.0" />
+    </edge>
+    <edge source="ss.spec.client.GameModel" target="ss.spec.gamepieces.Board">
+      <point x="-128.66666666666663" y="-256.0" />
+      <point x="529.4454761904763" y="1405.0" />
+      <point x="281.66666666666674" y="1405.0" />
+      <point x="112.66666666666674" y="172.5" />
+    </edge>
+    <edge source="ss.spec.client.GameModel" target="ss.spec.client.GameModel.State">
+      <point x="51.4666666666667" y="-256.0" />
+      <point x="709.5788095238095" y="1375.0" />
+      <point x="822.1666666666667" y="1375.0" />
+      <point x="0.0" y="99.5" />
+    </edge>
+    <edge source="ss.spec.client.GameModel" target="java.util.Observable">
+      <point x="128.66666666666663" y="-256.0" />
+      <point x="786.7788095238095" y="1405.0" />
+      <point x="1210.916666666667" y="1405.0" />
+      <point x="70.75" y="112.0" />
+    </edge>
+    <edge source="ss.spec.gamepieces.Tile" target="ss.spec.gamepieces.Color">
+      <point x="-64.25" y="-160.0" />
+      <point x="304.3338095238096" y="273.0" />
+      <point x="300.8338095238096" y="273.0" />
+      <point x="-67.75" y="124.0" />
+    </edge>
+    <edge source="ss.spec.gamepieces.Board" target="ss.spec.gamepieces.BoardSpace">
+      <point x="-126.75" y="-172.5" />
+      <point x="42.25" y="975.0" />
+      <point x="52.500000000000114" y="975.0" />
+      <point x="-77.66666666666663" y="100.0" />
+    </edge>
+    <edge source="ss.spec.gamepieces.BoardSpace" target="ss.spec.gamepieces.Tile">
+      <point x="-58.25" y="-100.0" />
+      <point x="71.91666666666674" y="638.0" />
+      <point x="258.44095238095247" y="638.0" />
+      <point x="-110.14285714285711" y="160.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.4999999999999998" x="754.0748418248425" y="1003.4750804750788" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
+    <Category>Fields</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>public</VISIBILITY>
+</Diagram>
+
