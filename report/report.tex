@@ -69,11 +69,14 @@ urlcolor=blue
 
     \section{Design}
 
+    % TODO: introduce what this game is.
+    % And introduce that we implemented chat.
+
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsection{Client and MVC}
 
-    \begin{figure}[t]
+    \begin{figure}[ht]
         \begin{center}
             \includegraphics[width=\textwidth]{Client.png}
             \caption{Diagram depicting how the client functions.
@@ -82,8 +85,41 @@ urlcolor=blue
         \end{center}
     \end{figure}
 
-    % TODO Document the use of the Model-View-Controller pattern: which classes and packages play the
-    %      roles of model, view and controller?
+    The client is designed using the Model-View-Controller pattern.
+    As visible in figure~\ref{fig:clientDiagram}, the classes are named according to their role.
+    The ClientController fulfills the Controller role, the GameModel is the model,
+    and the TuiView is a view that uses the terminal to communicate with the user.
+
+    The GameModel only exists when there is a game ongoing.
+    Outside of a game, the GameModel reference points to `null`.
+
+    Also laid out in figure~\ref{fig:clientDiagram} are the two threads that the client uses during runtime.
+    The Network thread is responsible for receiving and parsing the messages received from the server.
+    When a valid message is received, it calls the appropriate method on the ClientController.
+    The controller then either updates the model, or directly calls a method on the view.
+    The only times the controller directly calls the view, is outside of a game or when a chat message arrives.
+    The chat message bypasses the GameModel because it is not really part of the game.
+
+    The input thread is continuously reading from the TUI .
+    The main reason it is done like this, instead of polling the user when input is needed, is to facilitate the chat
+    mechanism.
+    The program has no idea when the user might want to send a chat message, so it needs to continuously read the input.
+    Doing this, and listening to the server at the same time necessitates two threads.
+    It has the nice side-effect that it allows the user to also input other commands at any time.
+    For example, one could input `exit` while being asked for what tile to place, and it would parse just fine.
+    After the input thread parses the command, the appropriate method on the controller is called.
+
+    The only state held by the view is the current prompt for the user, and the chat history.
+    The rest of the state, including things like which move the user wants to make, is kept in the GameModel.
+
+    The GameModel is implemented as an observable, and is observed by the view.
+    When the GameModel is updated by the network thread, or the input thread, it notify's the observers, which in this
+    case is only the view.
+    The notification includes a reference to the GameModel itself, along with a GameModel.Change enum, that signals
+    what kind of update this is.
+    The view takes this update, and changes it's prompt to the user according to the current state of the GameModel.
+    For example, if the GameModel notifies the view that the player should select a tile to place, the view will
+    update it's prompt to reflect that.
 
     % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
 
@@ -99,7 +135,7 @@ urlcolor=blue
 
     \subsection{Server}
 
-    \begin{figure}[t]
+    \begin{figure}[ht]
         \begin{center}
             \includegraphics[width=\textwidth]{Server.png}
             \caption{Diagram depicting how the server functions.
