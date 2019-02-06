@@ -339,20 +339,59 @@ urlcolor=blue
     \subsection{Test classes}
     \label{subsec:testClasses}
 
+    These are classes that implement the interfaces defined in the program in such a way that the input and output can
+    be controlled.
+    This is mostly done in cases where the normal implementation uses network access, or involves non-deterministic
+    behaviour.
+    Instances of these classes can then be passed to an object that is being tested, so that all conditions are known
+    beforehand.
+
     \paragraph{MockTileBag}
+    This tile bag works exactly like the RandomTileBag, except it isn't random.
+    The starting tiles are added in a pre-determined order, and will be drawn from the bag in the same order.
+    This way, when it is passed to a Game class, it is known upfront what tiles the players are going to draw.
+    Using this the rules of the game can be reliably tested, in a way that will fail or succeed in a deterministic
+    fashion.
 
     \paragraph{MockConnection}
+    This is an implementation of the Connection interface that doesn't depend on a Socket.
+    Instead it has an internal list of messages that, for users of the interface, appear to be ``received'' or ``sent''.
+    It implements some additional methods to allow unit tests to manipulate the message lists.
+    This way the ServerPeer and ClientPeer can both be tested as if they had a connection, without actually requiring
+    any I/O.
 
     % ------------------------------------------------------------------------------------------------------------------
 
     \section{Planning}
+    \label{sec:planning}
 
-    % TODO: A reflection on your planning and self-management during the project:
-    %– How was your planning influenced by your experiences with the planning and time writing
-    %during the Design project?
-    %– How much did your planning correspond to the actual progress during the project weeks?
-    %– What changes did you make to your planning?
-    %– What did you learn from this experience for your next (project) planning?
+    First off, I did not do the design project, so there are no influences of that in here.
+
+    The original plan was to do the design of the program in the first few days.
+    Then the implementation of the rules from the 14th of Januari to the 18th.
+    After that, the networking should be ready a the 23th and we could build the AI till the 26th.
+    This would give us 4 days to do the final touches on the report.
+
+    This went okay for the designing of the program, but from then on it quickly devolved.
+    Once again it turns out that it's one thing to make a plan, and another to stick with it.
+    On top of that, the original plan wouldn't have worked in the first place, as we understood
+    ``implementing the rules'' to be ``create a single player version''.
+    And then the idea was that we could add in the networking where necessary.
+    That was never going to work, as the networking is a really integral part of the program.
+    Trying to shoehorn it in after creating a single player version would be really unwieldy.
+
+    So we didn't do it that way.
+    Or at least, I didn't.
+    While I normally don't want to bash on teammates, it was mostly me doing the programming during the majority of the
+    project.
+    Me programming on the premise that it was a two people project meant that progress didn't go as fast as it should.
+    So in the end, when my project partner ended up stopping the module and I became an official one-person ``group'',
+    the extension was very welcome.
+    It's also why I am writing this on the last day before submission.
+
+    Next time I will be much more proactive in getting team-mates to pull their weight.
+    Also, I now know that the networking part of a networked program is not something you can add halfway through.
+    Instead you have to design the progrma with it in mind from the get-go, and adjust your planning accordingly.
 
     \begin{figure}[t]
         \begin{center}
