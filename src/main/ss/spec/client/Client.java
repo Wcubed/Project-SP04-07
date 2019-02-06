@@ -15,21 +15,6 @@ public class Client {
     // Protocol dictates port 4000.
     private static final int PORT = 4000;
 
-    // TODO: The following requirements are optional for lone wolfs:
-    //       Support for computer players.
-    //       Metrics report.
-    //       Coverage test for complex server classes.
-    //       Telnet test.
-
-    // TODO: Hint functionality.
-
-    // TODO: Write readme.md according to the info in the module manual.
-
-    // TODO: Check that everything is ready for submission. See the module manual for what should
-    //       be handed in.
-
-    // TODO: Does there need to be javadoc? and for which classes?
-
 
     public static void main(String[] args) {
 
@@ -92,7 +77,6 @@ public class Client {
                     System.out.println("Sorry, that name is already taken.");
                     // Try again.
                 } else if (message.contains("welcome")) {
-                    // TODO: parse extensions, if any.
                     // Name has been confirmed.
                     confirmedName = potentialName;
                     System.out.println("Welcome " + confirmedName + "!");

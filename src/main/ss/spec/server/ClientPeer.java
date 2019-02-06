@@ -78,7 +78,6 @@ public class ClientPeer extends AbstractPeer {
     //@ requires connection != null;
     //@ ensures isPeerConnected() == !connection.isDead();
     //@ ensures getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE);
-    // TODO: something with the chat here.
     public ClientPeer(Connection connection, boolean verbose) {
         super(connection, verbose);
 
@@ -93,7 +92,6 @@ public class ClientPeer extends AbstractPeer {
     //@ requires connection != null;
     //@ ensures isPeerConnected() == !connection.isDead();
     //@ ensures getState().equals(State.PEER_AWAITING_CONNECT_MESSAGE);
-    // TODO: copy the other stuff from the 1st constructor.
     public ClientPeer(Connection connection) {
         this(connection, false);
     }
