@@ -80,6 +80,7 @@ urlcolor=blue
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsection{Client and MVC}
+    \label{subsec:clientAndMVC}
 
     \begin{figure}[ht]
         \begin{center}
@@ -180,8 +181,6 @@ urlcolor=blue
 
     \subsection{Class descriptions}
     \label{subsec:Descriptions}
-
-    % TODO intro.
 
     % TODO: For each self-defined class:
     %– The responsibilities of the class in the system. I.e., which functional requirements does it im-
@@ -297,6 +296,8 @@ urlcolor=blue
     print out every message that get's sent through it.
     The verbose option is used by the server, but not by the client.
 
+    This class includes JML specifications.
+
     \paragraph{Interface: Connection}
     Interface that represents the ways in which the ServerPeer and ClientPeer classes can interact with a connection to
     another program.
@@ -345,9 +346,16 @@ urlcolor=blue
     When the run method returns, the program closes.
 
     \paragraph{ClientController}
-
+    This is the Controller in the MVC pattern.
+    % todo:
 
     \paragraph{GameModel}
+    This is the Model in the MVC pattern, as wel as the Observable for the Observer pattern.
+
+    GameModel.Status and GameModel.change.
+    % todo:
+
+    This class includes JML specifications.
 
     \paragraph{Player}
     This class inherits from the AbstractPlayer class.
@@ -357,10 +365,40 @@ urlcolor=blue
     As it stands, the AbstractPlayer could simply become the Player, and the server Player could inherit from that.
 
     \paragraph{ServerPeer}
+    % todo:
+
+
 
     \paragraph{Interface: SpecView}
+    This interface specifies all methods to be implemented by the View of the MVC pattern, as well as the Observer
+    from the Observer pattern.
+    It extends both Observer and Runnable.
+    Currently there is only the TUI implementation, but this interface is here to allow for different views to be
+    slotted in without too much trouble.
 
     \paragraph{TuiView}
+    This is an implementation of the SpecView interface.
+    This is where the input thread from~\autoref{subsec:clientAndMVC} is implemented.
+    As such it keeps a reference to the ClientController.
+
+    It is constructed with references to a Reader and a Writer.
+    The idea is to allow the TuiView to output to use other streams than System.in and System.out if so desired.
+    It also gets passed a boolean that signals whether the server supports the chat extension or not,
+    so that the extension can be enabled or disabled accordingly.
+
+    It keeps track of the last prompt it displayed to the user, so that when for example a chat message is received
+    it only has to update the chat portion of the message.
+
+    When it's update method gets called by the GameModel, it expects a GameModel.Change enum as passed Object.
+    It then calls the appropriate private method to update it's prompt according to the change signaled by the
+    GameModel.
+
+    There is also a list of past chat messages that have been sent and received.
+    A private variable called maxChatHistory dictates how many chat messages are
+    kept before the oldest one is forgotten.
+
+    It internally uses the SpectrangleBoardPrinter to convert the Board received from the GameModel into a displayable
+    String.
 
     \paragraph{SpectrangleBoardPrinter}
     Helper class to convert a spectrangle board into an understandable string that can be printed onto the TUI .
@@ -390,15 +428,23 @@ urlcolor=blue
     %– Which precautions must be taken to fulfill the preconditions in the contract of the class.
 
     \paragraph{Server}
+    % todo:
 
     \paragraph{Lobby}
+    % todo:
 
     \paragraph{Game}
+    % todo:
 
     \paragraph{Player}
-    % TODO how does this one differ from the client player.
+    This class inherits from the AbstractPlayer.
+    Along with the basic player functionality, it also includes the ClientPeer that connects to that player.
+    This way all the player related information is in a single class during a game.
 
     \paragraph{ClientPeer}
+    % todo:
+
+    ClientPeer.State
 
     % ------------------------------------------------------------------------------------------------------------------
 
