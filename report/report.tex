@@ -128,7 +128,8 @@ urlcolor=blue
 
     The GameModel contains several self-defined classes, some of which are shared with the server.
     A diagram of the GameModel and the classes it contains as fields, can be seen in~\autoref{fig:modelDiagram}.
-    The use and funcionality of these classes will be further elaborated in~\autoref{subsec:Descriptions}
+    The functionality and storage formats used by these classes
+    will be further elaborated in~\autoref{subsec:Descriptions}.
 
     % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
 
@@ -145,10 +146,35 @@ urlcolor=blue
         \end{center}
     \end{figure}
 
-    % TODO: For each functional requirements of the server application, the report should contain a discussion
-    %how it is implemented and in which class(es).
+    The server utilizes significantly more threads as the client.
+    This can be seen in~\autoref{fig:serverDiagram}, where each red block represents a separate thread.
 
-    % TODO: mention chat.
+    The first thread to start is the main thread, which then starts up the Lobby thread.
+    The main thread monitors the server socket, and creates a new ClientPeer for every connecting client.
+    It starts the client's thread and then hands of the client to the Lobby, via a synchronized variable.
+
+    Each ClientPeer thread continuously listens for messages from it's client.
+    It parses each message, and if necessary sets a variable that indicates the client wants to do something.
+    For example, each client has a queue of chat messages that it received.
+    The thread currently responsible for that client periodically empties the queue and passes them on.
+    The thread that has the client can also send messages through this connection, either by sending a raw string
+    or via methods that implement messages from the networking protocol.
+    Each client prints out the messages that get sent or received, so that it is clear what is going on.
+
+    The Lobby receives new clients from the main thread and puts them in the waiting list.
+    It periodically checks on the clients in this list, to see if they have requested a game, or if they have
+    sent a chat message.
+    There is a separate lobby list for each possible amount of players in a game, so 2, 3 and 4.
+    The clients are placed in these lists after they have requested a game with the corresponding amount of players.
+    Each list of players can only chat with the players in that list.
+
+    After there are enough players, the Lobby starts a new Game.
+    Each Game runs in a separate thread, so that two games won't step on each others toes
+    and have to wait for each other.
+    The Game enforces the rules, and keeps track of the tile bag, the Board, turn order, scores and other game
+    related things.
+    Details on how these are stored can be forund in~\autoref{subsec:Descriptions}
+    When a game finishes, the Lobby takes back the clients and puts them back into the waiting list.
 
     % ------------------------------------------------------------------------------------------------------------------
 
