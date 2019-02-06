@@ -69,8 +69,13 @@ urlcolor=blue
 
     \section{Design}
 
-    % TODO: introduce what this game is.
-    % And introduce that we implemented chat.
+    Spectrangle is implemented using a separate server and client.
+    The game functionality is divided between the two according to the requirements laid out in the module manual,
+    with one small exception.
+    One cannot select a port for the server or client.
+    This is because the network protocol determines that only port 4000 is to be used.
+
+    Other than that, all the functionality required for single-person ``groups'' is implemented.
 
     % ------------------------------------------------------------------------------------------------------------------
 
@@ -123,23 +128,9 @@ urlcolor=blue
 
     The GameModel contains several self-defined classes, some of which are shared with the server.
     A diagram of the GameModel and the classes it contains as fields, can be seen in~\autoref{fig:modelDiagram}.
-    The use and funcionality of these classes will be further elaborated in~\autoref{sec:Descriptions}
+    The use and funcionality of these classes will be further elaborated in~\autoref{subsec:Descriptions}
 
     % TODO: A clear description of formats for data storage and communication. For communication use the design pictures.
-
-    % ------------------------------------------------------------------------------------------------------------------
-
-    \begin{figure}[ht]
-        \begin{center}
-            \includegraphics[width=\textwidth]{GameModel.png}
-            \caption{Class diagram of the GameModel and the other self-defined classes it contains.}
-            \label{fig:modelDiagram}
-        \end{center}
-    \end{figure}
-
-    % TODO A class diagram of the contents of the package holding your model classes (according to the
-    %Model-View-Controller pattern). The class diagram should show all public methods and fields,
-    %fields with a type that is contained in the class diagram should be represented as association
 
     % ------------------------------------------------------------------------------------------------------------------
 
@@ -162,7 +153,7 @@ urlcolor=blue
     % ------------------------------------------------------------------------------------------------------------------
 
     \subsection{Class descriptions}
-    \label{sec:Descriptions}
+    \label{subsec:Descriptions}
 
     % TODO: For each self-defined class:
     %– The responsibilities of the class in the system. I.e., which functional requirements does it im-
@@ -290,6 +281,14 @@ urlcolor=blue
     %– How much did your planning correspond to the actual progress during the project weeks?
     %– What changes did you make to your planning?
     %– What did you learn from this experience for your next (project) planning?
+
+    \begin{figure}[t]
+        \begin{center}
+            \includegraphics[width=\textwidth]{GameModel.png}
+            \caption{Class diagram of the GameModel and the other self-defined classes it contains.}
+            \label{fig:modelDiagram}
+        \end{center}
+    \end{figure}
 
 
 \end{document}
